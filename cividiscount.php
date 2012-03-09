@@ -23,108 +23,26 @@ function cividiscount_civicrm_config( &$config ) {
 }
 
 /**
- * Implementation of hook_menu()
+ * Implementation of hook_civicrm_perm()
+ * 
+ * Module extensions dont implement this hook as yet, will need to add for 4.2
  */
-function cividiscount_menu() {
-    $items = array();
-
-    $items['admin/settings/civievent_discount'] = array(
-                                                        'title' => 'CiviEvent discount management',
-                                                        'description' => t('Manage event discounts and configuration settings.'),
-                                                        'page callback' => 'cividiscount_list',
-                                                        'access callback' => 'user_access',
-                                                        'access arguments' => array('view discounts'),
-                                                        'type' => MENU_NORMAL_ITEM,
-                                                        'file' => 'civievent_discount.admin.inc',
-                                                        );
-
-    $items['admin/settings/civievent_discount/list'] = array(
-                                                             'title' => t('List'),
-                                                             'type' => MENU_DEFAULT_LOCAL_TASK,
-                                                             'weight' => 0,
-                                                             'file' => 'civievent_discount.admin.inc',
-                                                             );       
-
-    $items['admin/settings/civievent_discount/add'] = array(
-                                                            'title' => t('Add'),
-                                                            'page callback' => 'drupal_get_form',
-                                                            'page arguments' => array('cividiscount_add', 'add', 4),
-                                                            'access callback' => 'user_access',
-                                                            'access arguments' => array('administer discounts'),
-                                                            'type' => MENU_LOCAL_TASK,
-                                                            'weight' => 1,
-                                                            'file' => 'civievent_discount.admin.inc',
-                                                            );       
-
-    $items['admin/settings/civievent_discount/settings'] = array(
-                                                                 'title' => t('Settings'),
-                                                                 'page callback' => 'drupal_get_form',
-                                                                 'page arguments' => array('cividiscount_settings'),
-                                                                 'access callback' => 'user_access',
-                                                                 'access arguments' => array('administer discounts'),
-                                                                 'type' => MENU_LOCAL_TASK,
-                                                                 'weight' => 2,
-                                                                 'file' => 'civievent_discount.admin.inc',
-                                                                 );       
-
-    $items['admin/settings/civievent_discount/edit'] = array(
-                                                             'title' => t('Edit'),
-                                                             'page callback' => 'drupal_get_form',
-                                                             'page arguments' => array('cividiscount_add', 'edit', 4),
-                                                             'access callback' => 'user_access',
-                                                             'access arguments' => array('administer discounts'),
-                                                             'type' => MENU_CALLBACK,
-                                                             'weight' => 1,
-                                                             'file' => 'civievent_discount.admin.inc',
-                                                             );       
-
-    $items['admin/settings/civievent_discount/clone'] = array(
-                                                              'title' => t('Clone'),
-                                                              'page callback' => 'drupal_get_form',
-                                                              'page arguments' => array('cividiscount_add', 'clone', 4),
-                                                              'access callback' => 'user_access',
-                                                              'access arguments' => array('administer discounts'),
-                                                              'type' => MENU_CALLBACK,
-                                                              'weight' => 0,
-                                                              'file' => 'civievent_discount.admin.inc',
-                                                              );       
-
-    $items['admin/settings/civievent_discount/delete'] = array(
-                                                               'title' => 'Delete',
-                                                               'page callback' => 'drupal_get_form',
-                                                               'page arguments' => array('cividiscount_delete'),
-                                                               'access callback' => 'user_access',
-                                                               'access arguments' => array('administer discounts'),
-                                                               'type' => MENU_CALLBACK,
-                                                               'file' => 'civievent_discount.admin.inc',
-                                                               );
-
-    $items['admin/settings/civievent_discount/usage'] = array(
-                                                              'page callback' => 'cividiscount_usage',
-                                                              'access callback' => 'user_access',
-                                                              'access arguments' => array('view discounts'),
-                                                              'type' => MENU_CALLBACK,
-                                                              'file' => 'civievent_discount.admin.inc',
-                                                              );
-
-    $items['admin/settings/civievent_discount/report'] = array(
-                                                               'page callback' => 'cividiscount_report',
-                                                               'access callback' => 'user_access',
-                                                               'access arguments' => array('view discounts'),
-                                                               'type' => MENU_CALLBACK,
-                                                               'file' => 'civievent_discount.admin.inc',
-                                                               );
-
-    return $items;
+function cividiscount_civicrm_perm() {
+    return array('view CiviDiscount', 'administer CiviDiscount');
 }
 
 /**
- * Implementation of hook_perm()
+ * Implementation of hook_civicrm_xmlMenu
  */
-function cividiscount_perm() {
-    return array('view discounts', 'administer discounts');
+function cividiscount_civicrm_xmlMenu( &$files ) {
+    $files[] =
+        dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
+        'CDM'               . DIRECTORY_SEPARATOR .
+        'xml'               . DIRECTORY_SEPARATOR .
+        'Menu'              . DIRECTORY_SEPARATOR .
+        'cividiscount.xml';
 }
-
+        
 /**
  * Implementation of hook_civicrm_buildForm()
  * 
