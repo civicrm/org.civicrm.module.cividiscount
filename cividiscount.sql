@@ -1,32 +1,54 @@
-CREATE TABLE `cividiscount_discount` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `code` varchar(255) NOT NULL DEFAULT '',
-  `description` varchar(255) NOT NULL DEFAULT '',
-  `amount` varchar(255) NOT NULL DEFAULT '',
-  `amount_type` char(1) NOT NULL DEFAULT '',
-  `count_max` int(10) unsigned NOT NULL,
-  `count_use` int(10) unsigned NOT NULL,
-  `events` longtext,
-  `pricesets` longtext,
-  `memberships` longtext,
-  `organization` int(10) unsigned NOT NULL,
-  `autodiscount` longtext,
-  `expiration` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `code` (`code`)
-)  ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
+DROP TABLE IF EXISTS `cividiscount_track`;
+DROP TABLE IF EXISTS `cividiscount_item`;
 
+-- /*******************************************************
+-- *
+-- * cividiscount_item
+-- *
+-- * A discount entry.
+-- *
+-- *******************************************************/
+CREATE TABLE `cividiscount_item` (
+     `id` int unsigned NOT NULL AUTO_INCREMENT  COMMENT 'Discount Item ID',
+     `code` varchar(255) NOT NULL   COMMENT 'Discount Code.',
+     `description` varchar(255) NOT NULL   COMMENT 'Discount Description.',
+     `amount` varchar(255) NOT NULL   COMMENT 'Amount of discount either actual or percentage?',
+     `amount_type` varchar(4) NOT NULL   COMMENT 'Type of discount, actual or percentage?',
+     `count_max` int NOT NULL   COMMENT 'Max number of times this code can be used.',
+     `count_use` int NOT NULL   COMMENT 'Number of times this code has been used.',
+     `events` text    COMMENT 'Serialized list of events for which this code can be used',
+     `pricesets` text    COMMENT 'Serialized list of pricesets for which this code can be used',
+     `memberships` text    COMMENT 'Serialized list of memberships for which this code can be used',
+     `autodiscount` text    COMMENT 'Some sort of autodiscounting mechanism?',
+     `organization_id` int unsigned    COMMENT 'FK to Contact ID for the organization that originated this discount',
+     `expiration_date` datetime    COMMENT 'When does this discount expire?',
+
+    PRIMARY KEY ( `id` ),
+     CONSTRAINT FK_cividiscount_item_organization_id FOREIGN KEY (`organization_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+-- /*******************************************************
+-- *
+-- * cividiscount_track
+-- *
+-- * Record when and where this discount was used.
+-- *
+-- *******************************************************/
 CREATE TABLE `cividiscount_track` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `discount_id` int unsigned NOT NULL COMMENT 'FK to cividiscount_discount entry'
-  `contact_id` int unsigned NOT NULL COMMENT 'FK to civicrm_contact'
-  `timestamp` int(11) NOT NULL DEFAULT '0',
-  `track` longtext,
-  `contribution_id` int unsigned DEFAULT NULL COMMENT 'Optional FK to civicrm_contribution'
-  `object_id` int(10) unsigned NOT NULL,
-  `object_type` longtext,
-  PRIMARY KEY ( `id` ),
-  CONSTRAINT FK_cividiscount_track_discount_id FOREIGN KEY (`discount_id`) REFERENCES `cividiscount_discount`(`id`) ON DELETE SET NULL,
-  CONSTRAINT FK_cividiscount_track_contact_id  FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL,      
-  CONSTRAINT FK_cividiscount_track_contribution_id FOREIGN KEY (`contribution_id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE  
-)  ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
+     `id` int unsigned NOT NULL AUTO_INCREMENT  COMMENT 'Discount Item ID',
+     `item_id` int unsigned    COMMENT 'FK to Item ID of the discount code',
+     `contact_id` int unsigned    COMMENT 'FK to Contact ID for the contact that used this discount',
+     `used_date` datetime    COMMENT 'When was this discount used?',
+     `track` text    COMMENT 'Tracking code information?',
+     `contribution_id` int unsigned    COMMENT 'FK to contribution table.',
+     `entity_table` varchar(64) NOT NULL   COMMENT 'Name of table where item being referenced is stored?',
+     `entity_id` int unsigned NOT NULL   COMMENT 'Foreign key to the referenced item?',
+
+     PRIMARY KEY ( `id` ),
+
+     CONSTRAINT FK_cividiscount_track_item_id FOREIGN KEY (`item_id`) REFERENCES `cividiscount_item`(`id`) ON DELETE SET NULL,
+     CONSTRAINT FK_cividiscount_track_contact_id FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL,
+     CONSTRAINT FK_cividiscount_track_contribution_id FOREIGN KEY (`contribution_id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
+
+ 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CDM</base>
+  <class>Track</class>
+  <name>cividiscount_track</name>
+  <comment>Record when and where this discount was used.</comment>
+  <add>4.1</add>
+  <field>
+      <name>id</name>
+      <type>int unsigned</type>
+      <required>true</required>
+      <comment>Discount Item ID</comment>
+       <add>4.1</add>
+  </field>
+  <primaryKey>
+       <name>id</name>
+       <autoincrement>true</autoincrement>
+  </primaryKey>
+  <field>
+       <name>item_id</name>
+       <type>int unsigned</type>
+       <comment>FK to Item ID of the discount code</comment>
+       <add>4.1</add>
+  </field>
+  <foreignKey>
+       <name>item_id</name>
+       <table>cividiscount_item</table>
+       <key>id</key>
+       <add>4.1</add>
+       <onDelete>SET NULL</onDelete>
+  </foreignKey>
+  <field>
+       <name>contact_id</name>
+       <type>int unsigned</type>
+       <comment>FK to Contact ID for the contact that used this discount</comment>
+       <add>4.1</add>
+  </field>
+  <foreignKey>
+       <name>contact_id</name>
+       <table>civicrm_contact</table>
+       <key>id</key>
+       <add>4.1</add>
+       <onDelete>SET NULL</onDelete>
+  </foreignKey>
+  <field>
+       <name>used_date</name>
+       <type>datetime</type>
+       <comment>When was this discount used?</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>track</name>
+       <type>text</type>
+       <comment>Tracking code information?</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+      <name>contribution_id</name>
+      <type>int unsigned</type>
+      <comment>FK to contribution table.</comment>
+      <add>4.1</add>
+  </field>
+  <foreignKey> 
+    <name>contribution_id</name> 
+    <table>civicrm_contribution</table> 
+    <key>id</key> 
+    <add>4.1</add>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey> 
+  <field>
+       <name>entity_table</name>
+       <type>varchar</type>
+       <length>64</length>
+       <required>true</required>
+       <comment>Name of table where item being referenced is stored?</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>entity_id</name>
+       <type>int unsigned</type>
+       <required>true</required>
+       <comment>Foreign key to the referenced item?</comment>
+       <add>4.1</add>
+  </field>
+</table>

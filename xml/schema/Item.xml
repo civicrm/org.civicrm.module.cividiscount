@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CDM</base>
+  <class>Item</class>
+  <name>cividiscount_item</name>
+  <comment>A discount entry.</comment>
+  <add>4.1</add>
+  <field>
+      <name>id</name>
+      <type>int unsigned</type>
+      <required>true</required>
+      <comment>Discount Item ID</comment>
+       <add>4.1</add>
+  </field>
+  <primaryKey>
+       <name>id</name>
+       <autoincrement>true</autoincrement>
+  </primaryKey>
+  <field>
+       <name>code</name>
+       <type>varchar</type>
+       <length>255</length>
+       <required>true</required>
+       <comment>Discount Code.</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>description</name>
+       <type>varchar</type>
+       <length>255</length>
+       <required>true</required>
+       <comment>Discount Description.</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>amount</name>
+       <type>varchar</type>
+       <length>255</length>
+       <required>true</required>
+       <comment>Amount of discount either actual or percentage?</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>amount_type</name>
+       <type>varchar</type>
+       <length>4</length>
+       <required>true</required>
+       <comment>Type of discount, actual or percentage?</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>count_max</name>
+       <type>int</type>
+       <required>true</required>
+       <comment>Max number of times this code can be used.</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>count_use</name>
+       <type>int</type>
+       <required>true</required>
+       <comment>Number of times this code has been used.</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>events</name>
+       <type>text</type>
+       <comment>Serialized list of events for which this code can be used</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>pricesets</name>
+       <type>text</type>
+       <comment>Serialized list of pricesets for which this code can be used</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>memberships</name>
+       <type>text</type>
+       <comment>Serialized list of memberships for which this code can be used</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>autodiscount</name>
+       <type>text</type>
+       <comment>Some sort of autodiscounting mechanism?</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>organization_id</name>
+       <type>int unsigned</type>
+       <comment>FK to Contact ID for the organization that originated this discount</comment>
+       <add>4.1</add>
+  </field>
+  <foreignKey>
+       <name>organization_id</name>
+       <table>civicrm_contact</table>
+       <key>id</key>
+       <add>4.1</add>
+       <onDelete>SET NULL</onDelete>
+  </foreignKey>
+  <field>
+       <name>expiration_date</name>
+       <type>datetime</type>
+       <comment>When does this discount expire?</comment>
+       <add>4.1</add>
+  </field>
+</table>
