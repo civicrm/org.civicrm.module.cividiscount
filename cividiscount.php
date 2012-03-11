@@ -215,17 +215,17 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     $code = _get_code_details( $code );
 
     if ( empty($code) ) {
-        CRM_Core_Error::fatal( ts( 'The discount code is not valid for this membership.', ) );
+        CRM_Core_Error::fatal( ts( 'The discount code is not valid for this membership.' ) );
         return;
     }
 
     if (_is_expired($code)) {
-        CRM_Core_Error::fatal( ts( 'The discount code has expired.', ) );
+        CRM_Core_Error::fatal( ts( 'The discount code has expired.' ) );
         return;
     }
 
     if ( $code['count_max'] > 0 && $code['count_use'] >= $code['count_max'] ) {
-        CRM_Core_Error::fatal( ts( 'There are not enough uses remaining for this discount code.', ) );
+        CRM_Core_Error::fatal( ts( 'There are not enough uses remaining for this discount code.' ) );
         return;
     }
 
