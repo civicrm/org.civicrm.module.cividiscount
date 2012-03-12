@@ -50,7 +50,6 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
      */
     public function buildQuickForm( ) 
     {
-       
         parent::buildQuickForm( );
        
         if ($this->_action & CRM_Core_Action::DELETE ) { 
@@ -70,18 +69,23 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $this->addRule( 'code',
                         ts( 'Code can only consist of alpha-numeric characters' ),
                         'variable' );
-        
-        $this->add('text', 'display_name', ts('Display Name'), CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'display_name' ) );
-        $this->add('text', 'vcard_name', ts('vCard Name'), CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'vcard_name' ) );
-
+         
         $this->add('text', 'description', ts('Description'), CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'description' ) );
 
-        $this->add('checkbox', 'is_active', ts('Enabled?'));
-        $this->add('checkbox', 'is_default', ts('Default?'));
-        if ($this->_action == CRM_Core_Action::UPDATE && CRM_Core_DAO::getFieldValue( 'CDM_DAO_Item', $this->_id, 'is_reserved' )) { 
-            $this->freeze(array('name', 'description', 'is_active' ));
-        }
-       
+        $this->addMoney( 'amount', ts('Discount'), true, CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'amount' ), false );
+
+        $this->add( 'select', 'amount_type', ts( 'Amount Type' ),
+                    array( 1 => ts( 'Percentage' ),
+                           2 => ts( 'Monetary'   ) ),
+                    true );
+
+        $this->add('text', 'count_max', ts( 'Usage' ), CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'count_max' ), true );
+        $this->addRule( 'count_max', ts('Must be an integer') , 'integer' );
+
+        $this->addDate( 'expiration_date', ts( 'Expiration Date' ), false );
+
+        $this->add( 'text', 'organization', ts( 'Organization' ) );
+        $this->add( 'hidden', 'organization_id', '', array( 'id' => 'organization_id' ) );
     }
 
        

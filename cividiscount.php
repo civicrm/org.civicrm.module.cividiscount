@@ -65,7 +65,6 @@ function cividiscount_civicrm_xmlMenu( &$files ) {
 
     $files[] =
         dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
-        'CDM'               . DIRECTORY_SEPARATOR .
         'xml'               . DIRECTORY_SEPARATOR .
         'Menu'              . DIRECTORY_SEPARATOR .
         'cividiscount.xml';
@@ -692,7 +691,7 @@ function _get_code_tracking_count_org( $id = 0 ) {
 function _get_discounts( ) {
     $codes = array( );
 
-    $sql = "SELECT id, code, description, amount, amount_type, events, pricesets, memberships, autodiscount, expiration, count_use, count_max FROM cividiscount_discount";
+    $sql = "SELECT id, code, description, amount, amount_type, events, pricesets, memberships, autodiscount, expiration_date, count_use, count_max FROM cividiscount_item";
     $dao =& CRM_Core_DAO::executeQuery( $sql, array( ) );
     while ( $dao->fetch( ) ) {
         $codes[$dao->code] = (array) $dao;
@@ -933,7 +932,7 @@ function _add_discount_textfield( &$form ) {
  */
 function _is_expired( $code ) {
     $time = format_date( time( ), 'custom', 'Y-m-d H:i:s', variable_get( 'date_default_timezone', 0 ) );
-    if ( strtotime( $time ) > abs( strtotime( $code['expiration'] ) ) ) {
+    if ( strtotime( $time ) > abs( strtotime( $code['expiration_date'] ) ) ) {
         return TRUE;
     } else {
         return FALSE;
