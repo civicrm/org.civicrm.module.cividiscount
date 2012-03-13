@@ -9,20 +9,30 @@
   <item>
      <path>civicrm/cividiscount/discount/add</path>
      <page_callback>CDM_Form_Discount_Add</page_callback>
+     <page_arguments>mode=1</page_arguments>
      <access_arguments>administer CiviDiscount</access_arguments>
   </item>  
   <item>
      <path>civicrm/cividiscount/discount/edit</path>
      <page_callback>CDM_Form_Discount_Add</page_callback>
+     <page_arguments>mode=2</page_arguments>
+     <access_arguments>administer CiviDiscount</access_arguments>
+  </item>  
+  <item>
+     <path>civicrm/cividiscount/discount/delete</path>
+     <page_callback>CDM_Form_Discount_Add</page_callback>
+     <page_arguments>mode=8</page_arguments>
      <access_arguments>administer CiviDiscount</access_arguments>
   </item>  
   <item>
      <path>civicrm/cividiscount/discount/copy</path>
      <page_callback>CDM_Form_Discount_Add</page_callback>
+     <page_arguments>mode=16384</page_arguments>
      <access_arguments>administer CiviDiscount</access_arguments>
   </item>  
   <item>
      <path>civicrm/cividiscount/discount/view</path>
+     <page_arguments>mode=4</page_arguments>
      <page_callback>CDM_Page_Discount_View</page_callback>
      <access_arguments>view CiviDiscount</access_arguments>
   </item>  
