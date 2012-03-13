@@ -62,7 +62,7 @@
 
     {if $action ne 1 and $action ne 2}
     <div class="action-link">
-	<a href="{crmURL q="reset=1"}" id="newDiscountCode" class="button"><span>&raquo; {ts}New Discount Code{/ts}</span></a>
+	<a href="{crmURL p='civicrm/cividiscount/discount/add q="reset=1"}" id="newDiscountCode" class="button"><span>&raquo; {ts}New Discount Code{/ts}</span></a>
     </div>
     {/if}
 </div>
