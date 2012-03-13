@@ -62,6 +62,7 @@ class CDM_Utils {
     }
 
     static function getPriceSetsInfo( ) {
+        // should we just use: CRM_Price_BAO_Set::getAssoc
         $sql = "
 SELECT    pfv.id as item_id,
           pfv.label as item_label,

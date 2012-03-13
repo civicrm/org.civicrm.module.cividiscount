@@ -690,7 +690,7 @@ function _get_code_tracking_count_org( $id = 0 ) {
 function _get_discounts( ) {
     $codes = array( );
 
-    $sql = "SELECT id, code, description, amount, amount_type, events, pricesets, memberships, autodiscount, expiration_date, count_use, count_max FROM cividiscount_item";
+    $sql = "SELECT id, code, description, amount, amount_type, events, pricesets, memberships, autodiscount, expire_on, count_use, count_max FROM cividiscount_item";
     $dao =& CRM_Core_DAO::executeQuery( $sql, array( ) );
     while ( $dao->fetch( ) ) {
         $codes[$dao->code] = (array) $dao;
@@ -932,7 +932,7 @@ function _add_discount_textfield( &$form ) {
 function _is_expired( $code ) {
     $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
 
-    if ( strtotime( $time ) > abs( strtotime( $code['expiration_date'] ) ) ) {
+    if ( strtotime( $time ) > abs( strtotime( $code['expire_on'] ) ) ) {
         return TRUE;
     } else {
         return FALSE;

@@ -42,6 +42,53 @@ require_once 'CRM/Admin/Form.php';
  */
 class CDM_Form_Discount_Add extends CRM_Admin_Form
 {
+    protected $_multiValued = null;
+
+    protected $_orgID = null;
+
+    function preProcess( ) {
+        $this->_id      = CRM_Utils_Request::retrieve( 'id', 'Positive', $this, false, 0 );
+        $this->set( 'BAOName', 'CDM_BAO_Item' );
+
+        parent::preProcess( );
+
+        $this->_multiValued = array( 'autodiscount' => null,
+                                     'memberships'  => null,
+                                     'events'       => null,
+                                     'pricesets'    => null );
+    }
+
+    function setDefaultValues( ) {
+        $defaults = parent::setDefaultValues( );
+
+        foreach ( $this->_multiValued as $mv => $info ) {
+            if ( ! empty( $defaults[$mv] ) ) {
+                $v = substr( $defaults[$mv], 1, -1 );
+                $values = explode( CRM_Core_DAO::VALUE_SEPARATOR, $v );
+
+                $defaults[$mv] = array( );
+                if ( ! empty( $values ) ) {
+                    foreach ( $values as $val ) {
+                        $defaults[$mv][] = $val;
+                    }
+                }
+            }
+        }
+        
+        if ( ! empty( $defaults['active_on']  ) ) {
+            list( $defaults['active_on'] ) = CRM_Utils_Date::setDateDefaults( $defaults['active_on'] );
+        }
+        if ( ! empty( $defaults['expire_on']  ) ) {
+            list( $defaults['expire_on'] ) = CRM_Utils_Date::setDateDefaults( $defaults['expire_on'] );
+        }
+
+        if ( ! empty( $defaults['organization_id'] ) ) {
+            $this->_orgID = $defaults['organization_id'];
+            $this->assign( 'currentOrganization', $defaults['organization_id'] );
+        }
+        return $defaults;
+    }
+
     /**
      * Function to build the form
      *
@@ -82,12 +129,13 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $this->add('text', 'count_max', ts( 'Usage' ), CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'count_max' ), true );
         $this->addRule( 'count_max', ts('Must be an integer') , 'integer' );
 
-        $this->addDate( 'expiration_date', ts( 'Expiration Date' ), false );
+        $this->addDate( 'active_on', ts( 'Activation Date' ), false );
+        $this->addDate( 'expire_on', ts( 'Expiration Date' ), false );
 
         $this->add( 'text', 'organization', ts( 'Organization' ) );
         $this->add( 'hidden', 'organization_id', '', array( 'id' => 'organization_id' ) );
 
-        $organizationURL = CRM_Utils_System::url( 'civicrm/ajax/rest', 'className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&employee_id='.$this->_contactId, false, null, false );
+        $organizationURL = CRM_Utils_System::url( 'civicrm/ajax/rest', 'className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&employee_id='.$this->_orgID, false, null, false );
         $this->assign('organizationURL', $organizationURL );
 
         // is this discount active ?
@@ -98,6 +146,9 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
         $autodiscount = $mTypes = array( );
         if ( ! empty( $membershipTypes ) ) {
+            $this->_multiValued['autodiscount'] = 
+                $this->_multiValued['memberships'] = $membershipTypes;
+
             $this->addElement( 'advmultiselect',
                                'autodiscount',
                                ts( 'Automatic Discount' ),
@@ -120,6 +171,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         require_once 'CDM/Utils.php';
         $events = CDM_Utils::getEvents( );
         if ( ! empty( $events ) ) {
+            $this->_multiValued['events'] = $events;
             $this->addElement( 'advmultiselect',
                                'events',
                                ts( 'Events' ),
@@ -132,6 +184,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
     
         $pricesets = CDM_Utils::getPriceSets( );
         if ( ! empty( $priceSets ) ) {
+            $this->_multiValued['pricesets'] = $priceSets;
             $this->addElement( 'advmultiselect',
                                'pricesets',
                                ts( 'PriceSets' ),
@@ -169,8 +222,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $item->amount_type     = $params['amount_type'];
         $item->count_max       = $params['count_max'];
 
-        $multiValued = array( 'autodiscount', 'memberships', 'events', 'pricesets' );
-        foreach ( $multiValued as $mv ) {
+        foreach ( $this->_multiValued as $mv => $dontCare ) {
             if ( ! empty( $params[$mv] ) ) {
                 $item->$mv = 
                     CRM_Core_DAO::VALUE_SEPARATOR .
@@ -183,15 +235,29 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         }
 
         require_once 'CRM/Utils/Date.php';
-        $item->expiration_date = CRM_Utils_Date::processDate( $params['expiration_date'] );
+        if ( ! empty( $params['active_on'] ) ) {
+            $item->active_on = CRM_Utils_Date::processDate( $params['active_on'] );
+        } else {
+            $item->active_on = 'null';
+        }
+        if ( ! empty( $params['expire_on'] ) ) {
+            $item->expire_on = CRM_Utils_Date::processDate( $params['expire_on'] );
+        } else {
+            $item->expire_on = 'null';
+        }
 
-        $item->organization_id = $params['organization_id'];
+        if ( ! empty( $params['organization_id'] ) ) {
+            $item->organization_id = $params['organization_id'];
+        } else {
+            $item->organization_id = 'null';
+        }
+
         $item->is_active       = $params['is_active'];
             
         if ($this->_action & CRM_Core_Action::UPDATE ) {
             $item->id = $this->_id;
         }
-            
+
         $item->save( );
         
         CRM_Core_Session::setStatus( ts('The discount \'%1\' has been saved.',

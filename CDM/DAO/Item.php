@@ -153,11 +153,17 @@ class CDM_DAO_Item extends CRM_Core_DAO
      */
     public $organization_id;
     /**
+     * When is this discount active?
+     *
+     * @var datetime
+     */
+    public $active_on;
+    /**
      * When does this discount expire?
      *
      * @var datetime
      */
-    public $expiration_date;
+    public $expire_on;
     /**
      * Is this property active?
      *
@@ -273,8 +279,13 @@ class CDM_DAO_Item extends CRM_Core_DAO
                     'type' => CRM_Utils_Type::T_INT,
                     'FKClassName' => 'CRM_Contact_DAO_Contact',
                 ) ,
-                'expiration_date' => array(
-                    'name' => 'expiration_date',
+                'active_on' => array(
+                    'name' => 'active_on',
+                    'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
+                    'title' => ts('Activation Date') ,
+                ) ,
+                'expire_on' => array(
+                    'name' => 'expire_on',
                     'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
                     'title' => ts('Expiration Date') ,
                 ) ,

@@ -67,9 +67,13 @@
             <span class="description">{ts}How many times can this code be used? Use 0 for unlimited..{/ts}
           </td>
       </tr>
-      <tr class="crm-discount-item-form-block-expiration_date">
-          <td class="label">{$form.expiration_date.label}</td>
-          <td>{include file="CRM/common/jcalendar.tpl" elementName=expiration_date}</td>
+      <tr class="crm-discount-item-form-block-active_on">
+          <td class="label">{$form.active_on.label}</td>
+          <td>{include file="CRM/common/jcalendar.tpl" elementName=active_on}</td>
+      </tr>
+      <tr class="crm-discount-item-form-block-expire_on">
+          <td class="label">{$form.expire_on.label}</td>
+          <td>{include file="CRM/common/jcalendar.tpl" elementName=expire_on}</td>
       </tr>
       <tr class="crm-discount-item-form-block-organization_id">
           <td class="label">{$form.organization.label}</td>
@@ -127,24 +131,26 @@ cj('#organization').autocomplete( dataUrl, {
         var foundContact   = ( parseInt( data[1] ) ) ? cj( "#organization_id" ).val( data[1] ) : cj( "#organization_id" ).val('');
     });
 
-// remove current employer id when current employer removed.
 cj("form").submit(function() {
   if ( !cj('#organization').val() ) cj( "#organization_id" ).val('');
 });
 
+cj(function(){
 //current organization default setting
 var organizationId = "{/literal}{$currentOrganization}{literal}";
 if ( organizationId ) {
-    var dataUrl = "{/literal}{crmURL p='civicrm/ajax/rest' h=0 q="className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&id=" }{literal}" + organizationId + "&employee_id=" + cid ;
+    var dataUrl = "{/literal}{crmURL p='civicrm/ajax/rest' h=0 q="className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&id=" }{literal}" + organizationId;
     cj.ajax({ 
         url     : dataUrl,   
         async   : false,
         success : function(html){
+            htmlText = html.split( '|' , 2);
             cj('input#organization').val(htmlText[0]);
             cj('input#organization_id').val(htmlText[1]);
         }
     }); 
 }
+});
 
 cj("input#organization").click( function( ) {
     cj("input#organization_id").val('');

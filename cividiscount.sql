@@ -20,8 +20,9 @@ CREATE TABLE `cividiscount_item` (
      `pricesets` text    COMMENT 'Serialized list of pricesets for which this code can be used',
      `memberships` text    COMMENT 'Serialized list of memberships for which this code can be used',
      `autodiscount` text    COMMENT 'Some sort of autodiscounting mechanism?',
-     `organization_id` int unsigned    COMMENT 'FK to Contact ID for the organization that originated this discount',
-     `expiration_date` datetime    COMMENT 'When does this discount expire?',
+     `organization_id` int unsigned DEFAULT NULL COMMENT 'FK to Contact ID for the organization that originated this discount',
+     `active_on` datetime DEFAULT NULL  COMMENT 'When is this discount activated?',
+     `expire_on` datetime DEFAULT NULL  COMMENT 'When does this discount expire?',
      `is_active` tinyint    COMMENT 'Is this discount active?',
 
     PRIMARY KEY ( `id` ),

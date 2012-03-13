@@ -101,7 +101,13 @@
        <onDelete>SET NULL</onDelete>
   </foreignKey>
   <field>
-       <name>expiration_date</name>
+       <name>active_on</name>
+       <type>datetime</type>
+       <comment>When is this discount activated?</comment>
+       <add>4.1</add>
+  </field>
+  <field>
+       <name>expire_on</name>
        <type>datetime</type>
        <comment>When does this discount expire?</comment>
        <add>4.1</add>
