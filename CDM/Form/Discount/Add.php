@@ -65,7 +65,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $this->addRule( 'code',
                         ts('Code already exists in Database.'),
                         'objectExists',
-                        array( 'CDM_DAO_Item', $this->_id ) );
+                        array( 'CDM_DAO_Item', $this->_id, 'code' ) );
         $this->addRule( 'code',
                         ts( 'Code can only consist of alpha-numeric characters' ),
                         'variable' );
@@ -118,7 +118,10 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $item->amount          = $params['amount'];
         $item->amount_type     = $params['amount_type'];
         $item->count_max       = $params['count_max'];
-        $item->expiration_date = $params['expiration_date'];
+
+        require_once 'CRM/Utils/Date.php';
+        $item->expiration_date = CRM_Utils_Date::processDate( $params['expiration_date'] );
+
         $item->organization_id = $params['organization_id'];
         $item->is_active       = $params['is_active'];
             
