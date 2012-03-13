@@ -12,7 +12,6 @@
  *    _increment_counter()
  *    _set_tracking()
  *     
- * _is_expired() needs to get timezone from Civi instead of variable_get()
  * Use v3 api
  * Better handle contact type that can "own" a code; currently only Organization
  * _ignore_case() and _allow_multiple() need to get from the admin settings
@@ -931,7 +930,8 @@ function _add_discount_textfield( &$form ) {
  * Check if the code is expired.
  */
 function _is_expired( $code ) {
-    $time = format_date( time( ), 'custom', 'Y-m-d H:i:s', variable_get( 'date_default_timezone', 0 ) );
+    $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
+
     if ( strtotime( $time ) > abs( strtotime( $code['expiration_date'] ) ) ) {
         return TRUE;
     } else {

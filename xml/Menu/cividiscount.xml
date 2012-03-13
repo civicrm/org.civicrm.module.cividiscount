@@ -39,6 +39,7 @@
   <item>
      <path>civicrm/cividiscount/discount/list</path>
      <page_callback>CDM_Page_Discount_List</page_callback>
+     <title>Discounts</title>
      <access_arguments>view CiviDiscount</access_arguments>
   </item>  
   <item>
