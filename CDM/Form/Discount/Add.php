@@ -92,9 +92,59 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
 
         // is this discount active ?
         $this->addElement('checkbox', 'is_active', ts('Is this discount active?') );
+
+        // add memberships, events, pricesets
+        require_once 'CRM/Member/BAO/MembershipType.php';
+        $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
+        $autodiscount = $mTypes = array( );
+        if ( ! empty( $membershipTypes ) ) {
+            $this->addElement( 'advmultiselect',
+                               'autodiscount',
+                               ts( 'Automatic Discount' ),
+                               $membershipTypes,
+                               array('size' => 5, 
+                                     'style' => 'width:150px',
+                                     'class' => 'advmultiselect')
+                               );
+
+            $this->addElement( 'advmultiselect',
+                               'memberships',
+                               ts( 'Memberships' ),
+                               $membershipTypes,
+                               array('size' => 5, 
+                                     'style' => 'width:150px',
+                                     'class' => 'advmultiselect')
+                               );
+        }
+
+        require_once 'CDM/Utils.php';
+        $events = CDM_Utils::getEvents( );
+        if ( ! empty( $events ) ) {
+            $this->addElement( 'advmultiselect',
+                               'events',
+                               ts( 'Events' ),
+                               $events,
+                               array('size' => 5, 
+                                     'style' => 'width:150px',
+                                     'class' => 'advmultiselect')
+                               );
+        }
+    
+        $pricesets = CDM_Utils::getPriceSets( );
+        if ( ! empty( $priceSets ) ) {
+            $this->addElement( 'advmultiselect',
+                               'pricesets',
+                               ts( 'PriceSets' ),
+                               $events,
+                               array('size' => 5, 
+                                     'style' => 'width:150px',
+                                     'class' => 'advmultiselect')
+                               );
+        }
+
+        
     }
 
-       
     /**
      * Function to process the form
      *
@@ -110,7 +160,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
 
         // store the submitted values in an array
         $params = $this->exportValues();
-            
+
         // action is taken depending upon the mode
         $item                  = new CDM_DAO_Item( );
         $item->code            = $params['code'];
@@ -118,6 +168,19 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $item->amount          = $params['amount'];
         $item->amount_type     = $params['amount_type'];
         $item->count_max       = $params['count_max'];
+
+        $multiValued = array( 'autodiscount', 'memberships', 'events', 'pricesets' );
+        foreach ( $multiValued as $mv ) {
+            if ( ! empty( $params[$mv] ) ) {
+                $item->$mv = 
+                    CRM_Core_DAO::VALUE_SEPARATOR .
+                    implode( CRM_Core_DAO::VALUE_SEPARATOR,
+                             array_values( $params[$mv] ) ) .
+                    CRM_Core_DAO::VALUE_SEPARATOR;
+            } else {
+                $item->$mv = 'null';
+            }
+        }
 
         require_once 'CRM/Utils/Date.php';
         $item->expiration_date = CRM_Utils_Date::processDate( $params['expiration_date'] );
