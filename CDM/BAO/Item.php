@@ -109,32 +109,50 @@ class CDM_BAO_Item extends CDM_DAO_Item {
     /**
      * Function to delete discount codes
      * 
-     * @param  int  $itemId     ID of the discount code to be deleted.
+     * @param  int  $itemID     ID of the discount code to be deleted.
      * 
      * @access public
      * @static
+     * @return true on success else false
      */
-    static function del($itemId) 
+    static function del($itemID) 
     {
-      /*
-        $entity = array( 'address', 'phone', 'email', 'im' );
-        //check dependencies
-        foreach ( $entity  as $key ) {
-            if ( $key == 'im' ) {
-                $name = strtoupper($key);
-            } else {
-                $name = ucfirst($key);
-            }
-            require_once(str_replace('_', DIRECTORY_SEPARATOR, 'CRM_Core_DAO_' . $name) . ".php");
-            eval( '$object = new CRM_Core_DAO_' . $name . '( );' );     
-            $object->location_type_id = $locationTypeId;
-            $object->delete();
+        require_once 'CRM/Utils/Rule.php';
+        if ( ! CRM_Utils_Rule::positiveInteger( $itemID ) ) {
+            return false;
         }
 
-        $locationType = new CRM_Core_DAO_LocationType();
-        $locationType->id = $locationTypeId;
-        $locationType->delete();
-        */
+        require_once 'CDM/DAO/Item.php';
+        $item = new CDM_DAO_Item( );
+        $item->id = $itemID;
+        $item->delete( );
+
+        return true;
     }
+
+    /**
+     * Function to delete discount codes
+     * 
+     * @param  int  $itemID     ID of the discount code to be deleted.
+     * 
+     * @access public
+     * @static
+     * @return true on success else false
+     */
+    static function copy($itemID) 
+    {
+        require_once 'CRM/Utils/Rule.php';
+        if ( ! CRM_Utils_Rule::positiveInteger( $itemID ) ) {
+            return false;
+        }
+
+        require_once 'CDM/DAO/Item.php';
+        $item = new CDM_DAO_Item( );
+        $item->id = $itemID;
+        $item->delete( );
+
+        return true;
+    }
+
 }
 

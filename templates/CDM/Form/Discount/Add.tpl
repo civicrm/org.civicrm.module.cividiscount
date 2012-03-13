@@ -43,7 +43,7 @@
   <table class="form-layout-compressed">
       <tr class="crm-discount-item-form-block-label">
           <td class="label">{$form.code.label}</td>
-          <td>{$form.code.html}<br />
+          <td>{$form.code.html}&nbsp;<span class="field-suffix"><a href="# " id="generate-code" onclick="return false;">Random</a></span><br />
                <span class="description">{ts}WARNING: Do NOT use spaces in the Discount Code.{/ts}</span>
           </td>
       </tr>
@@ -155,5 +155,31 @@ if ( organizationId ) {
 cj("input#organization").click( function( ) {
     cj("input#organization_id").val('');
 });
+
+cj("#generate-code").click(function() {
+    var chars = "abcdefghjklmnpqrstwxyz23456789+-_=";
+    var len = 8;
+
+    code = randomString(chars, len);
+    cj("#code").val(code);
+
+    return false;
+});
+
+// Yanked from http://stackoverflow.com/questions/2477862/jquery-password-generator
+function randomString(chars, len) {
+    var i = 0;
+    var str = "";
+    while (i <= len) {
+        $max = chars.length - 1;
+        $num = Math.floor(Math.random() * $max);
+        $temp = chars.substr($num, 1);
+        str += $temp;
+        i++;
+    }
+
+    return str;
+}
+
 </script>
 {/literal}

@@ -46,21 +46,53 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
 
     protected $_orgID = null;
 
+    protected $_cloneID = null;
+
     function preProcess( ) {
         $this->_id      = CRM_Utils_Request::retrieve( 'id', 'Positive', $this, false, 0 );
+        $this->_cloneID = CRM_Utils_Request::retrieve( 'cloneID', 'Positive', $this, false, 0 );
         $this->set( 'BAOName', 'CDM_BAO_Item' );
 
         parent::preProcess( );
+
+        // check and ensure that update / delete have a valid id
+        require_once 'CRM/Utils/Rule.php';
+        if ( $this->_action & ( CRM_Core_Action::UPDATE | CRM_Core_Action::DELETE ) ) {
+            if ( ! CRM_Utils_Rule::positiveInteger( $this->_id ) ) {
+                CRM_Core_Error::fatal( ts( 'We need a valid discount ID for update and/or delete' ) );
+            }
+        }
+        
+        if ( $this->_action & CRM_Core_Action::COPY ) {
+            if ( ! CRM_Utils_Rule::positiveInteger( $this->_cloneID ) ) {
+                CRM_Core_Error::fatal( ts( 'We need a valid discount ID for update and/or delete' ) );
+            }
+        }
 
         $this->_multiValued = array( 'autodiscount' => null,
                                      'memberships'  => null,
                                      'events'       => null,
                                      'pricesets'    => null );
+
+        require_once 'CDM/BAO/Item.php';
     }
 
     function setDefaultValues( ) {
-        $defaults = parent::setDefaultValues( );
+        $origID = null;
+        $defaults = array( );
 
+        if ( $this->_action & CRM_Core_Action::COPY ) {
+            $origID = $this->_cloneID;
+        } else if ( $this->_action & ( CRM_Core_Action::UPDATE | CRM_Core_Action::DELETE ) ) {
+            $origID = $this->_id;
+        }
+        
+        if ( $origID ) {
+            $params = array( 'id' => $origID );
+            CDM_BAO_Item::retrieve( $params, $defaults );
+        }
+        $defaults['is_active'] = $origID ? CRM_Utils_Array::value( 'is_active', $defaults ) : 1;
+        
         foreach ( $this->_multiValued as $mv => $info ) {
             if ( ! empty( $defaults[$mv] ) ) {
                 $v = substr( $defaults[$mv], 1, -1 );
@@ -104,11 +136,11 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         }
         
         $this->applyFilter('__ALL__', 'trim');
-        $this->add('text',
-                   'code',
-                   ts('Code'),
-                   CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'code' ),
-                   true );
+        $element =& $this->add('text',
+                               'code',
+                               ts('Code'),
+                               CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'code' ),
+                               true );
         $this->addRule( 'code',
                         ts('Code already exists in Database.'),
                         'objectExists',
@@ -116,6 +148,9 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $this->addRule( 'code',
                         ts( 'Code can only consist of alpha-numeric characters' ),
                         'variable' );
+        if ( $this->_action & CRM_Core_Action::UPDATE ) {
+            $this->freeze( );
+        }
          
         $this->add('text', 'description', ts('Description'), CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'description' ) );
 
