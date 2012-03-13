@@ -73,9 +73,49 @@
       </tr>
       <tr class="crm-discount-item-form-block-organization_id">
           <td class="label">{$form.organization.label}</td>
-          <td>{$form.organization.html}</td>
+          <td>{$form.organization.html|crmReplace:class:twenty}</td>
       </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>{$form.is_active.html} {$form.is_active.label}</td>
+    </tr>
   </table>
 {/if}
     <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
 </div>
+{literal}
+<script type="text/javascript">
+var dataUrl        = "{/literal}{$organizationURL}{literal}";
+cj('#organization').autocomplete( dataUrl, { 
+                                      width        : 250, 
+                                      selectFirst  : false,
+                                      matchCase    : true, 
+                                      matchContains: true
+    }).result( function(event, data, formatted) {
+        var foundContact   = ( parseInt( data[1] ) ) ? cj( "#organization_id" ).val( data[1] ) : cj( "#organization_id" ).val('');
+    });
+
+// remove current employer id when current employer removed.
+cj("form").submit(function() {
+  if ( !cj('#organization').val() ) cj( "#organization_id" ).val('');
+});
+
+//current organization default setting
+var organizationId = "{/literal}{$currentOrganization}{literal}";
+if ( organizationId ) {
+    var dataUrl = "{/literal}{crmURL p='civicrm/ajax/rest' h=0 q="className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&id=" }{literal}" + organizationId + "&employee_id=" + cid ;
+    cj.ajax({ 
+        url     : dataUrl,   
+        async   : false,
+        success : function(html){
+            cj('input#organization').val(htmlText[0]);
+            cj('input#organization_id').val(htmlText[1]);
+        }
+    }); 
+}
+
+cj("input#organization").click( function( ) {
+    cj("input#organization_id").val('');
+});
+</script>
+{/literal}

@@ -106,4 +106,10 @@
        <comment>When does this discount expire?</comment>
        <add>4.1</add>
   </field>
+  <field>
+       <name>is_active</name>
+       <type>boolean</type>
+       <comment>Is this property active?</comment>
+       <add>4.1</add>
+  </field>
 </table>

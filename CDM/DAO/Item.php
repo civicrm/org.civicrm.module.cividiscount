@@ -159,6 +159,12 @@ class CDM_DAO_Item extends CRM_Core_DAO
      */
     public $expiration_date;
     /**
+     * Is this property active?
+     *
+     * @var boolean
+     */
+    public $is_active;
+    /**
      * class constructor
      *
      * @access public
@@ -271,6 +277,10 @@ class CDM_DAO_Item extends CRM_Core_DAO
                     'name' => 'expiration_date',
                     'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
                     'title' => ts('Expiration Date') ,
+                ) ,
+                'is_active' => array(
+                    'name' => 'is_active',
+                    'type' => CRM_Utils_Type::T_BOOLEAN,
                 ) ,
             );
         }

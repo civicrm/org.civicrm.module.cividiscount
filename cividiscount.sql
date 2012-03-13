@@ -22,6 +22,7 @@ CREATE TABLE `cividiscount_item` (
      `autodiscount` text    COMMENT 'Some sort of autodiscounting mechanism?',
      `organization_id` int unsigned    COMMENT 'FK to Contact ID for the organization that originated this discount',
      `expiration_date` datetime    COMMENT 'When does this discount expire?',
+     `is_active` tinyint    COMMENT 'Is this discount active?',
 
     PRIMARY KEY ( `id` ),
      CONSTRAINT FK_cividiscount_item_organization_id FOREIGN KEY (`organization_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL

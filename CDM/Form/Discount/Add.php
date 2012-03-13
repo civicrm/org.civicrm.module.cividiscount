@@ -86,6 +86,12 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
 
         $this->add( 'text', 'organization', ts( 'Organization' ) );
         $this->add( 'hidden', 'organization_id', '', array( 'id' => 'organization_id' ) );
+
+        $organizationURL = CRM_Utils_System::url( 'civicrm/ajax/rest', 'className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&employee_id='.$this->_contactId, false, null, false );
+        $this->assign('organizationURL', $organizationURL );
+
+        // is this discount active ?
+        $this->addElement('checkbox', 'is_active', ts('Is this discount active?') );
     }
 
        
@@ -96,41 +102,34 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
      * @return None
      */
     public function postProcess() {
-        CRM_Utils_System::flushCache( 'CDM_DAO_Item' );
-
         if ( $this->_action & CRM_Core_Action::DELETE ) {
-            CRM_Core_BAO_LocationType::del( $this->_id );
-            CRM_Core_Session::setStatus( ts('Selected Location type has been deleted.') );
+            CDM_BAO_Item::del( $this->_id );
+            CRM_Core_Session::setStatus( ts('Selected Discount has been deleted.') );
             return;
         }
 
         // store the submitted values in an array
         $params = $this->exportValues();
-        $params['is_active'] =  CRM_Utils_Array::value( 'is_active', $params, false );
-        $params['is_default'] =  CRM_Utils_Array::value( 'is_default', $params, false );
             
         // action is taken depending upon the mode
-        $locationType               = new CDM_DAO_Item( );
-        $locationType->name         = $params['name'];
-        $locationType->display_name = $params['display_name'];
-        $locationType->vcard_name   = $params['vcard_name'];
-        $locationType->description  = $params['description'];
-        $locationType->is_active    = $params['is_active'];
-        $locationType->is_default   = $params['is_default'];
-            
-        if ($params['is_default']) {
-            $query = "UPDATE civicrm_location_type SET is_default = 0";
-            CRM_Core_DAO::executeQuery($query, CRM_Core_DAO::$_nullArray);
-        }
+        $item                  = new CDM_DAO_Item( );
+        $item->code            = $params['code'];
+        $item->description     = $params['description'];
+        $item->amount          = $params['amount'];
+        $item->amount_type     = $params['amount_type'];
+        $item->count_max       = $params['count_max'];
+        $item->expiration_date = $params['expiration_date'];
+        $item->organization_id = $params['organization_id'];
+        $item->is_active       = $params['is_active'];
             
         if ($this->_action & CRM_Core_Action::UPDATE ) {
-            $locationType->id = $this->_id;
+            $item->id = $this->_id;
         }
             
-        $locationType->save( );
+        $item->save( );
         
-        CRM_Core_Session::setStatus( ts('The location type \'%1\' has been saved.',
-                                        array( 1 => $locationType->name )) );
+        CRM_Core_Session::setStatus( ts('The discount \'%1\' has been saved.',
+                                        array( 1 => $item->description )) );
     } //end of function
 
 }
