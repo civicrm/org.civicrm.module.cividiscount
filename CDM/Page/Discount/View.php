@@ -164,10 +164,12 @@ class CDM_Page_Discount_View extends CRM_Core_Page
         $this->assign( 'expire_on', $defaults['expire_on'] );
         $this->assign( 'active_on', $defaults['active_on'] );
 
-        $this->assign( 'organization_id', $defaults['organization_id'] );
-        require_once 'CRM/Contact/BAO/Contact.php';
-        $orgname = CRM_Contact_BAO_Contact::displayName($defaults['organization_id']);
-        $this->assign( 'organization', $orgname );
+        if ( array_key_exists( 'organization_id', $defaults ) ) {
+            $this->assign( 'organization_id', $defaults['organization_id'] );
+            require_once 'CRM/Contact/BAO/Contact.php';
+            $orgname = CRM_Contact_BAO_Contact::displayName($defaults['organization_id']);
+            $this->assign( 'organization', $orgname );
+        }
 
         $this->_multiValued = array( 'autodiscount' => null,
                                      'memberships'  => null,
