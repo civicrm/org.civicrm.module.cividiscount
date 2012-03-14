@@ -27,7 +27,6 @@
     {ts}Discount codes can be applied against events, memberships and price sets.{/ts}
 </div>
 
-
 {if $rows}
 <div id="dcode">
     {strip}
@@ -40,11 +39,8 @@
         <th id="sortable">{ts}Name / Description{/ts}</th>
         <th>{ts}Amount{/ts}</th>
         <th>{ts}Usage{/ts}</th>
-        <th>{ts}Expiration{/ts}</th>
-        <th id="nosort">{ts}Event(s){/ts}</th>
-        <th id="nosort">{ts}Price Set(s){/ts}</th>
-        <th id="nosort">{ts}Membership(s){/ts}</th>
-        <th>{ts}Enabled?{/ts}</th>
+        <th>{ts}Start Date{/ts}</th>
+        <th>{ts}End Date{/ts}</th>
         <th></th>
     </tr>
     </thead>
@@ -52,23 +48,18 @@
     <tr id="row_{$row.id}" class="{if NOT $row.is_active} disabled{/if}{cycle values="odd-row,even-row"} {$row.class}">
         <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>	
         <td class="right">{if $row.amount_type eq 'P'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
-        <td class="right">{$row.count_use}</td>	
-        <td class="right">{if $row.expiration_date neq '0000-00-00 00:00:00'}{$row.expiration_date|crmDate}{/if}</td>	
-        <td class="crm-discount-event">{$row.events}</td>	
-        <td class="crm-discount-priceset">{$row.pricesets}</td>	
-        <td class="crm-discount-membership">{$row.memberships}</td>	
-        <td id="row_{$row.id}_status" class="crm-discount-is_active">{if $row.is_active eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
+        <td class="right">{$row.count_use} / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
+        <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>	
+        <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
         <td>{$row.action|replace:'xx':$row.id}</td>
     </tr>
     {/foreach}
     </table>
     {/strip}
 
-    {if $action ne 1 and $action ne 2}
     <div class="action-link">
-	<a href="{crmURL p='civicrm/cividiscount/discount/add q="reset=1"}" id="newDiscountCode" class="button"><span>&raquo; {ts}New Discount Code{/ts}</span></a>
+        <a href="{crmURL p='civicrm/cividiscount/discount/add q="reset=1"}" id="newDiscountCode" class="button"><span>&raquo; {ts}New Discount Code{/ts}</span></a>
     </div>
-    {/if}
 </div>
 {else}
     <div class="messages status">

@@ -106,7 +106,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
                 }
             }
         }
-        
+
         if ( ! empty( $defaults['active_on']  ) ) {
             list( $defaults['active_on'] ) = CRM_Utils_Date::setDateDefaults( $defaults['active_on'] );
         }

@@ -55,7 +55,7 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic
      *
      * @return string Classname of BAO.
      */
-    function getBAOName() 
+    function getBAOName( ) 
     {
         return 'CDM_BAO_Item';
     }
@@ -65,7 +65,7 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic
      *
      * @return array (reference) of action links
      */
-    function &links()
+    function &links( )
     {
         if (!(self::$_links)) {
             self::$_links = array(

@@ -62,31 +62,51 @@
     </tr>
     <tr>
         <td class="label">{ts}Usage{/ts}</td>
-    	  <td>{if $count_max eq 0}{ts}Unlimited{/ts}{else} {$count_use} / {$count_max}{/if}</td>
+    	  <td>{$count_use} / {if $count_max eq 0}{ts}Unlimited{/ts}{else}{$count_max}{/if}</td>
+    </tr>
+    <tr>
+        <td class="label">{ts}Start Date{/ts}</td>
+        <td>{if $active_on neq '0000-00-00 00:00:00'}{$active_on|crmDate}{else}{ts}(ongoing){/ts}{/if}</td>
     </tr>
     <tr>
         <td class="label">{ts}Expiration Date{/ts}</td>
-        <td>{if $expiration_date neq '0000-00-00 00:00:00'}{$expiration_date|crmDate}{else}{ts}(ongoing){/ts}{/if}</td>
+        <td>{if $expire_on neq '0000-00-00 00:00:00'}{$expire_on|crmDate}{else}{ts}(ongoing){/ts}{/if}</td>
     </tr>
     <tr>
         <td class="label">{ts}Organization{/ts}</td>
-    	  <td>{$organization_id}</td>
+    	  <td>{$organization}</td>
     </tr>
     <tr>
         <td class="label">{ts}Automatic Discount{/ts}</td>
-    	  <td>{$contribution_type}{if $is_test} {ts}(test){/ts} {/if}</td>
+        <td>
+        {foreach from=$autodiscount key=k item=v}
+        {$v} <br />
+        {/foreach}
+        </td>
     </tr>
     <tr>
         <td class="label">{ts}Events{/ts}</td>
-    	  <td>{$contribution_type}{if $is_test} {ts}(test){/ts} {/if}</td>
+        <td>
+        {foreach from=$events key=k item=v}
+        {$v} <br />
+        {/foreach}
+        </td>
     </tr>
     <tr>
         <td class="label">{ts}Memberships{/ts}</td>
-    	  <td>{$contribution_type}{if $is_test} {ts}(test){/ts} {/if}</td>
+        <td>
+        {foreach from=$memberships key=k item=v}
+        {$v} <br />
+        {/foreach}
+        </td>
     </tr>
     <tr>
         <td class="label">{ts}Price Sets{/ts}</td>
-    	  <td>{$contribution_type}{if $is_test} {ts}(test){/ts} {/if}</td>
+        <td>
+        {foreach from=$pricesets key=k item=v}
+        {$v} <br />
+        {/foreach}
+        </td>
     </tr>
     <tr>
         <td class="label">{ts}Enabled?{/ts}</td>
