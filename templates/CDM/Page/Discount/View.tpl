@@ -58,7 +58,7 @@
     </tr>
     <tr>
         <td class="label">{ts}Discount{/ts}</td>
-        <td>{if $amount_type eq 'P'}{$amount} %{else}{$amount|crmMoney}{/if}</td>
+        <td>{if $amount_type eq '1'}{$amount} %{else}{$amount|crmMoney}{/if}</td>
     </tr>
     <tr>
         <td class="label">{ts}Usage{/ts}</td>

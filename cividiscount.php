@@ -1,26 +1,6 @@
 <?php
 
 /**
- *
- * Notes for transition from module to extension:
- *
- * TODO:
- * Properly handle tracking (inc/dec)
- *    _get_code_tracking_count_org()
- *    _get_code_tracking_count()
- *    _set_tracking()
- *     
- * cividiscount_civicrm_tabs() display needs to use registered menu items
- *
- * Someday:
- * Better placement of discount textfield in form
- * Switch from serialized arrays to columns for better/easier reporting
- * Better handle contact type that can "own" a code; currently only Organization
- * _ignore_case() and _allow_multiple() need to get from the admin settings
- *
- */
-
-/**
  * Implementation of hook_civicrm_config()
  */
 function cividiscount_civicrm_config( &$config ) {
@@ -177,20 +157,21 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
         // See if they are eligible for automatic discount. If they are, update the
         // membership values.
-        $adids = _get_autodiscounted_ids( );
         $codes = _get_discounts( );
-        $code = _verify_autodiscount($codes);
+        $code = _verify_autodiscount( $codes );
         if ( empty( $code ) ) {
             return;
         }
 
-        $code = _get_code_details($code);
+        $code = _get_code_details( $code );
         $mids = _get_discounted_membership_ids( );
         $mid = 0;
 
         foreach ( $membershipTypeValues as &$values ) {
             if ( in_array( $values['id'], $mids ) ) {
-                if ( in_array( $values['id'], unserialize( $code['memberships'] ) ) ) {
+                $cms = explode( CRM_Core_DAO::VALUE_SEPARATOR, $code['memberships'] );
+
+                if ( in_array( $values['id'], $cms ) ) {
                     $mid = $values['id'];
                     list( $value, $label ) = _calc_discount( $values['minimum_fee'], $values['name'], $code );
                     $values['minimum_fee'] = $value;
@@ -214,7 +195,9 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
         return;
     }
 
-    if ( !_is_valid( $code )  ) {
+    require_once 'CDM/BAO/Item.php';
+
+    if ( !CDM_BAO_Item::isValid( $code )  ) {
         CRM_Core_Error::fatal( ts( 'The discount code you entered is either expired or is no longer active.' ) );
         return;
     }
@@ -229,7 +212,10 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
     foreach ( $membershipTypeValues as &$values ) {
         if ( in_array( $values['id'], $mids ) ) {
-            if ( in_array( $values['id'], unserialize( $code['memberships'] ) ) ) {
+
+            $cms = explode( CRM_Core_DAO::VALUE_SEPARATOR, $code['memberships'] );
+
+            if ( in_array( $values['id'], $cms ) ) {
                 $mid = $values['id'];
                 list( $value, $label ) = _calc_discount( $values['minimum_fee'], $values['name'], $code );
                 $values['minimum_fee'] = $value;
@@ -254,7 +240,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     if ($pagetype == 'event') {
 
         $v = $form->getVar('_values');
-        $currency = $v['event']['currency'];
+        if ( array_key_exists( 'event', $v ) ) {
+            $currency = $v['event']['currency'];
+        }
 
         /**
          * If additional participants are not allowed to receive a discount we need
@@ -293,7 +281,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
         $code = _get_code_details( $code );
 
-        if ( !$code || !_is_valid( $code ) ) {
+        require_once 'CDM/BAO/Item.php';
+
+        if ( !$code || !CDM_BAO_Item::isValid( $code )  ) {
             return;
         }
 
@@ -369,25 +359,26 @@ function cividiscount_civicrm_pre( $op, $name, $id, &$obj ) {
         if ( $name == 'Participant' ) {
             $result = _get_participant( $id );
             $contactid = $result['contact_id'];
+
         } else if ( $name == 'Membership' ) {
             $result = _get_membership( $id );
-            $contactid = $result[$id]['contact_id'];
+            $contactid = $result['contact_id'];
+
         } else {
             return;
         }
-    
-        $result = _get_code_tracking_details( $contactid );
 
         require_once 'CDM/BAO/Item.php';
+        require_once 'CDM/BAO/Track.php';
 
-        foreach ( $result as $item ) {
-            if ( $item['track_type'] == 'Event' ||
-                 $item['track_type'] == 'Membership' ) {
-                if ( $item['track_id'] == $id ) {
-                    CDM_BAO_Item::decrementUsage( $code['id'] );
-                    _delete_code_tracking_detail( $item['rid'] );
-                }
-            }
+        $result = _get_item_id_by_track( 'civicrm_participant', $id, $contactid );
+
+        if ( !empty( $result['item_id'] ) ) {
+            CDM_BAO_Item::decrementUsage( $result['item_id'] );
+        }
+
+        if ( !empty( $result['id'] ) ) {
+            CDM_BAO_Track::del( $result['id'] );
         }
     }
 }
@@ -490,33 +481,75 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
     // CRM_Event_Form_Participant = offline event registration
 
     require_once 'CDM/BAO/Item.php';
+    require_once 'CDM/DAO/Track.php';
 
     if ( in_array( $class, array(
           'CRM_Event_Form_Registration_Confirm',
           'CRM_Event_Form_Participant' ) ) ) {
 
         if ( $class == 'CRM_Event_Form_Registration_Confirm' ) {
+
             foreach ( $pids as $pid ) {
-                $result = _get_participant( $pid );
-                $contactid = $result['contact_id'];
+
+                $participant = _get_participant( $pid );
+                $contactid = $participant['contact_id'];
 
                 CDM_BAO_Item::incrementUsage( $code['id'] );
-                _set_tracking( $code['cid'], $contactid, $contributionid, $eid, 'Event', serialize( $track ) );
+
+                $track = new CDM_DAO_Track( );
+                $track->item_id = $code['id'];
+                $track->contact_id = $contactid;
+                $track->contribution_id = $contributionid;
+                $track->event_id = $eid;
+                $track->entity_table = 'civicrm_participant';
+                $track->entity_id = $pid;
+                $track->used_date = $participant['register_date'];
+
+                $track->save();
             }
         } else {
-            CDM_BAO_Item::incrementUsage( $code['id'] );
-            // FIXME: contribution id is not available in $params, so null is being passed here.
-            _set_tracking( $code['cid'], $contactid, $contributionid, $eid, 'Event', serialize( $track ) );
+
+            // XXX: If an offline event registration was made, the participant id is unknown.
+            if ( !empty($pid) ) { 
+              CDM_BAO_Item::incrementUsage( $code['id'] );
+
+              $track = new CDM_DAO_Track( );
+              $track->item_id = $code['id'];
+              $track->contact_id = $contactid;
+              $track->contribution_id = $contributionid;
+              $track->event_id = $eid;
+              $track->entity_table = 'civicrm_participant';
+              $track->entity_id = $pid;
+              // $track->used_date = $participant['register_date'];
+
+              $track->save();
+            } 
         }
     } else if ( in_array( $class, array(
             'CRM_Contribute_Form_Contribution_Confirm',
             'CRM_Member_Form_Membership' ) ) ) {
 
         CDM_BAO_Item::incrementUsage( $code['id'] );
-        _set_tracking( $code['cid'], $contactid, $contributionid, $mid, 'Membership', serialize( $track ) );
 
+        $track = new CDM_DAO_Track( );
+        $track->item_id = $code['id'];
+        $track->contact_id = $contactid;
+        $track->contribution_id = $contributionid;
+        $track->entity_table = 'civicrm_membership';
+        $track->entity_id = $mid;
+        // $track->used_date = $participant['register_date'];
+
+        $track->save();
     } else {
-        _set_tracking( $code['cid'], $contactid, $contributionid, NULL, 'Contribution', serialize( $track ) );
+        $track = new CDM_DAO_Track( );
+        $track->item_id = $code['id'];
+        $track->contact_id = $contactid;
+        $track->contribution_id = $contributionid;
+        $track->entity_table = 'civicrm_contribution';
+        $track->entity_id = $contributionid;
+        // $track->used_date = $participant['register_date'];
+
+        $track->save();
     }
 }
 
@@ -528,7 +561,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
  */
 function cividiscount_civicrm_tabs(&$tabs, $cid) {
     if ( _is_org( $cid ) ) {
-        $count = _get_code_tracking_count_org( $cid );
+        $count = _getTrackingCountByOrg( $cid );
         $a = array( 'id' => 'discounts',
                     'count' => $count,
                     'title' => 'Codes Assigned',
@@ -539,7 +572,8 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
         $tabs[] = $a;
     }
 
-    $count = _get_code_tracking_count( $cid );
+    $count = _getTrackingCount( $cid );
+
     $a = array( 'id' => 'discounts',
                 'count' => $count,
                 'title' => 'Codes Redeemed',
@@ -581,8 +615,11 @@ function cividiscount_civicrm_validate($name, &$fields, &$files, &$form) {
 
         return $errors;
     } else {
-        if ( !_is_valid( $code )  ) {
+        require_once 'CDM/BAO/Item.php';
+
+        if ( !CDM_BAO_Item::isValid( $code )  ) {
             $errors['discountcode'] = ts( 'The discount code you entered is either expired or is no longer active.' );
+            return $errors;
         }
 
         $sv = $form->getVar( '_submitValues' );
@@ -668,6 +705,34 @@ function _get_discounts( ) {
 
     return $codes;
 }
+
+
+function _getTrackingCount( $cid ) {
+    $sql = "SELECT count(id) as count FROM cividiscount_track WHERE contact_id = $cid";
+    $count = CRM_Core_DAO::singleValueQuery( $sql, array( ) );
+
+    return $count;
+}
+
+
+function _getTrackingCountByOrg( $cid ) {
+    $sql = "SELECT count(id) as count FROM cividiscount_item WHERE organization_id = $cid";
+    $count = CRM_Core_DAO::singleValueQuery( $sql, array( ) );
+
+    return $count;
+}
+
+
+function _get_item_id_by_track( $table, $eid, $cid ) {
+    $sql = "SELECT id, item_id FROM cividiscount_track WHERE entity_table = '" . $table . "' AND entity_id = $eid AND contact_id = $cid";
+    $dao = CRM_Core_DAO::executeQuery( $sql, array( ) );
+    if ( $dao->fetch( ) ) {
+      return array( 'id' => $dao->id, 'item_id' => $dao->item_id );
+    }
+
+    return array( );
+}
+
 
 
 /**
@@ -771,7 +836,9 @@ function _verify_autodiscount( $codes = array( ) ) {
     require_once('CRM/Member/BAO/Membership.php');
 
     foreach ( $codes as $k => $v ) {
-        $cads = unserialize( $v['autodiscount'] );
+
+        $cads = _get_autodiscounted_ids();
+
         if ( !is_array( $cads ) ) {
             $cads = array( );
         }
@@ -792,31 +859,21 @@ function _verify_autodiscount( $codes = array( ) ) {
 
 /**
  * Returns TRUE if the code is not case sensitive.
+ *
+ * TODO: Add settings for admin to set this.
  */
 function _ignore_case( ) {
   return FALSE;
-
-/*
-    require_once('civievent_discount.admin.inc');
-
-    return (_get_ignore_case() == 0) ? FALSE : TRUE;
-*/
-
 }
 
 
 /**
  * Returns TRUE if the code should allow multiple participants.
+ *
+ * TODO: Add settings for admin to set this.
  */
 function _allow_multiple( ) {
     return FALSE;
-
-/*
-    require_once('civievent_discount.admin.inc');
-
-    return (_get_allow_multiple() == 0) ? FALSE : TRUE;
-*/
-
 }
 
 
@@ -894,45 +951,27 @@ function _add_discount_textfield( &$form ) {
     $form->assign( 'beginHookFormElements', $bhfe );
 }
 
-function _is_valid( $code ) {
-  if ( !_is_expired( $code ) &&
-        _is_enabled( $code ) &&
-        _is_active( $code ) ) {
 
-      return TRUE;
-  }
+function _get_participant( $pid = 0 ) {
 
-  return FALSE;
-}
-
-
-/**
- * Check if the code is expired.
- */
-function _is_expired( $code ) {
-    $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
-
-    if ( strtotime( $time ) > abs( strtotime( $code['expire_on'] ) ) ) {
-        return TRUE;
+    require_once 'api/api.php';
+    $result = civicrm_api( 'Participant', 'get', array( 'version' => '3', 'participant_id' => $pid ) );
+    if ( $result['is_error'] == 0 ) {
+        $a = array_shift($result['values']);
     }
 
-    return FALSE;
+    return $a;
 }
 
-function _is_active( $code ) {
-    $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
 
-    if ( strtotime( $time ) > abs( strtotime( $code['active_on'] ) ) ) {
-        return TRUE;
+function _get_membership( $mid = 0 ) {
+
+    require_once 'api/api.php';
+    $result = civicrm_api( 'Membership', 'get', array( 'version' => '3', 'membership_id' => $mid ) );
+    if ( $result['is_error'] == 0 ) {
+        $a = array_shift($result['values']);
     }
 
-    return FALSE;
+    return $a;
 }
 
-function _is_enabled( $code ) {
-    if ( $code['is_active'] == 1 ) {
-        return TRUE;
-    }
-
-    return FALSE;
-}

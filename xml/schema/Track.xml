@@ -69,6 +69,19 @@
     <onDelete>CASCADE</onDelete>
   </foreignKey> 
   <field>
+      <name>event_id</name>
+      <type>int unsigned</type>
+      <comment>FK to event table.</comment>
+      <add>4.1</add>
+  </field>
+  <foreignKey> 
+    <name>event_id</name> 
+    <table>civicrm_event</table> 
+    <key>id</key> 
+    <add>4.1</add>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey> 
+  <field>
        <name>entity_table</name>
        <type>varchar</type>
        <length>64</length>

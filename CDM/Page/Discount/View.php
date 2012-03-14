@@ -161,8 +161,14 @@ class CDM_Page_Discount_View extends CRM_Core_Page
         $this->assign( 'count_use', $defaults['count_use'] );
         $this->assign( 'count_max', $defaults['count_max'] );
         $this->assign( 'is_active', $defaults['is_active'] );
-        $this->assign( 'expire_on', $defaults['expire_on'] );
-        $this->assign( 'active_on', $defaults['active_on'] );
+
+        if ( array_key_exists( 'expire_on', $defaults ) ) {
+            $this->assign( 'expire_on', $defaults['expire_on'] );
+        }
+
+        if ( array_key_exists( 'active_on', $defaults ) ) {
+            $this->assign( 'active_on', $defaults['active_on'] );
+        }
 
         if ( array_key_exists( 'organization_id', $defaults ) ) {
             $this->assign( 'organization_id', $defaults['organization_id'] );
@@ -190,16 +196,17 @@ class CDM_Page_Discount_View extends CRM_Core_Page
             }   
         }   
 
+        require_once 'CDM/Utils.php';
+        require_once 'CRM/Member/BAO/MembershipType.php';
+
         if ( array_key_exists( 'events', $defaults ) ) {
-            require_once 'CDM/Utils.php';
             $events = CDM_Utils::getEvents( );
             $defaults['events'] = CDM_Utils::getIdsTitles( $defaults['events'], $events );
             $this->assign( 'events', $defaults['events'] );
         }
 
-        if ( array_key_exists( 'membership', $defaults ) ||
+        if ( array_key_exists( 'memberships', $defaults ) ||
              array_key_exists( 'autodiscount', $defaults ) ) {
-            require_once 'CRM/Member/BAO/MembershipType.php';
             $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
             $defaults['memberships'] = CDM_Utils::getIdsTitles( $defaults['memberships'], $membershipTypes );
             $defaults['autodiscount'] = CDM_Utils::getIdsTitles( $defaults['autodiscount'], $membershipTypes );

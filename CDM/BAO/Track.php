@@ -34,10 +34,10 @@
  *
  */
 
-require_once 'CDM/DAO/Item.php';
+require_once 'CDM/DAO/Track.php';
 
 
-class CDM_BAO_Item extends CDM_DAO_Item {
+class CDM_BAO_Track extends CDM_DAO_Track {
 
     /**
      * class constructor
@@ -61,7 +61,7 @@ class CDM_BAO_Item extends CDM_DAO_Item {
      * @static
      */
     static function retrieve( &$params, &$defaults ) {
-        $item = new CDM_DAO_Item( );
+        $item = new CDM_DAO_Track( );
         $item->copyValues( $params );
         if ( $item->find( true ) ) {
             CRM_Core_DAO::storeValues( $item, $defaults );
@@ -70,130 +70,26 @@ class CDM_BAO_Item extends CDM_DAO_Item {
         return null;
     }
     
-    /**
-     * update the is_active flag in the db
-     *
-     * @param int      $id        id of the database record
-     * @param boolean  $is_active value we want to set the is_active field
-     *
-     * @return Object             DAO object on sucess, null otherwise
-     * 
-     * @access public
-     * @static
-     */
-    static function setIsActive( $id, $is_active ) {
-        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'is_active', $is_active );
-    }
-
-
-    static function incrementUsage( $id ) {
-        $currVal = CRM_Core_DAO::getFieldValue( 'CDM_DAO_Item', $id, 'count_use' );
-
-        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'count_use', $currVal + 1 );
-    }
-
-
-    static function decrementUsage( $id ) {
-        $currVal = CRM_Core_DAO::getFieldValue( 'CDM_DAO_Item', $id, 'count_use' );
-
-        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'count_use', $currVal - 1 );
-    }
-
-
-    static function isValid( $code ) {
-        if ( !CDM_BAO_Item::isExpired( $code ) &&
-              CDM_BAO_Item::isActive( $code ) &&
-              CDM_BAO_Item::isEnabled( $code ) ) {
-
-            return TRUE;
-        }
-
-        return FALSE;
-    }
-
-    static function isExpired( $code ) {
-
-        if ( empty( $code['expire_on'] ) ) {
-            return FALSE;
-        }
-
-        $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
-
-        if ( strtotime( $time ) > abs( strtotime( $code['expire_on'] ) ) ) { 
-            return TRUE;
-        }   
-
-        return FALSE;
-    }
-
-
-    static function isActive( $code ) {
-        if ( empty( $code['active_on'] ) ) {
-            return TRUE;
-        }
-
-        $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
-
-        if ( strtotime( $time ) > abs( strtotime( $code['active_on'] ) ) ) { 
-            return TRUE;
-        }   
-
-        return FALSE;
-    }
-
-
-    static function isEnabled( $code ) {
-        if ( $code['is_active'] == 1 ) { 
-            return TRUE;
-        }   
-
-        return FALSE;
-    }
-
     
     /**
-     * Function to delete discount codes
+     * Function to delete discount codes track
      * 
-     * @param  int  $itemID     ID of the discount code to be deleted.
-     * 
-     * @access public
-     * @static
-     * @return true on success else false
-     */
-    static function del($itemID) 
-    {
-        require_once 'CRM/Utils/Rule.php';
-        if ( ! CRM_Utils_Rule::positiveInteger( $itemID ) ) {
-            return false;
-        }
-
-        require_once 'CDM/DAO/Item.php';
-        $item = new CDM_DAO_Item( );
-        $item->id = $itemID;
-        $item->delete( );
-
-        return true;
-    }
-
-    /**
-     * Function to delete discount codes
-     * 
-     * @param  int  $itemID     ID of the discount code to be deleted.
+     * @param  int  $trackID     ID of the discount code track to be deleted.
      * 
      * @access public
      * @static
      * @return true on success else false
      */
-    static function copy($itemID) 
+    static function del($trackID) 
     {
         require_once 'CRM/Utils/Rule.php';
-        if ( ! CRM_Utils_Rule::positiveInteger( $itemID ) ) {
+        if ( ! CRM_Utils_Rule::positiveInteger( $trackID ) ) {
             return false;
         }
 
-        require_once 'CDM/DAO/Item.php';
-        $item = new CDM_DAO_Item( );
-        $item->id = $itemID;
+        require_once 'CDM/DAO/Track.php';
+        $item = new CDM_DAO_Track( );
+        $item->id = $trackID;
         $item->delete( );
 
         return true;

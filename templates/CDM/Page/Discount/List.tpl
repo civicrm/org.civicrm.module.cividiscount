@@ -47,7 +47,7 @@
     {foreach from=$rows item=row}
     <tr id="row_{$row.id}" class="{if NOT $row.is_active} disabled{/if}{cycle values="odd-row,even-row"} {$row.class}">
         <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>	
-        <td class="right">{if $row.amount_type eq 'P'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
+        <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
         <td class="right">{$row.count_use} / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
         <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>	
         <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
