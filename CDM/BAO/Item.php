@@ -84,28 +84,21 @@ class CDM_BAO_Item extends CDM_DAO_Item {
     static function setIsActive( $id, $is_active ) {
         return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'is_active', $is_active );
     }
-    
-    /**
-     * retrieve the default location_type
-     * 
-     * @param NULL
-     * 
-     * @return object           The default location type object on success,
-     *                          null otherwise
-     * @static
-     * @access public
-     */
-     /*
-    static function &getDefault() {
-        if (self::$_defaultLocationType == null) {
-            $params = array( 'is_default' => 1 );
-            $defaults = array();
-            self::$_defaultLocationType = self::retrieve($params, $defaults);
-        }
-        return self::$_defaultLocationType;
-    }
-    */
 
+    static function incrementUsage( $id ) {
+        $currVal = CRM_Core_DAO::getFieldValue( 'CDM_DAO_Item', $id, 'count_use' );
+
+        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'count_use', $currVal + 1 );
+    }
+
+
+    static function decrementUsage( $id ) {
+        $currVal = CRM_Core_DAO::getFieldValue( 'CDM_DAO_Item', $id, 'count_use' );
+
+        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'count_use', $currVal - 1 );
+    }
+
+    
     /**
      * Function to delete discount codes
      * 

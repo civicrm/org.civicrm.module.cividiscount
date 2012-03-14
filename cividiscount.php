@@ -8,18 +8,15 @@
  * Properly handle tracking (inc/dec)
  *    _get_code_tracking_count_org()
  *    _get_code_tracking_count()
- *    _decrement_counter()
- *    _increment_counter()
  *    _set_tracking()
  *     
- * Use v3 api
- * Better handle contact type that can "own" a code; currently only Organization
- * _ignore_case() and _allow_multiple() need to get from the admin settings
  * cividiscount_civicrm_tabs() display needs to use registered menu items
  *
- * Would be nice:
+ * Someday:
  * Better placement of discount textfield in form
  * Switch from serialized arrays to columns for better/easier reporting
+ * Better handle contact type that can "own" a code; currently only Organization
+ * _ignore_case() and _allow_multiple() need to get from the admin settings
  *
  */
 
@@ -213,12 +210,12 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     $code = _get_code_details( $code );
 
     if ( empty($code) ) {
-        CRM_Core_Error::fatal( ts( 'The discount code is not valid for this membership.' ) );
+        CRM_Core_Error::fatal( ts( 'The discount code you entered is invalid.' ) );
         return;
     }
 
-    if (_is_expired($code)) {
-        CRM_Core_Error::fatal( ts( 'The discount code has expired.' ) );
+    if ( !_is_valid( $code )  ) {
+        CRM_Core_Error::fatal( ts( 'The discount code you entered is either expired or is no longer active.' ) );
         return;
     }
 
@@ -296,11 +293,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
         $code = _get_code_details( $code );
 
-        if ( !$code ) {
-            return;
-        }
-
-        if ( _is_expired( $code ) ) {
+        if ( !$code || !_is_valid( $code ) ) {
             return;
         }
 
@@ -347,7 +340,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
                 }
             }
         } else {
-            if ( in_array( $eid, unserialize( $code['events'] ) ) ) {
+            if ( in_array( $eid, $eids ) ) {
                 foreach ( $amounts as $aid => $vals ) {
                     list( $amounts[$aid]['value'], $amounts[$aid]['label'] ) =
                         _calc_discount( $vals['value'], $vals['label'], $code, $currency );
@@ -384,11 +377,14 @@ function cividiscount_civicrm_pre( $op, $name, $id, &$obj ) {
         }
     
         $result = _get_code_tracking_details( $contactid );
+
+        require_once 'CDM/BAO/Item.php';
+
         foreach ( $result as $item ) {
             if ( $item['track_type'] == 'Event' ||
                  $item['track_type'] == 'Membership' ) {
                 if ( $item['track_id'] == $id ) {
-                    _decrement_counter( $item['cid'] );
+                    CDM_BAO_Item::decrementUsage( $code['id'] );
                     _delete_code_tracking_detail( $item['rid'] );
                 }
             }
@@ -493,6 +489,8 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
     // CRM_Event_Form_Registration_Confirm = online event registration
     // CRM_Event_Form_Participant = offline event registration
 
+    require_once 'CDM/BAO/Item.php';
+
     if ( in_array( $class, array(
           'CRM_Event_Form_Registration_Confirm',
           'CRM_Event_Form_Participant' ) ) ) {
@@ -501,11 +499,12 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
             foreach ( $pids as $pid ) {
                 $result = _get_participant( $pid );
                 $contactid = $result['contact_id'];
-                _increment_counter( $code );
+
+                CDM_BAO_Item::incrementUsage( $code['id'] );
                 _set_tracking( $code['cid'], $contactid, $contributionid, $eid, 'Event', serialize( $track ) );
             }
         } else {
-            _increment_counter( $code );
+            CDM_BAO_Item::incrementUsage( $code['id'] );
             // FIXME: contribution id is not available in $params, so null is being passed here.
             _set_tracking( $code['cid'], $contactid, $contributionid, $eid, 'Event', serialize( $track ) );
         }
@@ -513,7 +512,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
             'CRM_Contribute_Form_Contribution_Confirm',
             'CRM_Member_Form_Membership' ) ) ) {
 
-        _increment_counter( $code );
+        CDM_BAO_Item::incrementUsage( $code['id'] );
         _set_tracking( $code['cid'], $contactid, $contributionid, $mid, 'Membership', serialize( $track ) );
 
     } else {
@@ -578,12 +577,12 @@ function cividiscount_civicrm_validate($name, &$fields, &$files, &$form) {
     }
 
     if ( empty( $code ) ) {
-        $errors['discountcode'] = ts( 'Discount code is invalid.' );
+        $errors['discountcode'] = ts( 'The discount code you entered is invalid.' );
 
         return $errors;
     } else {
-        if ( _is_expired( $code ) ) {
-            $errors['discountcode'] = ts( 'The discount code has expired.' );
+        if ( !_is_valid( $code )  ) {
+            $errors['discountcode'] = ts( 'The discount code you entered is either expired or is no longer active.' );
         }
 
         $sv = $form->getVar( '_submitValues' );
@@ -618,35 +617,6 @@ function _set_tracking( $cid, $id, $contrib_id, $obj_id, $obj_type, $track ) {
     require_once('civievent_discount.admin.inc');
 
     return db_query(_sql_set_tracking(), $cid, $id, $contrib_id, $obj_id, $obj_type, time(), $track);
-*/
-
-}
-
-
-/**
- * Add to the usage counter.
- */
-function _increment_counter( $code ) {
-
-/*
-    require_once('civievent_discount.admin.inc');
-
-    return db_query(_sql_increment_counter(), $code);
-*/
-
-}
-
-
-/**
- * Subtract from the usage counter.
- */
-function _decrement_counter( $code ) {
-
-    
-/*
-    require_once('civievent_discount.admin.inc');
-
-    return db_query(_sql_decrement_counter(), $code);
 */
 
 }
@@ -690,7 +660,7 @@ function _get_code_tracking_count_org( $id = 0 ) {
 function _get_discounts( ) {
     $codes = array( );
 
-    $sql = "SELECT id, code, description, amount, amount_type, events, pricesets, memberships, autodiscount, expire_on, count_use, count_max FROM cividiscount_item";
+    $sql = "SELECT id, code, description, amount, amount_type, events, pricesets, memberships, autodiscount, expire_on, active_on, is_active, count_use, count_max FROM cividiscount_item";
     $dao =& CRM_Core_DAO::executeQuery( $sql, array( ) );
     while ( $dao->fetch( ) ) {
         $codes[$dao->code] = (array) $dao;
@@ -713,13 +683,12 @@ function _get_items_from_codes( $codes, $key ) {
 
     foreach ( $codes as $cid => $data ) {
 
-        $a = unserialize( $data[$key] );
-        if ( !is_array( $a ) ) {
-            $a = array( );
-        }
+        $a = explode( CRM_Core_DAO::VALUE_SEPARATOR, $data[$key] );
 
         foreach ($a as $itemid) {
-            $items[$itemid] = $itemid;
+            if ( !empty( $a[$itemid] ) ) {
+                $items[$itemid] = $itemid;
+            }
         }
     }
 
@@ -925,6 +894,17 @@ function _add_discount_textfield( &$form ) {
     $form->assign( 'beginHookFormElements', $bhfe );
 }
 
+function _is_valid( $code ) {
+  if ( !_is_expired( $code ) &&
+        _is_enabled( $code ) &&
+        _is_active( $code ) ) {
+
+      return TRUE;
+  }
+
+  return FALSE;
+}
+
 
 /**
  * Check if the code is expired.
@@ -934,7 +914,25 @@ function _is_expired( $code ) {
 
     if ( strtotime( $time ) > abs( strtotime( $code['expire_on'] ) ) ) {
         return TRUE;
-    } else {
-        return FALSE;
     }
+
+    return FALSE;
+}
+
+function _is_active( $code ) {
+    $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
+
+    if ( strtotime( $time ) > abs( strtotime( $code['active_on'] ) ) ) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+function _is_enabled( $code ) {
+    if ( $code['is_active'] == 1 ) {
+        return TRUE;
+    }
+
+    return FALSE;
 }
