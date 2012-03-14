@@ -31,6 +31,8 @@
 {if $rows}
 <div id="dcode">
     {strip}
+    {* handle enable/disable actions*}
+    {include file="CRM/common/enableDisable.tpl"}    
     {include file="CRM/common/jsortable.tpl"}
     <table id="options" class="display">
     <thead>
@@ -42,11 +44,12 @@
         <th id="nosort">{ts}Event(s){/ts}</th>
         <th id="nosort">{ts}Price Set(s){/ts}</th>
         <th id="nosort">{ts}Membership(s){/ts}</th>
+        <th>{ts}Enabled?{/ts}</th>
         <th></th>
     </tr>
     </thead>
     {foreach from=$rows item=row}
-    <tr id="row_{$row.id}"class="{cycle values="odd-row,even-row"} {$row.class} crm-discount">
+    <tr id="row_{$row.id}" class="{if NOT $row.is_active} disabled{/if}{cycle values="odd-row,even-row"} {$row.class}">
         <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>	
         <td class="right">{if $row.amount_type eq 'P'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
         <td class="right">{$row.count_use}</td>	
@@ -54,6 +57,7 @@
         <td class="crm-discount-event">{$row.events}</td>	
         <td class="crm-discount-priceset">{$row.pricesets}</td>	
         <td class="crm-discount-membership">{$row.memberships}</td>	
+        <td id="row_{$row.id}_status" class="crm-discount-is_active">{if $row.is_active eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
         <td>{$row.action|replace:'xx':$row.id}</td>
     </tr>
     {/foreach}

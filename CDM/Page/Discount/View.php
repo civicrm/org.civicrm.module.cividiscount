@@ -34,14 +34,21 @@
  *
  */
 
-require_once 'CRM/Core/Page/Basic.php';
+require_once 'CRM/Core/Page.php';
 require_once 'CDM/DAO/Item.php';
 
 /**
- * Page for displaying list of discount codes
+ * Page for displaying discount code details
  */
-class CDM_Page_Discount_List extends CRM_Core_Page_Basic 
+class CDM_Page_Discount_View extends CRM_Core_Page
 {
+    /**
+     * The id of the discount code
+     *
+     * @var int
+     */
+    protected $_id;
+
     /**
      * The action links that we need to display for the browse screen
      *
@@ -69,36 +76,31 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic
     {
         if (!(self::$_links)) {
             self::$_links = array(
-                                  CRM_Core_Action::VIEW  => array(
-                                                                    'name'  => ts('View'),
-                                                                    'url'   => 'civicrm/cividiscount/discount/view',
-                                                                    'qs'    => 'id=%%id%%&reset=1',
-                                                                    'title' => ts('View Discount Code') 
-                                                                   ),  
+                                  CRM_Core_Action::UPDATE  => array(
+                                                                    'name'  => ts('Edit'),
+                                                                    'url'   => 'civicrm/cividiscount/discount/edit',
+                                                                    'qs'    => '&id=%%id%%&reset=1',
+                                                                    'title' => ts('Edit Discount') 
+                                                                   ),
                                   CRM_Core_Action::DISABLE => array(
                                                                     'name'  => ts('Disable'),
                                                                     'extra' => 'onclick = "enableDisable( %%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\' );"',
                                                                     'ref'   => 'disable-action',
-                                                                    'title' => ts('Disable Discount Code')
+                                                                    'title' => ts('Disable Discount')
                                                                    ),
 
                                   CRM_Core_Action::ENABLE => array(
                                                                     'name'  => ts('Enable'),
                                                                     'extra' => 'onclick = "enableDisable( %%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\' );"',
                                                                     'ref'   => 'enable-action',
-                                                                    'title' => ts('Enable Discount Code')
+                                                                    'title' => ts('Enable Discount')
                                                                    ),
-                                  CRM_Core_Action::UPDATE  => array(
-                                                                    'name'  => ts('Edit'),
-                                                                    'url'   => 'civicrm/cividiscount/discount/edit',
-                                                                    'qs'    => '&id=%%id%%&reset=1',
-                                                                    'title' => ts('Edit Discount Code') 
-                                                                   ),
+
                                   CRM_Core_Action::DELETE  => array(
                                                                     'name'  => ts('Delete'),
                                                                     'url'   => 'civicrm/cividiscount/discount/delete',
                                                                     'qs'    => '&id=%%id%%',
-                                                                    'title' => ts('Delete Discount Code') 
+                                                                    'title' => ts('Delete Discount') 
                                                                    )
                                   );
         }
@@ -134,6 +136,40 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic
     {
         return 'civicrm/cividiscount/discount';
     }
-}
 
+    function preProcess( ) {
+        $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, false);
+
+        require_once 'CRM/Utils/Rule.php';
+        if ( ! CRM_Utils_Rule::positiveInteger( $this->_id ) ) {
+            CRM_Core_Error::fatal( ts( 'We need a valid discount ID for view' ) );
+        }
+
+        $this->assign( 'id', $this->_id );
+
+        $defaults = array( );
+        $params = array( 'id' => $this->_id );
+
+        require_once 'CDM/BAO/Item.php';
+        CDM_BAO_Item::retrieve( $params, $defaults );
+
+        $this->assign( 'code', $defaults['code'] );
+        $this->assign( 'description', $defaults['description'] );
+        $this->assign( 'amount', $defaults['amount'] );
+        $this->assign( 'amount_type', $defaults['amount_type'] );
+        $this->assign( 'count_use', $defaults['count_use'] );
+        $this->assign( 'count_max', $defaults['count_max'] );
+        $this->assign( 'is_active', $defaults['is_active'] );
+        $this->assign( 'organization_id', $defaults['organization_id'] );
+
+        // $this->assign( 'expiration_date', $defaults['expiration_date'] );
+
+        CRM_Utils_System::setTitle( $defaults['code'] );
+    }
+
+    function run( ) {
+        $this->preProcess();
+        return parent::run();
+    }
+}
 
