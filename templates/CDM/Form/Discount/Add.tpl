@@ -157,7 +157,7 @@ cj("input#organization").click( function( ) {
 });
 
 cj("#generate-code").click(function() {
-    var chars = "abcdefghjklmnpqrstwxyz23456789+-_=";
+    var chars = "abcdefghjklmnpqrstwxyz23456789";
     var len = 8;
 
     code = randomString(chars, len);
