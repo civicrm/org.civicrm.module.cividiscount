@@ -55,6 +55,10 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
 
         parent::preProcess( );
 
+        $session = CRM_Core_Session::singleton();
+        $url = CRM_Utils_System::url('civicrm/cividiscount/discount/list', 'reset=1');
+        $session->pushUserContext( $url );
+
         // check and ensure that update / delete have a valid id
         require_once 'CRM/Utils/Rule.php';
         if ( $this->_action & ( CRM_Core_Action::UPDATE | CRM_Core_Action::DELETE ) ) {
@@ -218,12 +222,12 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         }
     
         $pricesets = CDM_Utils::getPriceSets( );
-        if ( ! empty( $priceSets ) ) {
-            $this->_multiValued['pricesets'] = $priceSets;
+        if ( ! empty( $pricesets ) ) {
+            $this->_multiValued['pricesets'] = $pricesets;
             $this->addElement( 'advmultiselect',
                                'pricesets',
                                ts( 'PriceSets' ),
-                               $events,
+                               $pricesets,
                                array('size' => 5, 
                                      'style' => 'width:150px',
                                      'class' => 'advmultiselect')

@@ -95,7 +95,7 @@
           </td>
       </tr>
 {/if}
-{if $form.priceSets}
+{if $form.pricesets}
       <tr class="crm-discount-item-form-block-price-set">
           <td class="label">{$form.pricesets.label}</td>
           <td>{$form.pricesets.html}<br />
