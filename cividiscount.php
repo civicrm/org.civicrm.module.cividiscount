@@ -240,8 +240,14 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     if ($pagetype == 'event') {
 
         $v = $form->getVar('_values');
+        $currency = null;
         if ( array_key_exists( 'event', $v ) ) {
             $currency = $v['event']['currency'];
+        }
+
+        if ( ! $currency ) {
+            $config = CRM_Core_Config::singleton( );
+            $currency = $config->defaultCurrency;
         }
 
         /**
@@ -409,19 +415,20 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
         $eid = $form->getVar( '_eventId' );
         if ( $class == 'CRM_Event_Form_Registration_Confirm' ) {
             $contactid = $params['contactID'];
+            $pids = $form->getVar( '_participantIDS' );
+            $pid = $pids[0];
         } else {
             $contactid = $form->getVar( '_contactId' );
+            $pid       = $form->getVar( '_pId' );
         }
 
-        $pids = $form->getVar( '_participantIDS' );
         if ( !empty( $params['contributionID'] ) ) {
             $contributionid = $params['contributionID'];
         }
-        $pid = $pids[0];
         $track = array(
             'id' => $pid,
             'type' => 'Event',
-            'description' => $params['description']
+            'description' => CRM_Utils_Array::value( 'description', $params ),
         );
 
     // Membership
@@ -504,7 +511,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
                 $track->event_id = $eid;
                 $track->entity_table = 'civicrm_participant';
                 $track->entity_id = $pid;
-                $track->used_date = $participant['register_date'];
+                $track->used_date = CRM_Utils_Array::value( 'register_date', $participant );
 
                 $track->save();
             }
