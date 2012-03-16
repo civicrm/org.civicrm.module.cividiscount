@@ -216,7 +216,7 @@ class CDM_Page_Discount_View extends CRM_Core_Page
 
         if ( array_key_exists( 'pricesets', $defaults ) ) {
             $pricesets = CDM_Utils::getPriceSets( );
-            $defaults['pricesets'] = CDM_Utils::getIdsTitles( $defaults['pricesets'], $priceSets );
+            $defaults['pricesets'] = CDM_Utils::getIdsTitles( $defaults['pricesets'], $pricesets );
             $this->assign( 'pricesets', $defaults['pricesets'] );
         }
 

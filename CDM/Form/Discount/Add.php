@@ -153,7 +153,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
                         ts( 'Code can only consist of alpha-numeric characters' ),
                         'variable' );
         if ( $this->_action & CRM_Core_Action::UPDATE ) {
-            $this->freeze( );
+            $element->freeze( );
         }
          
         $this->add('text', 'description', ts('Description'), CRM_Core_DAO::getAttribute( 'CDM_DAO_Item', 'description' ) );
@@ -193,7 +193,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
                                ts( 'Automatic Discount' ),
                                $membershipTypes,
                                array('size' => 5, 
-                                     'style' => 'width:150px',
+                                     'style' => 'width:200px',
                                      'class' => 'advmultiselect')
                                );
 
@@ -202,7 +202,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
                                ts( 'Memberships' ),
                                $membershipTypes,
                                array('size' => 5, 
-                                     'style' => 'width:150px',
+                                     'style' => 'width:200px',
                                      'class' => 'advmultiselect')
                                );
         }
@@ -216,7 +216,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
                                ts( 'Events' ),
                                $events,
                                array('size' => 5, 
-                                     'style' => 'width:150px',
+                                     'style' => 'width:200px',
                                      'class' => 'advmultiselect')
                                );
         }
@@ -229,7 +229,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
                                ts( 'PriceSets' ),
                                $pricesets,
                                array('size' => 5, 
-                                     'style' => 'width:150px',
+                                     'style' => 'width:200px',
                                      'class' => 'advmultiselect')
                                );
         }
@@ -300,7 +300,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form
         $item->save( );
         
         CRM_Core_Session::setStatus( ts('The discount \'%1\' has been saved.',
-                                        array( 1 => $item->description )) );
+                                        array( 1 => $item->description ? $item->description : $item->code )) );
     } //end of function
 
 }
