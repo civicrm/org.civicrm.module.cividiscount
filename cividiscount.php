@@ -322,7 +322,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
                 foreach ( $fee['options'] as &$option ) {
                     if ( in_array( $option['id'], $psids ) ) {
-                        if ( in_array( $option['id'], unserialize($code['pricesets'] ) ) ) {
+                        $cps = explode( CRM_Core_DAO::VALUE_SEPARATOR, $code['pricesets'] );
+                        if ( in_array( $option['id'], $cps ) ) {
                             list( $option['amount'], $option['label'] ) = 
                                 _calc_discount( $option['amount'], $option['label'], $code, $currency );
                         }
