@@ -253,6 +253,7 @@ class CDM_DAO_Item extends CRM_Core_DAO
                     'type' => CRM_Utils_Type::T_INT,
                     'title' => ts('Count Use') ,
                     'required' => true,
+                    'default' => 0,
                 ) ,
                 'events' => array(
                     'name' => 'events',
