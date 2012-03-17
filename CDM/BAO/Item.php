@@ -69,6 +69,36 @@ class CDM_BAO_Item extends CDM_DAO_Item {
         }
         return null;
     }
+
+    static function getValidDiscounts( ) {
+        $codes = array( );
+
+        $sql = "
+SELECT  id,
+        code,
+        description,
+        amount,
+        amount_type,
+        events,
+        pricesets,
+        memberships,
+        autodiscount,
+        expire_on,
+        active_on,
+        is_active,
+        count_use,
+        count_max
+FROM    cividiscount_item";
+        $dao =& CRM_Core_DAO::executeQuery( $sql, array( ) );
+        while ( $dao->fetch( ) ) {
+            $a = (array) $dao;
+            if ( CDM_BAO_Item::isValid( $a ) ) {
+                $codes[$a['code']] = $a;
+            }
+        }
+
+        return $codes;
+    }
     
     /**
      * update the is_active flag in the db

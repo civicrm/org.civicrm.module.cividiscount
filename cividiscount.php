@@ -662,62 +662,14 @@ function cividiscount_civicrm_validate($name, &$fields, &$files, &$form) {
 
 
 /**
- * Helper function for updating the tracking.
- */
-function _set_tracking( $cid, $id, $contrib_id, $obj_id, $obj_type, $track ) {
-
-/*
-    require_once('civievent_discount.admin.inc');
-
-    return db_query(_sql_set_tracking(), $cid, $id, $contrib_id, $obj_id, $obj_type, time(), $track);
-*/
-
-}
-
-
-/**
- * Returns the number of discounts a contact id has redeemed.
- */
-function _get_code_tracking_count( $id = 0 ) {
-    return 0;
-
-/*
-    require_once('civievent_discount.admin.inc');
-    $result = db_result(db_query(_sql_get_tracking_count(), $id));
-
-    return $result['count'];
-*/
-
-}
-
-
-/**
- * Returns the number of discounts associated with an organization.
- */
-function _get_code_tracking_count_org( $id = 0 ) {
-    return 0;
-
-/*
-    require_once('civievent_discount.admin.inc');
-    $result = db_result(db_query(_sql_get_tracking_by_org(), $id));
-
-    return $result['count'];
-*/
-
-}
-
-
-/**
  * Returns an array of all discount codes.
  */
 function _get_discounts( ) {
-    $codes = array( );
 
-    $sql = "SELECT id, code, description, amount, amount_type, events, pricesets, memberships, autodiscount, expire_on, active_on, is_active, count_use, count_max FROM cividiscount_item";
-    $dao =& CRM_Core_DAO::executeQuery( $sql, array( ) );
-    while ( $dao->fetch( ) ) {
-        $codes[$dao->code] = (array) $dao;
-    }
+    require_once 'CDM/BAO/Item.php';
+
+    $codes = array();
+    $codes = CDM_BAO_Item::getValidDiscounts();
 
     return $codes;
 }
