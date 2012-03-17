@@ -70,31 +70,53 @@ class CDM_BAO_Track extends CDM_DAO_Track {
         return null;
     }
 
-    static function getUsage( $id ) {
+    static function getUsageByContact( $id ) {
+        return CDM_BAO_Track::getUsage( NULL, $id, NULL );
+    }
 
+    static function getUsageByOrg( $id ) {
+        return CDM_BAO_Track::getUsage( NULL, NULL, $id );
+    }
 
-        require_once 'CRM/Utils/Date.php';
-        require_once 'CRM/Utils/Time.php';
-        
-        $ts = CRM_Utils_Time::getTime();
-        CRM_Utils_Date::mysqlToIso($ts);
+    static function getUsageByCode( $id ) {
+        return CDM_BAO_Track::getUsage( $id, NULL, NULL );
+    }
+
+    static function getUsage( $id = NULL, $cid = NULL, $orgid = NULL ) {
 
         require_once 'CDM/Utils.php';
         require_once 'CRM/Member/BAO/Membership.php';
         require_once 'CRM/Contact/BAO/Contact.php';
 
-
         $events = CDM_Utils::getEvents( );
 
+        $where = '';
+
         $sql = "
-SELECT    contact_id,
-          used_date,
-          contribution_id,
-          event_id,
-          entity_table,
-          entity_id
-FROM      cividiscount_track
-WHERE     item_id = " . CRM_Utils_Type::escape( $id, 'Integer' );
+SELECT    t.item_id as item_id,
+          t.contact_id as contact_id,
+          t.used_date as used_date,
+          t.contribution_id as contribution_id,
+          t.event_id as event_id,
+          t.entity_table as entity_table,
+          t.entity_id as entity_id ";
+
+        $from = " FROM cividiscount_track AS t ";
+
+        if ( $orgid ) {
+            $sql .= ", i.code ";
+            $where = " LEFT JOIN cividiscount_item AS i ON (i.id = t.item_id) ";
+            $where .= " WHERE i.organization_id = " . CRM_Utils_Type::escape( $orgid, 'Integer' );
+        } else if ( $cid ) {
+            $where = " WHERE t.contact_id = " . CRM_Utils_Type::escape( $cid, 'Integer' );
+        } else {
+            $where = " WHERE t.item_id = " . CRM_Utils_Type::escape( $id, 'Integer' );
+        }
+
+        $orderby = " ORDER BY t.item_id, t.used_date ";
+
+        $sql = $sql . $from . $where . $orderby;
+
         $dao = new CRM_Core_DAO( );
         $dao->query( $sql );
         $rows = array();
@@ -107,6 +129,9 @@ WHERE     item_id = " . CRM_Utils_Type::escape( $id, 'Integer' );
             $row['event_id'] = $dao->event_id;
             $row['entity_table'] = $dao->entity_table;
             $row['entity_id'] = $dao->entity_id;
+            if ( isset( $dao->code ) ) {
+                $row['code'] = $dao->code;
+            }
             if ( $row['entity_table'] == 'civicrm_participant' ) {
                 if ( array_key_exists( $dao->event_id, $events ) ) {
                     $row['event_title'] = $events[$dao->event_id];

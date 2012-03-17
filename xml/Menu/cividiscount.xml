@@ -52,4 +52,9 @@
      <page_callback>CDM_Page_Discount_Report</page_callback>
      <access_arguments>view CiviDiscount</access_arguments>
   </item>  
+  <item>
+     <path>civicrm/cividiscount/usage</path>
+     <page_callback>CDM_Page_Discount_Usage</page_callback>
+     <access_arguments>view CiviDiscount</access_arguments>
+  </item>  
 </menu>

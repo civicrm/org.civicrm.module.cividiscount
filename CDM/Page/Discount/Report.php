@@ -155,7 +155,7 @@ class CDM_Page_Discount_Report extends CRM_Core_Page
         CDM_BAO_Item::retrieve( $params, $defaults );
 
         require_once 'CDM/BAO/Track.php';
-        $rows = CDM_BAO_Track::getUsage( $this->_id );
+        $rows = CDM_BAO_Track::getUsageByCode( $this->_id );
 
         $this->assign( 'rows', $rows );
         $this->assign( 'code_details', $defaults );

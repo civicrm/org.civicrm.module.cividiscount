@@ -581,7 +581,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
                     'title' => 'Codes Assigned',
                     'weight' => '998');
         if ( $count > 0 ) {
-            $a['url'] = "/admin/settings/civievent_discount/report/$cid";
+            $a['url'] = "/civicrm/cividiscount/usage?reset=1&oid=$cid&snippet=1";
         }
         $tabs[] = $a;
     }
@@ -593,7 +593,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
                 'title' => 'Codes Redeemed',
                 'weight' => '999');
     if ( $count > 0 ) {
-        $a['url'] = "/admin/settings/civievent_discount/usage/user/$cid";
+        $a['url'] = "/civicrm/cividiscount/usage?reset=1&cid=$cid&snippet=1";
     }
     $tabs[] = $a;
 }
