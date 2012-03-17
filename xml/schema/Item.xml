@@ -60,6 +60,7 @@
        <name>count_use</name>
        <type>int</type>
        <required>true</required>
+	   <default>0</default>
        <comment>Number of times this code has been used.</comment>
        <add>4.1</add>
   </field>
