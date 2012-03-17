@@ -75,7 +75,9 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
             return;
         }
 
-        if ( $form->_single == 1 || $form->_context == 'membership' ) {
+        if ( ( isset( $form->_single ) &&
+               $form->_single == 1 ) ||
+             $form->_context == 'membership' ) {
             _add_discount_textfield( $form );
         }
 

@@ -101,7 +101,7 @@ class CDM_Page_Discount_View extends CRM_Core_Page
                                   CRM_Core_Action::DELETE  => array(
                                                                     'name'  => ts('Delete'),
                                                                     'url'   => 'civicrm/cividiscount/discount/delete',
-                                                                    'qs'    => '&id=%%id%%',
+                                                                    'qs'    => '&id=%%id%%&reset=1',
                                                                     'title' => ts('Delete Discount') 
                                                                    )
                                   );
@@ -206,8 +206,8 @@ class CDM_Page_Discount_View extends CRM_Core_Page
             $this->assign( 'events', $defaults['events'] );
         }
 
+        $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
         if ( array_key_exists( 'memberships', $defaults )  ) {
-            $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
             $defaults['memberships'] = CDM_Utils::getIdsTitles( $defaults['memberships'], $membershipTypes );
             $this->assign( 'memberships', $defaults['memberships'] );
         }
