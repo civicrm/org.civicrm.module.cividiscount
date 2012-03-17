@@ -40,7 +40,7 @@ require_once 'CDM/DAO/Item.php';
 /**
  * Page for displaying discount code details
  */
-class CDM_Page_Discount_View extends CRM_Core_Page
+class CDM_Page_Discount_Report extends CRM_Core_Page
 {
     /**
      * The id of the discount code
@@ -154,74 +154,11 @@ class CDM_Page_Discount_View extends CRM_Core_Page
         require_once 'CDM/BAO/Item.php';
         CDM_BAO_Item::retrieve( $params, $defaults );
 
-        $this->assign( 'code_id', $defaults['id'] );
-        $this->assign( 'code', $defaults['code'] );
-        $this->assign( 'description', $defaults['description'] );
-        $this->assign( 'amount', $defaults['amount'] );
-        $this->assign( 'amount_type', $defaults['amount_type'] );
-        $this->assign( 'count_use', $defaults['count_use'] );
-        $this->assign( 'count_max', $defaults['count_max'] );
-        $this->assign( 'is_active', $defaults['is_active'] );
+        require_once 'CDM/BAO/Track.php';
+        $rows = CDM_BAO_Track::getUsage( $this->_id );
 
-        if ( array_key_exists( 'expire_on', $defaults ) ) {
-            $this->assign( 'expire_on', $defaults['expire_on'] );
-        }
-
-        if ( array_key_exists( 'active_on', $defaults ) ) {
-            $this->assign( 'active_on', $defaults['active_on'] );
-        }
-
-        if ( array_key_exists( 'organization_id', $defaults ) ) {
-            $this->assign( 'organization_id', $defaults['organization_id'] );
-            require_once 'CRM/Contact/BAO/Contact.php';
-            $orgname = CRM_Contact_BAO_Contact::displayName($defaults['organization_id']);
-            $this->assign( 'organization', $orgname );
-        }
-
-        $this->_multiValued = array( 'autodiscount' => null,
-                                     'memberships'  => null,
-                                     'events'       => null,
-                                     'pricesets'    => null );
-
-        foreach ( $this->_multiValued as $mv => $info ) { 
-            if ( ! empty( $defaults[$mv] ) ) { 
-                $v = substr( $defaults[$mv], 1, -1 );
-                $values = explode( CRM_Core_DAO::VALUE_SEPARATOR, $v );
-
-                $defaults[$mv] = array( );
-                if ( ! empty( $values ) ) { 
-                    foreach ( $values as $val ) { 
-                        $defaults[$mv][] = $val;
-                    }   
-                }   
-            }   
-        }   
-
-        require_once 'CDM/Utils.php';
-        require_once 'CRM/Member/BAO/MembershipType.php';
-
-        if ( array_key_exists( 'events', $defaults ) ) {
-            $events = CDM_Utils::getEvents( );
-            $defaults['events'] = CDM_Utils::getIdsTitles( $defaults['events'], $events );
-            $this->assign( 'events', $defaults['events'] );
-        }
-
-        if ( array_key_exists( 'memberships', $defaults )  ) {
-            $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
-            $defaults['memberships'] = CDM_Utils::getIdsTitles( $defaults['memberships'], $membershipTypes );
-            $this->assign( 'memberships', $defaults['memberships'] );
-        }
-
-        if ( array_key_exists( 'autodiscount', $defaults ) ) {
-            $defaults['autodiscount'] = CDM_Utils::getIdsTitles( $defaults['autodiscount'], $membershipTypes );
-            $this->assign( 'autodiscount', $defaults['autodiscount'] );
-        }
-
-        if ( array_key_exists( 'pricesets', $defaults ) ) {
-            $priceSets = CDM_Utils::getPriceSets( );
-            $defaults['pricesets'] = CDM_Utils::getIdsTitles( $defaults['pricesets'], $priceSets );
-            $this->assign( 'pricesets', $defaults['pricesets'] );
-        }
+        $this->assign( 'rows', $rows );
+        $this->assign( 'code_details', $defaults );
 
         CRM_Utils_System::setTitle( $defaults['code'] );
     }

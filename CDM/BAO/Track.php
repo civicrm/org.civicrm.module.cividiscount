@@ -69,6 +69,61 @@ class CDM_BAO_Track extends CDM_DAO_Track {
         }
         return null;
     }
+
+    static function getUsage( $id ) {
+
+
+        require_once 'CRM/Utils/Date.php';
+        require_once 'CRM/Utils/Time.php';
+        
+        $ts = CRM_Utils_Time::getTime();
+        CRM_Utils_Date::mysqlToIso($ts);
+
+        require_once 'CDM/Utils.php';
+        require_once 'CRM/Member/BAO/Membership.php';
+        require_once 'CRM/Contact/BAO/Contact.php';
+
+
+        $events = CDM_Utils::getEvents( );
+
+        $sql = "
+SELECT    contact_id,
+          used_date,
+          contribution_id,
+          event_id,
+          entity_table,
+          entity_id
+FROM      cividiscount_track
+WHERE     item_id = " . CRM_Utils_Type::escape( $id, 'Integer' );
+        $dao = new CRM_Core_DAO( );
+        $dao->query( $sql );
+        $rows = array();
+        while ( $dao->fetch( ) ) {
+            $row = array();
+            $row['contact_id'] = $dao->contact_id;
+            $row['display_name'] = CRM_Contact_BAO_Contact::displayName( $dao->contact_id );
+            $row['used_date'] = $dao->used_date;
+            $row['contribution_id'] = $dao->contribution_id;
+            $row['event_id'] = $dao->event_id;
+            $row['entity_table'] = $dao->entity_table;
+            $row['entity_id'] = $dao->entity_id;
+            if ( $row['entity_table'] == 'civicrm_participant' ) {
+                if ( array_key_exists( $dao->event_id, $events ) ) {
+                    $row['event_title'] = $events[$dao->event_id];
+                }
+            } else if ( $row['entity_table'] == 'civicrm_membership' ) {
+                $result = CRM_Member_BAO_Membership::getStatusANDTypeValues( $dao->entity_id );
+                if ( array_key_exists( $dao->entity_id, $result ) ) {
+                    if ( array_key_exists( 'membership_type', $result[$dao->entity_id] ) ) {
+                      $row['membership_title'] = $result[$dao->entity_id]['membership_type'];
+                    }
+                }
+            }
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
     
     
     /**

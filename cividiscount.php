@@ -300,6 +300,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         if ( !empty( $psid ) ) {
             $feeblock =& $amounts;
             $psids = _get_discounted_priceset_ids( );
+
             if ( !in_array( $pagetype, array( 'contribution', 'event' ) ) ||
                  !is_array( $feeblock ) ||
                  empty( $feeblock ) ) {
@@ -491,9 +492,13 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
     require_once 'CDM/BAO/Item.php';
     require_once 'CDM/DAO/Track.php';
 
+    require_once 'CRM/Utils/Time.php';
+    $ts = CRM_Utils_Time::getTime();
+
     if ( in_array( $class, array(
           'CRM_Event_Form_Registration_Confirm',
           'CRM_Event_Form_Participant' ) ) ) {
+
 
         if ( $class == 'CRM_Event_Form_Registration_Confirm' ) {
 
@@ -511,7 +516,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
                 $track->event_id = $eid;
                 $track->entity_table = 'civicrm_participant';
                 $track->entity_id = $pid;
-                $track->used_date = CRM_Utils_Array::value( 'register_date', $participant );
+                $track->used_date = $ts;
 
                 $track->save();
             }
@@ -528,7 +533,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
               $track->event_id = $eid;
               $track->entity_table = 'civicrm_participant';
               $track->entity_id = $pid;
-              // $track->used_date = $participant['register_date'];
+              $track->used_date = $ts;
 
               $track->save();
             } 
@@ -545,9 +550,10 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
         $track->contribution_id = $contributionid;
         $track->entity_table = 'civicrm_membership';
         $track->entity_id = $mid;
-        // $track->used_date = $participant['register_date'];
+        $track->used_date = $ts;
 
         $track->save();
+
     } else {
         $track = new CDM_DAO_Track( );
         $track->item_id = $code['id'];
@@ -555,7 +561,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
         $track->contribution_id = $contributionid;
         $track->entity_table = 'civicrm_contribution';
         $track->entity_id = $contributionid;
-        // $track->used_date = $participant['register_date'];
+        $track->used_date = $ts;
 
         $track->save();
     }
@@ -758,9 +764,9 @@ function _get_items_from_codes( $codes, $key ) {
 
         $a = explode( CRM_Core_DAO::VALUE_SEPARATOR, $data[$key] );
 
-        foreach ($a as $itemid) {
-            if ( !empty( $a[$itemid] ) ) {
-                $items[$itemid] = $itemid;
+        foreach ($a as $k => $v) {
+            if ( !empty( $a[$k] ) ) {
+                $items[$v] = $v;
             }
         }
     }

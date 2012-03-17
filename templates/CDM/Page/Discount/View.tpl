@@ -62,7 +62,7 @@
     </tr>
     <tr>
         <td class="label">{ts}Usage{/ts}</td>
-    	  <td>{$count_use} / {if $count_max eq 0}{ts}Unlimited{/ts}{else}{$count_max}{/if}</td>
+    	  <td><a href="/civicrm/cividiscount/report?id={$code_id}&reset=1">{$count_use}</a> / {if $count_max eq 0}{ts}Unlimited{/ts}{else}{$count_max}{/if}</td>
     </tr>
     <tr>
         <td class="label">{ts}Start Date{/ts}</td>
