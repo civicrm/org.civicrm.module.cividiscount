@@ -882,7 +882,7 @@ function _get_code_details($code) {
             }
         }
     } else {
-        $ret = $codes[$code];
+        $ret = CRM_Utils_Array::value( $code, $codes );
     } 
   
     return $ret;
