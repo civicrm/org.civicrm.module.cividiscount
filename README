@@ -4,14 +4,13 @@ Known issues:
 
 1. Tracking: Participant ID is not available in postProcess() for offline contribution.
 7. Tracking: Additional testing needed to verify online/offline tracking for events, membership and autodiscounts.
-10. ignore_case() and allow_multiple() need to be implemented.
 
-Fixed:
+- Feature Adds:
 
-2. Tracking: Need to register URL for snippet display of usage history per contact/organization.
-3. CRUD: Edit code isn't working.
-4. CRUD: Delete code isn't working.
-5. CRUD: Returns to wrong page after add/edit/delete (user context?).
-6. CRUD: Enable/disable code isn't working.
-8. Tracking: Verify works correctly when viewing organization record that "owns" the discount code.
-9. Feature: Pricesets isn't implemented
+1. ignore_case() and allow_multiple() need to be implemented via CiviCRM settings
+2. Implement hook_civicrm_install and hook_civicrm_uninstall for Civi v4.2
+3. Fix extensions so that when an extension is installed/uninstalled/enabled/disabled the CiviCRM menu is rebuilt, cache is cleared etc
+4. Figure out how to handle Views and UC integration
+
+
+
