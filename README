@@ -10,7 +10,8 @@ Known issues:
 1. ignore_case() and allow_multiple() need to be implemented via CiviCRM settings
 2. Implement hook_civicrm_install and hook_civicrm_uninstall for Civi v4.2
 3. Fix extensions so that when an extension is installed/uninstalled/enabled/disabled the CiviCRM menu is rebuilt, cache is cleared etc
-4. Figure out how to handle Views and UC integration
+4. Fix the permission issue. Should we add hook_civicrm_perms and then ensure the CMS rebuilds its permission arrays?
+5. Figure out how to handle Views and UC integration
 
 
 
