@@ -642,11 +642,11 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
 
 
 /**
- * Implementation of hook_civicrm_validate()
+ * Implementation of hook_civicrm_validateForm()
  *
  * Used in the initial event registration screen.
  */
-function cividiscount_civicrm_validate($name, &$fields, &$files, &$form) {
+function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors ) {
     if ( !in_array( $name, array( 'CRM_Event_Form_Participant',
                                   'CRM_Member_Form_Membership',
                                   'CRM_Event_Form_Registration_Register' ) ) ) {
@@ -668,14 +668,13 @@ function cividiscount_civicrm_validate($name, &$fields, &$files, &$form) {
 
     if ( empty( $code ) ) {
         $errors['discountcode'] = ts( 'The discount code you entered is invalid.' );
-
-        return $errors;
+        return;
     } else {
         require_once 'CDM/BAO/Item.php';
 
         if ( !CDM_BAO_Item::isValid( $code )  ) {
             $errors['discountcode'] = ts( 'The discount code you entered is either expired or is no longer active.' );
-            return $errors;
+            return;
         }
 
         $sv = $form->getVar( '_submitValues' );
@@ -697,7 +696,7 @@ function cividiscount_civicrm_validate($name, &$fields, &$files, &$form) {
         }
     }
 
-    return empty( $errors ) ? true : $errors;
+    return;
 }
 
 
