@@ -1,13 +1,53 @@
 <?php
 
 /**
+ * Implementation of hook_civicrm_install( )
+ */
+function cividiscount_civicrm_install( ) {
+  $cividiscountRoot =
+    dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+
+  $cividiscountSQL =
+    $cividiscountRoot . DIRECTORY_SEPARATOR .
+    'cividiscount.sql';
+
+  CRM_Utils_File::sourceSQLFile(
+    CIVICRM_DSN,
+    $cividiscountSQL
+  );
+
+  // rebuild the menu so our path is picked up
+  CRM_Core_Invoke::rebuildMenuAndCaches( );
+}
+
+/**
+ * Implementation of hook_civicrm_uninstall( )
+ */
+function cividiscount_civicrm_uninstall( ) {
+  $cividiscountRoot =
+    dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+
+  $cividiscountSQL =
+    $cividiscountRoot . DIRECTORY_SEPARATOR .
+    'cividiscount.uninstall.sql';
+
+  CRM_Utils_File::sourceSQLFile(
+    CIVICRM_DSN,
+    $cividiscountSQL
+  );
+
+  // rebuild the menu so our path is picked up
+  CRM_Core_Invoke::rebuildMenuAndCaches( );
+}
+
+/**
  * Implementation of hook_civicrm_config()
  */
 function cividiscount_civicrm_config( &$config ) {
 
     $template =& CRM_Core_Smarty::singleton( );
 
-    $cividiscountRoot = 
+    $cividiscountRoot =
         dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
 
     $cividiscountDir = $cividiscountRoot . 'templates';
@@ -26,7 +66,7 @@ function cividiscount_civicrm_config( &$config ) {
 
 /**
  * Implementation of hook_civicrm_perm()
- * 
+ *
  * Module extensions dont implement this hook as yet, will need to add for 4.2
  */
 function cividiscount_civicrm_perm( ) {
@@ -45,11 +85,11 @@ function cividiscount_civicrm_xmlMenu( &$files ) {
         'Menu'              . DIRECTORY_SEPARATOR .
         'cividiscount.xml';
 }
-        
+
 
 /**
  * Implementation of hook_civicrm_buildForm()
- * 
+ *
  * If the event id of the form being loaded has a discount code, modify
  * the form to include the textfield. Only display the textfield on the
  * initial registration screen.
@@ -144,7 +184,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 
 /**
  * Implementation of hook_civicrm_membershipTypeValues()
- * 
+ *
  * Allow discounts to also be applied to renewing memberships.
  *
  * XXX: error handling should really live in hook_civicrm_validate(), but
@@ -230,7 +270,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
 /**
  * Implementation of hook_civicrm_buildAmount()
- * 
+ *
  * If the event id of the form being loaded has a discount code, calculate the
  * the discount and update the price and label. Apply the initial autodiscount
  * based on a users membership.
@@ -333,7 +373,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
                     if ( in_array( $option['id'], $psids ) ) {
                         $cps = explode( CRM_Core_DAO::VALUE_SEPARATOR, $code['pricesets'] );
                         if ( in_array( $option['id'], $cps ) ) {
-                            list( $option['amount'], $option['label'] ) = 
+                            list( $option['amount'], $option['label'] ) =
                                 _calc_discount( $option['amount'], $option['label'], $code, $currency );
                         }
                     }
@@ -396,7 +436,7 @@ function cividiscount_civicrm_pre( $op, $name, $id, &$obj ) {
 
 /**
  * Implementation of hook_civicrm_postProcess()
- * 
+ *
  * If the event id of the form being loaded has a discount code, increment the
  * count and log the usage. If it's a membership, just log the usage.
  *
@@ -525,7 +565,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
         } else {
 
             // XXX: If an offline event registration was made, the participant id is unknown.
-            if ( !empty($pid) ) { 
+            if ( !empty($pid) ) {
               CDM_BAO_Item::incrementUsage( $code['id'] );
 
               $track = new CDM_DAO_Track( );
@@ -538,7 +578,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
               $track->used_date = $ts;
 
               $track->save();
-            } 
+            }
         }
     } else if ( in_array( $class, array(
             'CRM_Contribute_Form_Contribution_Confirm',
@@ -572,7 +612,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
 
 /**
  * Implementation of hook_civicrm_tabs()
- * 
+ *
  * Display a discounts tab listing discount code usage for that contact.
  */
 function cividiscount_civicrm_tabs(&$tabs, $cid) {
@@ -603,7 +643,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
 
 /**
  * Implementation of hook_civicrm_validate()
- * 
+ *
  * Used in the initial event registration screen.
  */
 function cividiscount_civicrm_validate($name, &$fields, &$files, &$form) {
@@ -817,7 +857,7 @@ function _verify_autodiscount( $codes = array( ) ) {
                 $code = $v['code'];
 
                 return $code;
-            } 
+            }
         }
     }
 
@@ -883,10 +923,10 @@ function _get_code_details($code) {
         }
     } else {
         $ret = CRM_Utils_Array::value( $code, $codes );
-    } 
-  
+    }
+
     return $ret;
-} 
+}
 
 
 /**
