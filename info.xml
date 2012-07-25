@@ -19,7 +19,7 @@
   <version>1.0</version>
   <develStage>beta</develStage>
   <compatibility>
-    <ver>4.1</ver>
+    <ver>4.2</ver>
   </compatibility>
   <comments>For support, please contact project team on the forums. (http://forum.civicrm.org)</comments>
 </extension>
