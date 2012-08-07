@@ -278,9 +278,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
  * Check all priceset items and only apply the discount to the discounted items.
  */
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
-
   if ($pagetype == 'event') {
-
     $v = $form->getVar('_values');
     $currency = null;
     if ( array_key_exists( 'event', $v ) ) {
@@ -330,7 +328,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $code = _get_code_details( $code );
 
     require_once 'CDM/BAO/Item.php';
-
     if ( !$code || !CDM_BAO_Item::isValid( $code )  ) {
       return;
     }
