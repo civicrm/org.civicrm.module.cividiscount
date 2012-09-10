@@ -806,7 +806,7 @@ function _calc_discount( $amount, $label, $code, $currency = 'USD' ) {
   $newamount = 0.00;
   $newlabel = '';
 
-  if ( $code['amount_type'] == 'M' ) {
+  if ( $code['amount_type'] == '2' ) {
 
     require_once( 'CRM/Utils/Rule.php' );
 
