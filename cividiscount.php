@@ -460,6 +460,10 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
     } else {
       $contactid = $form->getVar( '_contactId' );
       $pid       = $form->getVar( '_pId' );
+      // _pid is empty when registering contact manually from contact/view.
+      if (empty($pid)) {
+        $pid = $contactid;
+      }
     }
 
     if ( !empty( $params['contributionID'] ) ) {
