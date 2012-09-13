@@ -1,7 +1,6 @@
-This XML file does not appear to have any style information associated with it. The document tree is shown below.
 <extension key="org.civicrm.module.cividiscount" type="module">
 <downloadUrl>
-https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v4.2.0
+https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v4.2.1
 </downloadUrl>
 <file>cividiscount</file>
 <name>CiviDiscount Module Extension</name>
@@ -21,8 +20,8 @@ https://github.com/dlobo/org.civicrm.module.cividiscount/
 <author>CiviCRM LLC</author>
 <email>info@civicrm.org</email>
 </maintainer>
-<releaseDate>2012-04-01</releaseDate>
-<version>1.1</version>
+<releaseDate>2012-09-12</releaseDate>
+<version>1.2</version>
 <develStage>alpha</develStage>
 <compatibility>
 <ver>4.2</ver>
