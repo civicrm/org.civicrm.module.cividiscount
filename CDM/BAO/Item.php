@@ -88,7 +88,8 @@ SELECT  id,
         is_active,
         count_use,
         count_max
-FROM    cividiscount_item";
+FROM    cividiscount_item
+";
         $dao =& CRM_Core_DAO::executeQuery( $sql, array( ) );
         while ( $dao->fetch( ) ) {
             $a = (array) $dao;

@@ -801,14 +801,12 @@ function _get_autodiscounted_ids( ) {
  * Calculate either a monetary or percentage discount.
  */
 function _calc_discount( $amount, $label, $code, $currency = 'USD' ) {
-
-  require_once( 'CRM/Utils/Money.php' );
+  require_once 'CRM/Utils/Money.php';
   $newamount = 0.00;
   $newlabel = '';
 
   if ( $code['amount_type'] == 'M' ) {
-
-    require_once( 'CRM/Utils/Rule.php' );
+    require_once 'CRM/Utils/Rule.php';
 
     $newamount = CRM_Utils_Rule::cleanMoney( $amount ) - CRM_Utils_Rule::cleanMoney( $code['amount'] );
     $fmt_discount = CRM_Utils_Money::format( $code['amount'], $currency );
@@ -837,7 +835,7 @@ function _verify_autodiscount( $codes = array( ) ) {
     return;
   }
 
-  require_once('CRM/Member/BAO/Membership.php');
+  require_once 'CRM/Member/BAO/Membership.php';
 
   foreach ( $codes as $k => $v ) {
 
