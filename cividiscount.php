@@ -119,6 +119,11 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
         $form->_single == 1 ) ||
       $form->_context == 'membership' ) {
       _add_discount_textfield( $form );
+      $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, 'REQUEST' );
+      if ( $code ) {
+        $defaults = array( 'discountcode' => $code );
+        $form->setDefaults( $defaults );
+      }
     }
 
     return;
