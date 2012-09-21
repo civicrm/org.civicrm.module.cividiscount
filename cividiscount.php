@@ -305,9 +305,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
       // POST from participant form to confirm page
       if ( $form->getVar( '_lastParticipant' ) == 1 ) {
-        if ( !_allow_multiple( ) ) {
-          return;
-        }
+        return;
       }
 
       // On build participant form
