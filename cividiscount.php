@@ -674,19 +674,13 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
       return;
     }
 
-    $sv = $form->getVar( '_submitValues' );
-    $apcount = 1;
-    if ( array_key_exists( 'additional_participants', $sv ) ) {
-      $apcount = $sv['additional_participants'];
-    }
-
     if ( $code['count_max'] > 0 ) {
-      if ( empty( $apcount ) ) {
-        $apcount = 1;
-      } else {
-        $apcount++;  // add 1 for person registering
+      // Initially 1 for person registering.
+      $apcount = 1;
+      $sv = $form->getVar( '_submitValues' );
+      if ( array_key_exists( 'additional_participants', $sv ) ) {
+        $apcount += $sv['additional_participants'];
       }
-
       if ( ( $code['count_use'] + $apcount ) > $code['count_max'] ) {
         $errors['discountcode'] = ts( 'There are not enough uses remaining for this code.' );
       }
