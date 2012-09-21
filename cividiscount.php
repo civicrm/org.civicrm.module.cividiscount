@@ -169,7 +169,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
       }
 
       _add_discount_textfield($form);
-      $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, $_REQUEST );
+      $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, 'REQUEST' );
       if ( $code ) {
         $defaults = array( 'discountcode' => $code );
         $form->setDefaults( $defaults );
@@ -192,7 +192,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
  */
 function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
 
-  $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, $_REQUEST);
+  $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, 'REQUEST' );
 
   // First time the page loads or they didn't enter a code.
   if ( empty( $code ) ) {
@@ -319,7 +319,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     $codes = _get_discounts( );
-    $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, $_REQUEST );
+    $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, 'REQUEST' );
 
     if ( !$code ) {
       $code = _verify_autodiscount( $codes );
@@ -514,7 +514,7 @@ function cividiscount_civicrm_postProcess( $class, &$form ) {
     return;
   }
 
-  $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, $_REQUEST );
+  $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, 'REQUEST' );
   $code = _get_code_details( $code );
 
   if ( empty( $code ) ) {
@@ -650,7 +650,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
     return;
   }
 
-  $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, $_REQUEST );
+  $code = CRM_Utils_Request::retrieve( 'discountcode', 'String', $form, false, null, 'REQUEST' );
 
   if ( $code == '' ) {
     return;
