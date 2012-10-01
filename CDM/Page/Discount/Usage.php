@@ -40,8 +40,7 @@ require_once 'CDM/DAO/Item.php';
 /**
  * Page for displaying discount code details
  */
-class CDM_Page_Discount_Usage extends CRM_Core_Page
-{
+class CDM_Page_Discount_Usage extends CRM_Core_Page {
     /**
      * The id of the discount code
      *
@@ -49,46 +48,48 @@ class CDM_Page_Discount_Usage extends CRM_Core_Page
      */
     protected $_id;
 
-    function preProcess( ) {
+    function preProcess() {
 
         $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
         $oid = CRM_Utils_Request::retrieve('oid', 'Positive', $this, false);
 
-        if ( $oid ) {
+        if ($oid) {
             $this->_id = CRM_Utils_Request::retrieve('oid', 'Positive', $this, false);
-        } else {
-            $this->assign( 'hide_contact', TRUE);
+        }
+        else {
+            $this->assign('hide_contact', TRUE);
             $this->_id = $cid;
         }
 
         require_once 'CRM/Utils/Rule.php';
-        if ( ! CRM_Utils_Rule::positiveInteger( $this->_id ) ) {
-            CRM_Core_Error::fatal( ts( 'We need a valid discount ID for view' ) );
+        if (! CRM_Utils_Rule::positiveInteger($this->_id)) {
+            CRM_Core_Error::fatal(ts('We need a valid discount ID for view'));
         }
 
-        $this->assign( 'id', $this->_id );
-        $defaults = array( );
-        $params = array( 'id' => $this->_id );
+        $this->assign('id', $this->_id);
+        $defaults = array();
+        $params = array('id' => $this->_id);
 
         require_once 'CDM/BAO/Item.php';
-        CDM_BAO_Item::retrieve( $params, $defaults );
+        CDM_BAO_Item::retrieve($params, $defaults);
 
         require_once 'CDM/BAO/Track.php';
-        if ( $cid ) {
-            $rows = CDM_BAO_Track::getUsageByContact( $this->_id );
-        } else {
-            $rows = CDM_BAO_Track::getUsageByOrg( $this->_id );
+        if ($cid) {
+            $rows = CDM_BAO_Track::getUsageByContact($this->_id);
+        }
+        else {
+            $rows = CDM_BAO_Track::getUsageByOrg($this->_id);
         }
 
-        $this->assign( 'rows', $rows );
-        $this->assign( 'code_details', $defaults );
+        $this->assign('rows', $rows);
+        $this->assign('code_details', $defaults);
 
-        if ( !empty( $defaults['code'] ) ) {
-            CRM_Utils_System::setTitle( $defaults['code'] );
+        if (!empty($defaults['code'])) {
+            CRM_Utils_System::setTitle($defaults['code']);
         }
     }
 
-    function run( ) {
+    function run() {
         $this->preProcess();
         return parent::run();
     }

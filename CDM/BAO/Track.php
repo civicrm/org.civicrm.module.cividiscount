@@ -42,8 +42,8 @@ class CDM_BAO_Track extends CDM_DAO_Track {
     /**
      * class constructor
      */
-    function __construct( ) {
-        parent::__construct( );
+    function __construct() {
+        parent::__construct();
     }
 
     /**
@@ -53,42 +53,41 @@ class CDM_BAO_Track extends CDM_DAO_Track {
      * of time. This is the inverse function of create. It also stores all the retrieved
      * values in the default array
      *
-     * @param array $params   (reference ) an assoc array of name/value pairs
-     * @param array $defaults (reference ) an assoc array to hold the flattened values
+     * @param array $params   (reference) an assoc array of name/value pairs
+     * @param array $defaults (reference) an assoc array to hold the flattened values
      *
      * @return object CDM_BAO_Item object on success, null otherwise
      * @access public
      * @static
      */
-    static function retrieve( &$params, &$defaults ) {
-        $item = new CDM_DAO_Track( );
-        $item->copyValues( $params );
-        if ( $item->find( true ) ) {
-            CRM_Core_DAO::storeValues( $item, $defaults );
+    static function retrieve(&$params, &$defaults) {
+        $item = new CDM_DAO_Track();
+        $item->copyValues($params);
+        if ($item->find(true)) {
+            CRM_Core_DAO::storeValues($item, $defaults);
             return $item;
         }
         return null;
     }
 
-    static function getUsageByContact( $id ) {
-        return CDM_BAO_Track::getUsage( NULL, $id, NULL );
+    static function getUsageByContact($id) {
+        return CDM_BAO_Track::getUsage(NULL, $id, NULL);
     }
 
-    static function getUsageByOrg( $id ) {
-        return CDM_BAO_Track::getUsage( NULL, NULL, $id );
+    static function getUsageByOrg($id) {
+        return CDM_BAO_Track::getUsage(NULL, NULL, $id);
     }
 
-    static function getUsageByCode( $id ) {
-        return CDM_BAO_Track::getUsage( $id, NULL, NULL );
+    static function getUsageByCode($id) {
+        return CDM_BAO_Track::getUsage($id, NULL, NULL);
     }
 
-    static function getUsage( $id = NULL, $cid = NULL, $orgid = NULL ) {
-
+    static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
         require_once 'CDM/Utils.php';
         require_once 'CRM/Member/BAO/Membership.php';
         require_once 'CRM/Contact/BAO/Contact.php';
 
-        $events = CDM_Utils::getEvents( );
+        $events = CDM_Utils::getEvents();
 
         $where = '';
 
@@ -103,43 +102,46 @@ SELECT    t.item_id as item_id,
 
         $from = " FROM cividiscount_track AS t ";
 
-        if ( $orgid ) {
+        if ($orgid) {
             $sql .= ", i.code ";
             $where = " LEFT JOIN cividiscount_item AS i ON (i.id = t.item_id) ";
-            $where .= " WHERE i.organization_id = " . CRM_Utils_Type::escape( $orgid, 'Integer' );
-        } else if ( $cid ) {
-            $where = " WHERE t.contact_id = " . CRM_Utils_Type::escape( $cid, 'Integer' );
-        } else {
-            $where = " WHERE t.item_id = " . CRM_Utils_Type::escape( $id, 'Integer' );
+            $where .= " WHERE i.organization_id = " . CRM_Utils_Type::escape($orgid, 'Integer');
+        }
+        else if ($cid) {
+            $where = " WHERE t.contact_id = " . CRM_Utils_Type::escape($cid, 'Integer');
+        }
+        else {
+            $where = " WHERE t.item_id = " . CRM_Utils_Type::escape($id, 'Integer');
         }
 
         $orderby = " ORDER BY t.item_id, t.used_date ";
 
         $sql = $sql . $from . $where . $orderby;
 
-        $dao = new CRM_Core_DAO( );
-        $dao->query( $sql );
+        $dao = new CRM_Core_DAO();
+        $dao->query($sql);
         $rows = array();
-        while ( $dao->fetch( ) ) {
+        while ($dao->fetch()) {
             $row = array();
             $row['contact_id'] = $dao->contact_id;
-            $row['display_name'] = CRM_Contact_BAO_Contact::displayName( $dao->contact_id );
+            $row['display_name'] = CRM_Contact_BAO_Contact::displayName($dao->contact_id);
             $row['used_date'] = $dao->used_date;
             $row['contribution_id'] = $dao->contribution_id;
             $row['event_id'] = $dao->event_id;
             $row['entity_table'] = $dao->entity_table;
             $row['entity_id'] = $dao->entity_id;
-            if ( isset( $dao->code ) ) {
+            if (isset($dao->code)) {
                 $row['code'] = $dao->code;
             }
-            if ( $row['entity_table'] == 'civicrm_participant' ) {
-                if ( array_key_exists( $dao->event_id, $events ) ) {
+            if ($row['entity_table'] == 'civicrm_participant') {
+                if (array_key_exists($dao->event_id, $events)) {
                     $row['event_title'] = $events[$dao->event_id];
                 }
-            } else if ( $row['entity_table'] == 'civicrm_membership' ) {
-                $result = CRM_Member_BAO_Membership::getStatusANDTypeValues( $dao->entity_id );
-                if ( array_key_exists( $dao->entity_id, $result ) ) {
-                    if ( array_key_exists( 'membership_type', $result[$dao->entity_id] ) ) {
+            }
+            else if ($row['entity_table'] == 'civicrm_membership') {
+                $result = CRM_Member_BAO_Membership::getStatusANDTypeValues($dao->entity_id);
+                if (array_key_exists($dao->entity_id, $result)) {
+                    if (array_key_exists('membership_type', $result[$dao->entity_id])) {
                       $row['membership_title'] = $result[$dao->entity_id]['membership_type'];
                     }
                 }
@@ -149,30 +151,28 @@ SELECT    t.item_id as item_id,
 
         return $rows;
     }
-    
-    
+
+
     /**
      * Function to delete discount codes track
-     * 
+     *
      * @param  int  $trackID     ID of the discount code track to be deleted.
-     * 
+     *
      * @access public
      * @static
      * @return true on success else false
      */
-    static function del($trackID) 
-    {
+    static function del($trackID) {
         require_once 'CRM/Utils/Rule.php';
-        if ( ! CRM_Utils_Rule::positiveInteger( $trackID ) ) {
+        if (! CRM_Utils_Rule::positiveInteger($trackID)) {
             return false;
         }
 
         require_once 'CDM/DAO/Track.php';
-        $item = new CDM_DAO_Track( );
+        $item = new CDM_DAO_Track();
         $item->id = $trackID;
-        $item->delete( );
+        $item->delete();
 
         return true;
     }
 }
-

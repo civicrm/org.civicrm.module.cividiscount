@@ -55,4 +55,3 @@ CREATE TABLE `cividiscount_track` (
      CONSTRAINT FK_cividiscount_track_event_id FOREIGN KEY (`event_id`) REFERENCES `civicrm_event`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
 
- 

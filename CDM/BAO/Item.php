@@ -42,8 +42,8 @@ class CDM_BAO_Item extends CDM_DAO_Item {
     /**
      * class constructor
      */
-    function __construct( ) {
-        parent::__construct( );
+    function __construct() {
+        parent::__construct();
     }
 
     /**
@@ -53,25 +53,25 @@ class CDM_BAO_Item extends CDM_DAO_Item {
      * of time. This is the inverse function of create. It also stores all the retrieved
      * values in the default array
      *
-     * @param array $params   (reference ) an assoc array of name/value pairs
-     * @param array $defaults (reference ) an assoc array to hold the flattened values
+     * @param array $params   (reference) an assoc array of name/value pairs
+     * @param array $defaults (reference) an assoc array to hold the flattened values
      *
      * @return object CDM_BAO_Item object on success, null otherwise
      * @access public
      * @static
      */
-    static function retrieve( &$params, &$defaults ) {
-        $item = new CDM_DAO_Item( );
-        $item->copyValues( $params );
-        if ( $item->find( true ) ) {
-            CRM_Core_DAO::storeValues( $item, $defaults );
+    static function retrieve(&$params, &$defaults) {
+        $item = new CDM_DAO_Item();
+        $item->copyValues($params);
+        if ($item->find(true)) {
+            CRM_Core_DAO::storeValues($item, $defaults);
             return $item;
         }
         return null;
     }
 
-    static function getValidDiscounts( ) {
-        $codes = array( );
+    static function getValidDiscounts() {
+        $codes = array();
 
         $sql = "
 SELECT  id,
@@ -90,17 +90,17 @@ SELECT  id,
         count_max
 FROM    cividiscount_item
 ";
-        $dao =& CRM_Core_DAO::executeQuery( $sql, array( ) );
-        while ( $dao->fetch( ) ) {
+        $dao =& CRM_Core_DAO::executeQuery($sql, array());
+        while ($dao->fetch()) {
             $a = (array) $dao;
-            if ( CDM_BAO_Item::isValid( $a ) ) {
+            if (CDM_BAO_Item::isValid($a)) {
                 $codes[$a['code']] = $a;
             }
         }
 
         return $codes;
     }
-    
+
     /**
      * update the is_active flag in the db
      *
@@ -108,33 +108,33 @@ FROM    cividiscount_item
      * @param boolean  $is_active value we want to set the is_active field
      *
      * @return Object             DAO object on sucess, null otherwise
-     * 
+     *
      * @access public
      * @static
      */
-    static function setIsActive( $id, $is_active ) {
-        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'is_active', $is_active );
+    static function setIsActive($id, $is_active) {
+        return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'is_active', $is_active);
     }
 
 
-    static function incrementUsage( $id ) {
-        $currVal = CRM_Core_DAO::getFieldValue( 'CDM_DAO_Item', $id, 'count_use' );
+    static function incrementUsage($id) {
+        $currVal = CRM_Core_DAO::getFieldValue('CDM_DAO_Item', $id, 'count_use');
 
-        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'count_use', $currVal + 1 );
+        return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'count_use', $currVal + 1);
     }
 
 
-    static function decrementUsage( $id ) {
-        $currVal = CRM_Core_DAO::getFieldValue( 'CDM_DAO_Item', $id, 'count_use' );
+    static function decrementUsage($id) {
+        $currVal = CRM_Core_DAO::getFieldValue('CDM_DAO_Item', $id, 'count_use');
 
-        return CRM_Core_DAO::setFieldValue( 'CDM_DAO_Item', $id, 'count_use', $currVal - 1 );
+        return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'count_use', $currVal - 1);
     }
 
 
-    static function isValid( $code ) {
-        if ( !CDM_BAO_Item::isExpired( $code ) &&
-              CDM_BAO_Item::isActive( $code ) &&
-              CDM_BAO_Item::isEnabled( $code ) ) {
+    static function isValid($code) {
+        if (!CDM_BAO_Item::isExpired($code) &&
+            CDM_BAO_Item::isActive($code) &&
+            CDM_BAO_Item::isEnabled($code)) {
 
             return TRUE;
         }
@@ -142,92 +142,91 @@ FROM    cividiscount_item
         return FALSE;
     }
 
-    static function isExpired( $code ) {
+    static function isExpired($code) {
 
-        if ( empty( $code['expire_on'] ) ) {
+        if (empty($code['expire_on'])) {
             return FALSE;
         }
 
-        $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
+        $time = CRM_Utils_Date::getToday(null, 'Y-m-d H:i:s');
 
-        if ( strtotime( $time ) > abs( strtotime( $code['expire_on'] ) ) ) { 
-            return TRUE;
-        }   
-
-        return FALSE;
-    }
-
-
-    static function isActive( $code ) {
-        if ( empty( $code['active_on'] ) ) {
+        if (strtotime($time) > abs(strtotime($code['expire_on']))) {
             return TRUE;
         }
 
-        $time = CRM_Utils_Date::getToday( null, 'Y-m-d H:i:s' );
+        return FALSE;
+    }
 
-        if ( strtotime( $time ) > abs( strtotime( $code['active_on'] ) ) ) { 
+
+    static function isActive($code) {
+        if (empty($code['active_on'])) {
             return TRUE;
-        }   
+        }
+
+        $time = CRM_Utils_Date::getToday(null, 'Y-m-d H:i:s');
+
+        if (strtotime($time) > abs(strtotime($code['active_on']))) {
+            return TRUE;
+        }
 
         return FALSE;
     }
 
 
-    static function isEnabled( $code ) {
-        if ( $code['is_active'] == 1 ) { 
+    static function isEnabled($code) {
+        if ($code['is_active'] == 1) {
             return TRUE;
-        }   
+        }
 
         return FALSE;
     }
 
-    
+
     /**
      * Function to delete discount codes
-     * 
+     *
      * @param  int  $itemID     ID of the discount code to be deleted.
-     * 
+     *
      * @access public
      * @static
      * @return true on success else false
      */
-    static function del($itemID) 
+    static function del($itemID)
     {
         require_once 'CRM/Utils/Rule.php';
-        if ( ! CRM_Utils_Rule::positiveInteger( $itemID ) ) {
+        if (! CRM_Utils_Rule::positiveInteger($itemID)) {
             return false;
         }
 
         require_once 'CDM/DAO/Item.php';
-        $item = new CDM_DAO_Item( );
+        $item = new CDM_DAO_Item();
         $item->id = $itemID;
-        $item->delete( );
+        $item->delete();
 
         return true;
     }
 
     /**
      * Function to delete discount codes
-     * 
+     *
      * @param  int  $itemID     ID of the discount code to be deleted.
-     * 
+     *
      * @access public
      * @static
      * @return true on success else false
      */
-    static function copy($itemID) 
+    static function copy($itemID)
     {
         require_once 'CRM/Utils/Rule.php';
-        if ( ! CRM_Utils_Rule::positiveInteger( $itemID ) ) {
+        if (! CRM_Utils_Rule::positiveInteger($itemID)) {
             return false;
         }
 
         require_once 'CDM/DAO/Item.php';
-        $item = new CDM_DAO_Item( );
+        $item = new CDM_DAO_Item();
         $item->id = $itemID;
-        $item->delete( );
+        $item->delete();
 
         return true;
     }
 }
-
