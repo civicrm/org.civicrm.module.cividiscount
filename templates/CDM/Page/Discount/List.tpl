@@ -31,7 +31,7 @@
 <div id="dcode">
     {strip}
     {* handle enable/disable actions*}
-    {include file="CRM/common/enableDisable.tpl"}    
+    {include file="CRM/common/enableDisable.tpl"}
     {include file="CRM/common/jsortable.tpl"}
     <table id="options" class="display">
     <thead>
@@ -46,10 +46,10 @@
     </thead>
     {foreach from=$rows item=row}
     <tr id="row_{$row.id}" class="{if NOT $row.is_active} disabled{/if}{cycle values="odd-row,even-row"} {$row.class}">
-        <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>	
+        <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>
         <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
         <td class="right"><a href="/civicrm/cividiscount/report?id={$row.id}&reset=1">{$row.count_use}</a> / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
-        <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>	
+        <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>
         <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
         <td>{$row.action|replace:'xx':$row.id}</td>
     </tr>
@@ -66,5 +66,5 @@
           <img src="{$config->resourceBase}i/Inform.gif" alt="{ts}status{/ts}"/>
         {capture assign=crmURL}{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}{/capture}
         {ts 1=$crmURL}There are no discount codes. You can <a href='%1'>add one</a>.{/ts}
-    </div>    
+    </div>
 {/if}

@@ -106,13 +106,13 @@
         <td>{if $is_active eq 1} {ts}Yes{/ts} {else} {ts}No{/ts} {/if}</td>
     </tr>
 
-	{foreach from=$note item="rec"} 
+	{foreach from=$note item="rec"}
 		{if $rec }
 		    <tr>
 		        <td class="label">{ts}Note{/ts}</td><td>{$rec}</td>
 		    </tr>
-		{/if} 
-	{/foreach} 
+		{/if}
+	{/foreach}
 </table>
 
 <div class="action-link">

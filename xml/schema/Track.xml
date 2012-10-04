@@ -61,26 +61,26 @@
       <comment>FK to contribution table.</comment>
       <add>4.1</add>
   </field>
-  <foreignKey> 
-    <name>contribution_id</name> 
-    <table>civicrm_contribution</table> 
-    <key>id</key> 
+  <foreignKey>
+    <name>contribution_id</name>
+    <table>civicrm_contribution</table>
+    <key>id</key>
     <add>4.1</add>
     <onDelete>CASCADE</onDelete>
-  </foreignKey> 
+  </foreignKey>
   <field>
       <name>event_id</name>
       <type>int unsigned</type>
       <comment>FK to event table.</comment>
       <add>4.1</add>
   </field>
-  <foreignKey> 
-    <name>event_id</name> 
-    <table>civicrm_event</table> 
-    <key>id</key> 
+  <foreignKey>
+    <name>event_id</name>
+    <table>civicrm_event</table>
+    <key>id</key>
     <add>4.1</add>
     <onDelete>CASCADE</onDelete>
-  </foreignKey> 
+  </foreignKey>
   <field>
        <name>entity_table</name>
        <type>varchar</type>

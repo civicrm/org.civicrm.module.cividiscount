@@ -34,7 +34,7 @@
       <div class="messages status">
         <dl>
           <dt><div class="icon inform-icon"></div></dt>
-          <dd>    
+          <dd>
             {ts}WARNING: Deleting this discount code will prevent users who have this code to avail of this discount.{/ts} {ts}Do you want to continue?{/ts}
           </dd>
        </dl>
@@ -122,10 +122,10 @@
 {literal}
 <script type="text/javascript">
 var dataUrl        = "{/literal}{$organizationURL}{literal}";
-cj('#organization').autocomplete( dataUrl, { 
-                                      width        : 250, 
+cj('#organization').autocomplete( dataUrl, {
+                                      width        : 250,
                                       selectFirst  : false,
-                                      matchCase    : true, 
+                                      matchCase    : true,
                                       matchContains: true
     }).result( function(event, data, formatted) {
         var foundContact   = ( parseInt( data[1] ) ) ? cj( "#organization_id" ).val( data[1] ) : cj( "#organization_id" ).val('');
@@ -140,15 +140,15 @@ cj(function(){
 var organizationId = "{/literal}{$currentOrganization}{literal}";
 if ( organizationId ) {
     var dataUrl = "{/literal}{crmURL p='civicrm/ajax/rest' h=0 q="className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&id=" }{literal}" + organizationId;
-    cj.ajax({ 
-        url     : dataUrl,   
+    cj.ajax({
+        url     : dataUrl,
         async   : false,
         success : function(html){
             htmlText = html.split( '|' , 2);
             cj('input#organization').val(htmlText[0]);
             cj('input#organization_id').val(htmlText[1]);
         }
-    }); 
+    });
 }
 });
 

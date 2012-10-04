@@ -27,5 +27,3 @@ A prototype for CMS independent extensions. Porting civievent_discount to this f
   + FIXME: When removing participant (and additional) from events, also delete their tracking info/usage.
 
 * Fix membership discounts (not sure what the exact problem is here).
-
-
