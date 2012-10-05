@@ -14,7 +14,7 @@ function cividiscount_civicrm_install() {
   CRM_Utils_File::sourceSQLFile(
     CIVICRM_DSN,
     $cividiscountSQL
- );
+  );
 
   // rebuild the menu so our path is picked up
   CRM_Core_Invoke::rebuildMenuAndCaches();
@@ -34,7 +34,7 @@ function cividiscount_civicrm_uninstall() {
   CRM_Utils_File::sourceSQLFile(
     CIVICRM_DSN,
     $cividiscountSQL
- );
+  );
 
   // rebuild the menu so our path is picked up
   CRM_Core_Invoke::rebuildMenuAndCaches();
@@ -115,7 +115,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 
     if ((isset($form->_single) &&
         $form->_single == 1) ||
-      $form->_context == 'membership') {
+        $form->_context == 'membership') {
       _add_discount_textfield($form);
       $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
       if ($code) {
@@ -185,91 +185,78 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
   }
 }
 
-
 /**
  * Implementation of hook_civicrm_membershipTypeValues()
  *
  * Allow discounts to also be applied to renewing memberships.
  *
- * XXX: error handling should really live in hook_civicrm_validate(), but
+ * @todo error handling should really live in hook_civicrm_validate(), but
  * membership/contribution forms don't call that hook. Another core patch.
  */
 function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
-  $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+  // @todo Fix $contact_id for manual renewal.
+  $contact_id = CRM_Core_Session::singleton()->get('userID');
 
-  // First time the page loads or they didn't enter a code.
-  if (empty($code)) {
-
-    // See if they are eligible for automatic discount. If they are, update the
-    // membership values.
-    $codes = _get_discounts();
-    $code = _verify_autodiscount($codes);
-    if (empty($code)) {
-      return;
-    }
-
-    $code = _get_code_details($code);
-    $mids = _get_discounted_membership_ids();
-    $mid = 0;
-
-    foreach ($membershipTypeValues as &$values) {
-      if (in_array($values['id'], $mids)) {
-        $cms = explode(CRM_Core_DAO::VALUE_SEPARATOR, $code['memberships']);
-
-        if (in_array($values['id'], $cms)) {
-          $mid = $values['id'];
-          list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $code);
-          $values['minimum_fee'] = $value;
-          $values['name'] = $label;
-        }
-      }
-    }
-
-    return;
-  }
-
-  // ignore the thank you page
+  // Ignore the thank you page.
   if ($form->getVar('_name') == 'ThankYou') {
     return;
   }
 
-  $code = _get_code_details($code);
+  $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+  list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
+  if (trim($code) != '') {
+    if (empty($discounts) || $autodiscount) {
+      CRM_Core_Error::fatal(ts('The discount code you entered is invalid.'));
+      return;
+    }
 
-  if (empty($code)) {
-    CRM_Core_Error::fatal(ts('The discount code you entered is invalid.'));
-    return;
-  }
-
-  require_once 'CDM/BAO/Item.php';
-
-  if (!CDM_BAO_Item::isValid($code) ) {
-    CRM_Core_Error::fatal(ts('The discount code you entered is either expired or is no longer active.'));
-    return;
-  }
-
-  if ($code['count_max'] > 0 && $code['count_use'] >= $code['count_max']) {
-    CRM_Core_Error::fatal(ts('There are not enough uses remaining for this discount code.'));
-    return;
-  }
-
-  $mids = _get_discounted_membership_ids();
-  $mid = 0;
-
-  foreach ($membershipTypeValues as &$values) {
-    if (in_array($values['id'], $mids)) {
-
-      $cms = explode(CRM_Core_DAO::VALUE_SEPARATOR, $code['memberships']);
-
-      if (in_array($values['id'], $cms)) {
-        $mid = $values['id'];
-        list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $code);
-        $values['minimum_fee'] = $value;
-        $values['name'] = $label;
-      }
+    $discount = $discounts[0];
+    require_once 'CDM/BAO/Item.php';
+    if ($discount['count_max'] > 0 && $discount['count_use'] >= $discount['count_max']) {
+      CRM_Core_Error::fatal(ts('There are not enough uses remaining for this discount code.'));
+      return;
     }
   }
-}
 
+  // Get discounts that apply to at least one of the specified memberships.
+  $mids = array();
+  foreach ($membershipTypeValues as $values) {
+    $id = $values['id'];
+    $mids[$id] = $id;
+  }
+  $tmp_discounts = array();
+  foreach ($discounts as $discount) {
+    $found = FALSE;
+    foreach ($discount['memberships'] as $id) {
+      if (CRM_Utils_Array::value($id, $mids)) {
+        $found = TRUE;
+        break;
+      }
+    }
+    if ($found) {
+      $tmp_discounts[] = $discount;
+    }
+  }
+  $discounts = $tmp_discounts;
+  if (empty($discounts)) {
+    return;
+  }
+
+  $discount = $discounts[0];
+  foreach ($membershipTypeValues as &$values) {
+    if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
+      list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $discount);
+      $values['minimum_fee'] = $value;
+      $values['name'] = $label;
+    }
+  }
+
+  $form->setVar('_discountInfo', array(
+    'discount' => $discount,
+    'autodiscount' => $autodiscount,
+    'contact_id' => $contact_id,
+  ));
+}
 
 /**
  * Implementation of hook_civicrm_buildAmount()
@@ -281,37 +268,34 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
  * Check all priceset items and only apply the discount to the discounted items.
  */
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
-  if ($pagetype == 'event') {
+  if (!empty($amounts) && is_array($amounts) && ($pagetype == 'event' /*|| $pagetype == 'contribution'*/)) {
+    // @todo Fix $contact_id for manual registration.
+    $contact_id = CRM_Core_Session::singleton()->get('userID');
+    $eid = $form->getVar('_eventId');
+    $psid = $form->get('priceSetId');
+
     $v = $form->getVar('_values');
-    $currency = null;
-    if (array_key_exists('event', $v)) {
+    if (!empty($v['event']['currency'])) {
       $currency = $v['event']['currency'];
     }
-
-    if (! $currency) {
-      $config = CRM_Core_Config::singleton();
-      $currency = $config->defaultCurrency;
+    else {
+      $currency = CRM_Core_Config::singleton()->defaultCurrency;
     }
 
-    /**
-     * If additional participants are not allowed to receive a discount we need
-     * to interrupt the form processing on build and POST.
-     *
-     * This is a potential landmine if the form processing ever changes in Civi.
-     */
+    // If additional participants are not allowed to receive a discount we need
+    // to interrupt the form processing on build and POST.
+    // This is a potential landmine if the form processing ever changes in Civi.
     if (!_allow_multiple()) {
-
       // POST from participant form to confirm page
       if ($form->getVar('_lastParticipant') == 1) {
         return;
       }
-
       // On build participant form
       $keys = array_keys($_GET);
       foreach ($keys as $key) {
         if (substr($key, 0, 16) == "_qf_Participant_") {
-
-          // We can somewhat safely assume we're in the additional participant registration screen.
+          // We can somewhat safely assume we're in the additional participant
+          // registration form.
           if ($_GET[$key] == 'true') {
             return;
           }
@@ -319,79 +303,61 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
 
-    $codes = _get_discounts();
     $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-
-    if (!$code) {
-      $code = _verify_autodiscount($codes);
-    }
-
-    $code = _get_code_details($code);
-
-    require_once 'CDM/BAO/Item.php';
-    if (!$code || !CDM_BAO_Item::isValid($code) ) {
+    list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
+    if (empty($discounts)) {
       return;
     }
 
-    $eid = $form->getVar('_eventId');
-    $psid = $form->get('priceSetId');
-    $eids = _get_discounted_event_ids();
+    if ($pagetype == 'event') {
+      $discounts = _filter_discounts($discounts, 'events', $eid);
+      if (empty($discounts)) {
+        return;
+      }
+    }
+    else if ($pagetype == 'contribution') {
+      if (!in_array(get_class($form),
+          array('CRM_Contribute_Form_Contribution',
+            'CRM_Contribute_Form_Contribution_Main'))) {
+        return;
+      }
+    }
 
     if (!empty($psid)) {
-      $feeblock =& $amounts;
-      $psids = _get_discounted_priceset_ids();
-
-      if (!in_array($pagetype, array('contribution', 'event')) ||
-        !is_array($feeblock) ||
-        empty($feeblock)) {
+      $discounts = _filter_discounts($discounts, 'pricesets', $psid);
+      if (empty($discounts)) {
         return;
       }
 
-      if ($pagetype == 'event') {
-        if (!in_array($eid, $eids) &&
-          !in_array($psid, $psids)) {
-          return;
-        }
-      }
-
-      if ($pagetype == 'contribution') {
-        if (!in_array(get_class($form),
-            array('CRM_Contribute_Form_Contribution',
-              'CRM_Contribute_Form_Contribution_Main'))) {
-          return;
-        }
-      }
-
-      foreach ($feeblock as &$fee) {
+      $discount = $discounts[0];
+      foreach ($amounts as &$fee) {
         if (!is_array($fee['options'])) {
           continue;
         }
 
         foreach ($fee['options'] as &$option) {
-          if (in_array($option['id'], $psids)) {
-            $cps = explode(CRM_Core_DAO::VALUE_SEPARATOR, $code['pricesets']);
-            if (in_array($option['id'], $cps)) {
-              list($option['amount'], $option['label']) =
-                _calc_discount($option['amount'], $option['label'], $code, $currency);
-            }
+          if (CRM_Utils_Array::value($option['id'], $discount['pricesets'])) {
+            list($option['amount'], $option['label']) =
+              _calc_discount($option['amount'], $option['label'], $discount, $currency);
           }
         }
       }
     }
     else {
-      if (in_array($eid, $eids)) {
-        foreach ($amounts as $aid => $vals) {
-          list($amounts[$aid]['value'], $amounts[$aid]['label']) =
-            _calc_discount($vals['value'], $vals['label'], $code, $currency);
-        }
+      $discount = $discounts[0];
+      foreach ($amounts as $aid => $vals) {
+        list($amounts[$aid]['value'], $amounts[$aid]['label']) =
+          _calc_discount($vals['value'], $vals['label'], $discount, $currency);
       }
     }
-  }
-  else {
-    return;
+
+    $form->setVar('_discountInfo', array(
+      'discount' => $discount,
+      'autodiscount' => $autodiscount,
+      'contact_id' => $contact_id,
+    ));
   }
 }
-
 
 /**
  * For participant and member delete, decrement the code usage value since
@@ -449,6 +415,12 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
 function cividiscount_civicrm_postProcess($class, &$form) {
   $params = $form->getVar('_params');
   $contactid = 0;
+
+  $discountInfo = $form->getVar('_discountInfo');
+  if (!$discountInfo) {
+    return;
+  }
+  $discount = $discountInfo['discount'];
 
   // Events
   if (in_array($class, array(
@@ -520,13 +492,6 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     return;
   }
 
-  $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-  $code = _get_code_details($code);
-
-  if (empty($code)) {
-    return;
-  }
-
   // FIXME: When registering multiple participants, the contactids aren't
   // available to us at this point, so we have to make a db call to find them.
   // Will submit patch to core.
@@ -552,10 +517,10 @@ function cividiscount_civicrm_postProcess($class, &$form) {
         $participant = _get_participant($pid);
         $contactid = $participant['contact_id'];
 
-        CDM_BAO_Item::incrementUsage($code['id']);
+        CDM_BAO_Item::incrementUsage($discount['id']);
 
         $track = new CDM_DAO_Track();
-        $track->item_id = $code['id'];
+        $track->item_id = $discount['id'];
         $track->contact_id = $contactid;
         $track->contribution_id = $contributionid;
         $track->event_id = $eid;
@@ -570,10 +535,10 @@ function cividiscount_civicrm_postProcess($class, &$form) {
 
       // XXX: If an offline event registration was made, the participant id is unknown.
       if (!empty($pid)) {
-        CDM_BAO_Item::incrementUsage($code['id']);
+        CDM_BAO_Item::incrementUsage($discount['id']);
 
         $track = new CDM_DAO_Track();
-        $track->item_id = $code['id'];
+        $track->item_id = $discount['id'];
         $track->contact_id = $contactid;
         $track->contribution_id = $contributionid;
         $track->event_id = $eid;
@@ -589,10 +554,10 @@ function cividiscount_civicrm_postProcess($class, &$form) {
         'CRM_Contribute_Form_Contribution_Confirm',
         'CRM_Member_Form_Membership'))) {
 
-    CDM_BAO_Item::incrementUsage($code['id']);
+    CDM_BAO_Item::incrementUsage($discount['id']);
 
     $track = new CDM_DAO_Track();
-    $track->item_id = $code['id'];
+    $track->item_id = $discount['id'];
     $track->contact_id = $contactid;
     $track->contribution_id = $contributionid;
     $track->entity_table = 'civicrm_membership';
@@ -604,7 +569,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   }
   else {
     $track = new CDM_DAO_Track();
-    $track->item_id = $code['id'];
+    $track->item_id = $discount['id'];
     $track->contact_id = $contactid;
     $track->contribution_id = $contributionid;
     $track->entity_table = 'civicrm_contribution';
@@ -652,108 +617,95 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
  * Used in the initial event registration screen.
  */
 function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
-  if (!in_array($name, array('CRM_Event_Form_Participant',
-        'CRM_Member_Form_Membership',
-        'CRM_Event_Form_Registration_Register'))) {
+  if (!in_array($name, array(
+      'CRM_Event_Form_Participant',
+      'CRM_Member_Form_Membership',
+      'CRM_Event_Form_Registration_Register'))) {
     return;
   }
 
+  $discountInfo = $form->getVar('_discountInfo');
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
 
-  if ($code == '') {
+  if ($discountInfo && $discountInfo['autodiscount']) {
     return;
   }
-
-  $code = _get_code_details($code);
-
-  if (!$code) {
-    $codes = _get_discounts();
-    $code = _verify_autodiscount($codes);
+  else if (trim($code) == '') {
+    return;
   }
-
-  if (empty($code)) {
+  else if (!$discountInfo) {
     $errors['discountcode'] = ts('The discount code you entered is invalid.');
     return;
   }
   else {
     require_once 'CDM/BAO/Item.php';
+    $discount = $discountInfo['discount'];
 
-    if (!CDM_BAO_Item::isValid($code) ) {
-      $errors['discountcode'] = ts('The discount code you entered is either expired or is no longer active.');
-      return;
-    }
-
-    if ($code['count_max'] > 0) {
+    if ($discount['count_max'] > 0) {
       // Initially 1 for person registering.
       $apcount = 1;
       $sv = $form->getVar('_submitValues');
       if (array_key_exists('additional_participants', $sv)) {
         $apcount += $sv['additional_participants'];
       }
-      if (($code['count_use'] + $apcount) > $code['count_max']) {
+      if (($discount['count_use'] + $apcount) > $discount['count_max']) {
         $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
       }
     }
+
+    return;
   }
-
-  return;
 }
-
 
 /**
  * Returns an array of all discount codes.
  */
 function _get_discounts() {
   require_once 'CDM/BAO/Item.php';
-
-  $codes = array();
-  $codes = CDM_BAO_Item::getValidDiscounts();
-
-  return $codes;
-}
-
-
-function _getTrackingCount($cid) {
-  $sql = "SELECT count(id) as count FROM cividiscount_track WHERE contact_id = $cid";
-  $count = CRM_Core_DAO::singleValueQuery($sql, array());
-
-  return $count;
-}
-
-
-function _getTrackingCountByOrg($cid) {
-  $sql = "SELECT count(id) as count FROM cividiscount_item WHERE organization_id = $cid";
-  $count = CRM_Core_DAO::singleValueQuery($sql, array());
-
-  return $count;
-}
-
-
-function _get_item_id_by_track($table, $eid, $cid) {
-  $sql = "SELECT id, item_id FROM cividiscount_track WHERE entity_table = '" . $table . "' AND entity_id = $eid AND contact_id = $cid";
-  $dao = CRM_Core_DAO::executeQuery($sql, array());
-  if ($dao->fetch()) {
-    return array('id' => $dao->id, 'item_id' => $dao->item_id);
+  $discounts = CDM_BAO_Item::getValidDiscounts();
+  // This should probably go into CDM_BAO_Item::getValidDiscounts().
+  $fields = array('events', 'pricesets', 'memberships', 'autodiscount');
+  foreach ($discounts as &$discount) {
+    foreach ($fields as $field) {
+      $items = array_filter(explode(CRM_Core_DAO::VALUE_SEPARATOR, $discount[$field]));
+      $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
+    }
   }
 
-  return array();
+  return $discounts;
 }
-
-
 
 /**
- * Returns an array ids.
+ * Returns all the details about a discount such as pricesets, memberships, etc.
  */
-function _get_items_from_codes($codes, $key) {
-  if (!in_array($key, array('events', 'pricesets', 'memberships', 'autodiscount'))) {
-    CRM_Core_Error::fatal('Attempt to retrieve unknown key from discount code.');
+function _get_discount($code) {
+  $code = trim($code);
+  if (empty($code)) {
+    return FALSE;
   }
+  $discounts = _get_discounts();
 
+  if (_ignore_case()) {
+    foreach ($discounts as $discount) {
+      if (strcasecmp($code, $discount['code']) === 0) {
+        return $discount;
+      }
+    }
+    return FALSE;
+  }
+  else {
+    return CRM_Utils_Array::value($code, $discounts, FALSE);
+  }
+}
+
+/**
+ * Returns all items within the field specified by 'key' for all discounts.
+ */
+function _get_items_from_discounts($discounts, $key, $include_autodiscount = FALSE) {
   $items = array();
-  foreach ($codes as $cid => $data) {
-    $a = explode(CRM_Core_DAO::VALUE_SEPARATOR, $data[$key]);
-    foreach ($a as $k => $v) {
-      if (!empty($a[$k])) {
+  foreach ($discounts as $discount) {
+    if ($include_autodiscount || empty($discount['autodiscount'])) {
+      foreach ($discount[$key] as $v) {
         $items[$v] = $v;
       }
     }
@@ -762,59 +714,95 @@ function _get_items_from_codes($codes, $key) {
   return $items;
 }
 
-
 /**
- * Returns an array of event ids.
+ * Returns an array of all discountable event ids.
  */
 function _get_discounted_event_ids() {
-  return _get_items_from_codes(_get_discounts(), 'events');
+  return _get_items_from_discounts(_get_discounts(), 'events');
 }
 
-
 /**
- * Returns an array of priceset ids.
+ * Returns an array of all discountable priceset ids.
  */
 function _get_discounted_priceset_ids() {
-  return _get_items_from_codes(_get_discounts(), 'pricesets');
+  return _get_items_from_discounts(_get_discounts(), 'pricesets');
 }
 
-
 /**
- * Returns an array of membership ids.
+ * Returns an array of all discountable membership ids.
  */
 function _get_discounted_membership_ids() {
-  return _get_items_from_codes(_get_discounts(), 'memberships');
+  return _get_items_from_discounts(_get_discounts(), 'memberships');
 }
-
 
 /**
- * Returns an array of autodiscounted membership ids.
+ * Get candidate discounts discounts for a user.
  */
-function _get_autodiscounted_ids() {
-  return _get_items_from_codes(_get_discounts(), 'autodiscount');
+function _get_candidate_discounts($code, $contact_id) {
+  $discounts = array();
+  $autodiscount = FALSE;
+  $code = trim($code);
+
+  // If code is present, use it.
+  if ($code) {
+    $discount = _get_discount($code);
+    if ($discount) {
+      $discounts = array($discount);
+    }
+  }
+  else {
+    // Otherwise collect automatic discounts for the user.
+    require_once 'CRM/Member/BAO/Membership.php';
+    $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, NULL, FALSE);
+    if ($membership && $membership['is_current_member']) {
+      $tmp = _get_discounts();
+      $automatic_discounts = array();
+      foreach ($tmp as $discount) {
+        if (CRM_Utils_Array::value($membership['membership_type_id'], $discount['autodiscount'])) {
+          $automatic_discounts[] = $discount;
+        }
+      }
+      if (!empty($automatic_discounts)) {
+        $discounts = $automatic_discounts;
+        $autodiscount = TRUE;
+      }
+    }
+  }
+
+  return array($discounts, $autodiscount);
 }
 
+function _filter_discounts($discounts, $field, $id) {
+  $result = array();
+  foreach ($discounts as $discount) {
+    if (CRM_Utils_Array::value($id, $discount[$field])) {
+      $result[] = $discount;
+    }
+  }
+
+  return $result;
+}
 
 /**
  * Calculate either a monetary or percentage discount.
  */
-function _calc_discount($amount, $label, $code, $currency = 'USD') {
+function _calc_discount($amount, $label, $discount, $currency = 'USD') {
   require_once 'CRM/Utils/Money.php';
   $newamount = 0.00;
   $newlabel = '';
 
-  if ($code['amount_type'] == '2') {
+  if ($discount['amount_type'] == '2') {
     require_once 'CRM/Utils/Rule.php';
 
-    $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($code['amount']);
-    $fmt_discount = CRM_Utils_Money::format($code['amount'], $currency);
-    $newlabel = $label . " (Discount: {$fmt_discount} {$code['description']})";
+    $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
+    $fmt_discount = CRM_Utils_Money::format($discount['amount'], $currency);
+    $newlabel = $label . " (Discount: {$fmt_discount} {$discount['description']})";
 
   }
   else {
 
-    $newamount = $amount - ($amount * ($code['amount'] / 100));
-    $newlabel = $label ." (Discount: {$code['amount']}% {$code['description']})";
+    $newamount = $amount - ($amount * ($discount['amount'] / 100));
+    $newlabel = $label ." (Discount: {$discount['amount']}% {$discount['description']})";
   }
 
   if ($newamount < 0) { $newamount = 0.00; }
@@ -822,50 +810,14 @@ function _calc_discount($amount, $label, $code, $currency = 'USD') {
   return array($newamount, $newlabel);
 }
 
-
-/**
- * Determine if the member should receive the auto discount.
- */
-function _verify_autodiscount($codes = array()) {
-  $session =& CRM_Core_Session::singleton();
-  $uid = $session->get('userID');
-  if (!$uid) {
-    return;
-  }
-
-  require_once 'CRM/Member/BAO/Membership.php';
-
-  foreach ($codes as $k => $v) {
-
-    $cads = _get_autodiscounted_ids();
-
-    if (!is_array($cads)) {
-      $cads = array();
-    }
-
-    foreach ($cads as $cad) {
-      $membership = CRM_Member_BAO_Membership::getContactMembership($uid, $cad, NULL);
-      if ($membership['is_current_member']) {
-        $code = $v['code'];
-
-        return $code;
-      }
-    }
-  }
-
-  return;
-}
-
-
 /**
  * Returns TRUE if the code is not case sensitive.
  *
  * TODO: Add settings for admin to set this.
  */
 function _ignore_case() {
-  return FALSE;
+  return TRUE;
 }
-
 
 /**
  * Returns TRUE if the code should allow multiple participants.
@@ -876,6 +828,29 @@ function _allow_multiple() {
   return FALSE;
 }
 
+function _getTrackingCount($cid) {
+  $sql = "SELECT count(id) as count FROM cividiscount_track WHERE contact_id = $cid";
+  $count = CRM_Core_DAO::singleValueQuery($sql, array());
+
+  return $count;
+}
+
+function _getTrackingCountByOrg($cid) {
+  $sql = "SELECT count(id) as count FROM cividiscount_item WHERE organization_id = $cid";
+  $count = CRM_Core_DAO::singleValueQuery($sql, array());
+
+  return $count;
+}
+
+function _get_item_id_by_track($table, $eid, $cid) {
+  $sql = "SELECT id, item_id FROM cividiscount_track WHERE entity_table = '" . $table . "' AND entity_id = $eid AND contact_id = $cid";
+  $dao = CRM_Core_DAO::executeQuery($sql, array());
+  if ($dao->fetch()) {
+    return array('id' => $dao->id, 'item_id' => $dao->item_id);
+  }
+
+  return array();
+}
 
 /**
  * Returns TRUE if contact type is an organization
@@ -892,36 +867,6 @@ function _is_org($cid) {
   return FALSE;
 }
 
-
-/**
- * Returns all the details about a code such as pricesets, memberships, etc.
- */
-function _get_code_details($code) {
-  $ret = array();
-  if (empty($code)) {
-    return $ret;
-  }
-
-  $code = trim($code);
-  $codes = _get_discounts();
-
-  if (_ignore_case()) {
-    $code = strtoupper($code);
-    foreach ($codes as $k => $v) {
-      if ($code == strtoupper($k)) {
-        $ret = $v;
-        break;
-      }
-    }
-  }
-  else {
-    $ret = CRM_Utils_Array::value($code, $codes);
-  }
-
-  return $ret;
-}
-
-
 /**
  * Returns a contact id for a member id
  */
@@ -935,7 +880,6 @@ function _get_civicrm_contactid_by_memberid($mid) {
 
   return $cid;
 }
-
 
 /**
  * Add the discount textfield to a form
@@ -951,9 +895,7 @@ function _add_discount_textfield(&$form) {
   $form->assign('beginHookFormElements', $bhfe);
 }
 
-
 function _get_participant($pid = 0) {
-
   require_once 'api/api.php';
   $result = civicrm_api('Participant', 'get', array('version' => '3', 'participant_id' => $pid));
   if ($result['is_error'] == 0) {
@@ -963,9 +905,7 @@ function _get_participant($pid = 0) {
   return $a;
 }
 
-
 function _get_membership($mid = 0) {
-
   require_once 'api/api.php';
   $result = civicrm_api('Membership', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {

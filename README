@@ -8,7 +8,7 @@ A prototype for CMS independent extensions. Porting civievent_discount to this f
 
 * Enhance UI with an "apply discount" button that updates displayed prices (ajax if possible).
 
-* Carefully review discount verification and applicability:
+FIXED * Carefully review discount verification and applicability:
   + fix _get_discounted_event_ids(), _get_discounted_priceset_ids(), _get_discounted_membership_ids() to return events/pricesets/memberships only for active code
 
 * Fix cividiscount_civicrm_buildForm():
@@ -23,7 +23,9 @@ A prototype for CMS independent extensions. Porting civievent_discount to this f
   + remove dead $track = array(…) code
 
 * Fix cividiscount_civicrm_pre():
-  + FIXME: When a contact is deleted, we should also delete their tracking info/usage.
-  + FIXME: When removing participant (and additional) from events, also delete their tracking info/usage.
+  + When a contact is deleted, we should also delete their tracking info/usage.
+  + When removing participant (and additional) from events, also delete their tracking info/usage.
 
 * Fix membership discounts (not sure what the exact problem is here).
+
+* Fix or remove CDM_BAO_Item::copy(). Currently it's just a copy of CDM_BAO_Item::delete().
