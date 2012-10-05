@@ -245,7 +245,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   $discount = $discounts[0];
   foreach ($membershipTypeValues as &$values) {
     if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
-      list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $discount);
+      list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $discount, $autodiscount);
       $values['minimum_fee'] = $value;
       $values['name'] = $label;
     }
@@ -338,7 +338,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         foreach ($fee['options'] as &$option) {
           if (CRM_Utils_Array::value($option['id'], $discount['pricesets'])) {
             list($option['amount'], $option['label']) =
-              _calc_discount($option['amount'], $option['label'], $discount, $currency);
+              _calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
           }
         }
       }
@@ -347,7 +347,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $discount = $discounts[0];
       foreach ($amounts as $aid => $vals) {
         list($amounts[$aid]['value'], $amounts[$aid]['label']) =
-          _calc_discount($vals['value'], $vals['label'], $discount, $currency);
+          _calc_discount($vals['value'], $vals['label'], $discount, $autodiscount, $currency);
       }
     }
 
@@ -786,23 +786,24 @@ function _filter_discounts($discounts, $field, $id) {
 /**
  * Calculate either a monetary or percentage discount.
  */
-function _calc_discount($amount, $label, $discount, $currency = 'USD') {
+function _calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
   require_once 'CRM/Utils/Money.php';
   $newamount = 0.00;
   $newlabel = '';
+  $title = $autodiscount ? 'Member Discount' : "Discount {$discount['code']}";
 
   if ($discount['amount_type'] == '2') {
     require_once 'CRM/Utils/Rule.php';
 
     $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
     $fmt_discount = CRM_Utils_Money::format($discount['amount'], $currency);
-    $newlabel = $label . " (Discount: {$fmt_discount} {$discount['description']})";
+    $newlabel = $label . " ({$title}: {$fmt_discount} {$discount['description']})";
 
   }
   else {
 
     $newamount = $amount - ($amount * ($discount['amount'] / 100));
-    $newlabel = $label ." (Discount: {$discount['amount']}% {$discount['description']})";
+    $newlabel = $label ." ({$title}: {$discount['amount']}% {$discount['description']})";
   }
 
   if ($newamount < 0) { $newamount = 0.00; }
