@@ -188,52 +188,23 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 /**
  * Implementation of hook_civicrm_membershipTypeValues()
  *
- * Allow discounts to also be applied to renewing memberships.
- *
- * @todo error handling should really live in hook_civicrm_validate(), but
- * membership/contribution forms don't call that hook. Another core patch.
+ * Allow discounts to be applied to renewing memberships.
  */
 function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
-  // @todo Fix $contact_id for manual renewal.
-  $contact_id = CRM_Core_Session::singleton()->get('userID');
-
   // Ignore the thank you page.
   if ($form->getVar('_name') == 'ThankYou') {
     return;
   }
 
+  $contact_id = CRM_Core_Session::singleton()->get('userID');
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
   list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
-  if (trim($code) != '') {
-    if (empty($discounts) || $autodiscount) {
-      CRM_Core_Error::fatal(ts('The discount code you entered is invalid.'));
-      return;
-    }
-
-    $discount = $discounts[0];
-    require_once 'CDM/BAO/Item.php';
-    if ($discount['count_max'] > 0 && $discount['count_use'] >= $discount['count_max']) {
-      CRM_Core_Error::fatal(ts('There are not enough uses remaining for this discount code.'));
-      return;
-    }
-  }
 
   // Get discounts that apply to at least one of the specified memberships.
-  $mids = array();
-  foreach ($membershipTypeValues as $values) {
-    $id = $values['id'];
-    $mids[$id] = $id;
-  }
+  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
   $tmp_discounts = array();
   foreach ($discounts as $discount) {
-    $found = FALSE;
-    foreach ($discount['memberships'] as $id) {
-      if (CRM_Utils_Array::value($id, $mids)) {
-        $found = TRUE;
-        break;
-      }
-    }
-    if ($found) {
+    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
       $tmp_discounts[] = $discount;
     }
   }
@@ -620,7 +591,8 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   if (!in_array($name, array(
       'CRM_Event_Form_Participant',
       'CRM_Member_Form_Membership',
-      'CRM_Event_Form_Registration_Register'))) {
+      'CRM_Event_Form_Registration_Register',
+      'CRM_Contribute_Form_Contribution_Main'))) {
     return;
   }
 
