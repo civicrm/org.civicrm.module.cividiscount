@@ -365,6 +365,9 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   $contact_id = CRM_Core_Session::singleton()->get('userID');
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
   list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
+  if (empty($discounts)) {
+    return;
+  }
 
   // Get discounts that apply to at least one of the specified memberships.
   $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
