@@ -713,13 +713,8 @@ function _get_candidate_discounts($code, $contact_id) {
     require_once 'CRM/Member/BAO/Membership.php';
     $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, NULL, FALSE);
     if ($membership && $membership['is_current_member']) {
-      $tmp = _get_discounts();
-      $automatic_discounts = array();
-      foreach ($tmp as $discount) {
-        if (CRM_Utils_Array::value($membership['membership_type_id'], $discount['autodiscount'])) {
-          $automatic_discounts[] = $discount;
-        }
-      }
+      $mid = $membership['membership_type_id'];
+      $automatic_discounts = array_filter(_get_discounts(), function($discount) use($mid) { return CRM_Utils_Array::value($mid, $discount['autodiscount']); });
       if (!empty($automatic_discounts)) {
         $discounts = $automatic_discounts;
         $autodiscount = TRUE;
@@ -731,14 +726,7 @@ function _get_candidate_discounts($code, $contact_id) {
 }
 
 function _filter_discounts($discounts, $field, $id) {
-  $result = array();
-  foreach ($discounts as $discount) {
-    if (CRM_Utils_Array::value($id, $discount[$field])) {
-      $result[] = $discount;
-    }
-  }
-
-  return $result;
+  return array_filter($discounts, function($discount) use($field, $id) { return CRM_Utils_Array::value($id, $discount[$field]); });
 }
 
 /**
