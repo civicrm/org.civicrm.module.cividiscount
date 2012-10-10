@@ -4,17 +4,10 @@
  * Implementation of hook_civicrm_install()
  */
 function cividiscount_civicrm_install() {
-  $cividiscountRoot =
-    dirname(__FILE__) . DIRECTORY_SEPARATOR;
+  $cividiscountRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
+  $cividiscountSQL = $cividiscountRoot . DIRECTORY_SEPARATOR . 'cividiscount.sql';
 
-  $cividiscountSQL =
-    $cividiscountRoot . DIRECTORY_SEPARATOR .
-    'cividiscount.sql';
-
-  CRM_Utils_File::sourceSQLFile(
-    CIVICRM_DSN,
-    $cividiscountSQL
-  );
+  CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $cividiscountSQL);
 
   // rebuild the menu so our path is picked up
   CRM_Core_Invoke::rebuildMenuAndCaches();
@@ -24,17 +17,11 @@ function cividiscount_civicrm_install() {
  * Implementation of hook_civicrm_uninstall()
  */
 function cividiscount_civicrm_uninstall() {
-  $cividiscountRoot =
-    dirname(__FILE__) . DIRECTORY_SEPARATOR;
+  $cividiscountRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
 
-  $cividiscountSQL =
-    $cividiscountRoot . DIRECTORY_SEPARATOR .
-    'cividiscount.uninstall.sql';
+  $cividiscountSQL = $cividiscountRoot . DIRECTORY_SEPARATOR . 'cividiscount.uninstall.sql';
 
-  CRM_Utils_File::sourceSQLFile(
-    CIVICRM_DSN,
-    $cividiscountSQL
-  );
+  CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $cividiscountSQL);
 
   // rebuild the menu so our path is picked up
   CRM_Core_Invoke::rebuildMenuAndCaches();
@@ -63,7 +50,6 @@ function cividiscount_civicrm_config(&$config) {
   set_include_path($include_path);
 }
 
-
 /**
  * Implementation of hook_civicrm_perm()
  *
@@ -72,7 +58,6 @@ function cividiscount_civicrm_config(&$config) {
 function cividiscount_civicrm_perm() {
   return array('view CiviDiscount', 'administer CiviDiscount');
 }
-
 
 /**
  * Implementation of hook_civicrm_xmlMenu
@@ -85,6 +70,38 @@ function cividiscount_civicrm_xmlMenu(&$files) {
     'cividiscount.xml';
 }
 
+/**
+ * Implementation of hook_civicrm_tabs()
+ *
+ * Display a discounts tab listing discount code usage for that contact.
+ */
+function cividiscount_civicrm_tabs(&$tabs, $cid) {
+  if (_is_org($cid)) {
+    $count = _getTrackingCountByOrg($cid);
+    $a = array(
+      'id' => 'discounts',
+      'count' => $count,
+      'title' => 'Codes Assigned',
+      'weight' => '998',
+    );
+    if ($count > 0) {
+      $a['url'] = "/civicrm/cividiscount/usage?reset=1&oid=$cid&snippet=1";
+    }
+    $tabs[] = $a;
+  }
+
+  $count = _getTrackingCount($cid);
+  $a = array(
+    'id' => 'discounts',
+    'count' => $count,
+    'title' => 'Codes Redeemed',
+    'weight' => '999',
+  );
+  if ($count > 0) {
+    $a['url'] = "/civicrm/cividiscount/usage?reset=1&cid=$cid&snippet=1";
+  }
+  $tabs[] = $a;
+}
 
 /**
  * Implementation of hook_civicrm_buildForm()
@@ -108,7 +125,6 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
     // and only when creating new event participant/membership
     // See http://drupal.org/node/1251198 and http://drupal.org/node/1096688
     $formid = $form->getVar('_id');
-
     if (!empty($formid)) {
       return;
     }
@@ -186,47 +202,52 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 }
 
 /**
- * Implementation of hook_civicrm_membershipTypeValues()
+ * Implementation of hook_civicrm_validateForm()
  *
- * Allow discounts to be applied to renewing memberships.
+ * Used in the initial event registration screen.
  */
-function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
-  // Ignore the thank you page.
-  if ($form->getVar('_name') == 'ThankYou') {
+function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
+  if (!in_array($name, array(
+      'CRM_Event_Form_Participant',
+      'CRM_Member_Form_Membership',
+      'CRM_Event_Form_Registration_Register',
+      'CRM_Contribute_Form_Contribution_Main'))) {
     return;
   }
 
-  $contact_id = CRM_Core_Session::singleton()->get('userID');
+  // _discountInfo is assigned in cividiscount_civicrm_buildAmount() or
+  // cividiscount_civicrm_membershipTypeValues() when a discount is used.
+  $discountInfo = $form->getVar('_discountInfo');
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-  list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
 
-  // Get discounts that apply to at least one of the specified memberships.
-  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
-  $tmp_discounts = array();
-  foreach ($discounts as $discount) {
-    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
-      $tmp_discounts[] = $discount;
-    }
-  }
-  $discounts = $tmp_discounts;
-  if (empty($discounts)) {
+  if ($discountInfo && $discountInfo['autodiscount']) {
     return;
   }
-
-  $discount = $discounts[0];
-  foreach ($membershipTypeValues as &$values) {
-    if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
-      list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $discount, $autodiscount);
-      $values['minimum_fee'] = $value;
-      $values['name'] = $label;
-    }
+  else if (trim($code) == '') {
+    return;
   }
+  else if (!$discountInfo) {
+    $errors['discountcode'] = ts('The discount code you entered is invalid.');
+    return;
+  }
+  else {
+    require_once 'CDM/BAO/Item.php';
+    $discount = $discountInfo['discount'];
 
-  $form->setVar('_discountInfo', array(
-    'discount' => $discount,
-    'autodiscount' => $autodiscount,
-    'contact_id' => $contact_id,
-  ));
+    if ($discount['count_max'] > 0) {
+      // Initially 1 for person registering.
+      $apcount = 1;
+      $sv = $form->getVar('_submitValues');
+      if (array_key_exists('additional_participants', $sv)) {
+        $apcount += $sv['additional_participants'];
+      }
+      if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+        $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
+      }
+    }
+
+    return;
+  }
 }
 
 /**
@@ -331,46 +352,48 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 }
 
 /**
- * For participant and member delete, decrement the code usage value since
- * they are no longer using the code.
+ * Implementation of hook_civicrm_membershipTypeValues()
  *
- * FIXME: When a contact is deleted, we should also delete their tracking info/usage.
- * FIXME: When removing participant (and additional) from events, also delete their tracking info/usage.
+ * Allow discounts to be applied to renewing memberships.
  */
-function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
-  if ($op == 'delete') {
+function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
+  // Ignore the thank you page.
+  if ($form->getVar('_name') == 'ThankYou') {
+    return;
+  }
 
-    $contactid = 0;
+  $contact_id = CRM_Core_Session::singleton()->get('userID');
+  $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+  list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
 
-    if ($name == 'Participant') {
-      $result = _get_participant($id);
-      $contactid = $result['contact_id'];
-
-    }
-    else if ($name == 'Membership') {
-      $result = _get_membership($id);
-      $contactid = $result['contact_id'];
-
-    }
-    else {
-      return;
-    }
-
-    require_once 'CDM/BAO/Item.php';
-    require_once 'CDM/BAO/Track.php';
-
-    $result = _get_item_id_by_track('civicrm_participant', $id, $contactid);
-
-    if (!empty($result['item_id'])) {
-      CDM_BAO_Item::decrementUsage($result['item_id']);
-    }
-
-    if (!empty($result['id'])) {
-      CDM_BAO_Track::del($result['id']);
+  // Get discounts that apply to at least one of the specified memberships.
+  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
+  $tmp_discounts = array();
+  foreach ($discounts as $discount) {
+    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
+      $tmp_discounts[] = $discount;
     }
   }
-}
+  $discounts = $tmp_discounts;
+  if (empty($discounts)) {
+    return;
+  }
 
+  $discount = $discounts[0];
+  foreach ($membershipTypeValues as &$values) {
+    if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
+      list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $discount, $autodiscount);
+      $values['minimum_fee'] = $value;
+      $values['name'] = $label;
+    }
+  }
+
+  $form->setVar('_discountInfo', array(
+    'discount' => $discount,
+    'autodiscount' => $autodiscount,
+    'contact_id' => $contact_id,
+  ));
+}
 
 /**
  * Implementation of hook_civicrm_postProcess()
@@ -551,81 +574,44 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   }
 }
 
-
 /**
- * Implementation of hook_civicrm_tabs()
+ * For participant and member delete, decrement the code usage value since
+ * they are no longer using the code.
  *
- * Display a discounts tab listing discount code usage for that contact.
+ * FIXME: When a contact is deleted, we should also delete their tracking info/usage.
+ * FIXME: When removing participant (and additional) from events, also delete their tracking info/usage.
  */
-function cividiscount_civicrm_tabs(&$tabs, $cid) {
-  if (_is_org($cid)) {
-    $count = _getTrackingCountByOrg($cid);
-    $a = array('id' => 'discounts',
-         'count' => $count,
-         'title' => 'Codes Assigned',
-         'weight' => '998');
-    if ($count > 0) {
-      $a['url'] = "/civicrm/cividiscount/usage?reset=1&oid=$cid&snippet=1";
+function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
+  if ($op == 'delete') {
+
+    $contactid = 0;
+
+    if ($name == 'Participant') {
+      $result = _get_participant($id);
+      $contactid = $result['contact_id'];
+
     }
-    $tabs[] = $a;
-  }
+    else if ($name == 'Membership') {
+      $result = _get_membership($id);
+      $contactid = $result['contact_id'];
 
-  $count = _getTrackingCount($cid);
-  $a = array('id' => 'discounts',
-       'count' => $count,
-       'title' => 'Codes Redeemed',
-       'weight' => '999');
-  if ($count > 0) {
-    $a['url'] = "/civicrm/cividiscount/usage?reset=1&cid=$cid&snippet=1";
-  }
-  $tabs[] = $a;
-}
+    }
+    else {
+      return;
+    }
 
-
-/**
- * Implementation of hook_civicrm_validateForm()
- *
- * Used in the initial event registration screen.
- */
-function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
-  if (!in_array($name, array(
-      'CRM_Event_Form_Participant',
-      'CRM_Member_Form_Membership',
-      'CRM_Event_Form_Registration_Register',
-      'CRM_Contribute_Form_Contribution_Main'))) {
-    return;
-  }
-
-  $discountInfo = $form->getVar('_discountInfo');
-  $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-
-  if ($discountInfo && $discountInfo['autodiscount']) {
-    return;
-  }
-  else if (trim($code) == '') {
-    return;
-  }
-  else if (!$discountInfo) {
-    $errors['discountcode'] = ts('The discount code you entered is invalid.');
-    return;
-  }
-  else {
     require_once 'CDM/BAO/Item.php';
-    $discount = $discountInfo['discount'];
+    require_once 'CDM/BAO/Track.php';
 
-    if ($discount['count_max'] > 0) {
-      // Initially 1 for person registering.
-      $apcount = 1;
-      $sv = $form->getVar('_submitValues');
-      if (array_key_exists('additional_participants', $sv)) {
-        $apcount += $sv['additional_participants'];
-      }
-      if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-        $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
-      }
+    $result = _get_item_id_by_track('civicrm_participant', $id, $contactid);
+
+    if (!empty($result['item_id'])) {
+      CDM_BAO_Item::decrementUsage($result['item_id']);
     }
 
-    return;
+    if (!empty($result['id'])) {
+      CDM_BAO_Track::del($result['id']);
+    }
   }
 }
 
