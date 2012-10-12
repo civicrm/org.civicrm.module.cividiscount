@@ -261,8 +261,17 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
  */
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
   if (!empty($amounts) && is_array($amounts) && ($pagetype == 'event' /*|| $pagetype == 'contribution'*/)) {
-    // @todo Fix $contact_id for manual registration.
-    $contact_id = CRM_Core_Session::singleton()->get('userID');
+    // Retrieve the contact_id depending on submission context.
+    $contact_id = $form->getVar('_contactId');
+    if (!isset($contact_id)) {
+      $sv = $form->getVar('_submitValues');
+      if (isset($sv['contact_select_id'][1])) {
+        $contact_id = $sv['contact_select_id'][1];
+      }
+      else {
+        $contact_id = CRM_Core_Session::singleton()->get('userID');
+      }
+    }
     $eid = $form->getVar('_eventId');
     $psid = $form->get('priceSetId');
 
