@@ -262,16 +262,25 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
   if (!empty($amounts) && is_array($amounts) && ($pagetype == 'event' /*|| $pagetype == 'contribution'*/)) {
     // Retrieve the contact_id depending on submission context.
-    $contact_id = $form->getVar('_contactId');
-    if (!isset($contact_id)) {
-      $sv = $form->getVar('_submitValues');
-      if (isset($sv['contact_select_id'][1])) {
-        $contact_id = $sv['contact_select_id'][1];
-      }
-      else {
-        $contact_id = CRM_Core_Session::singleton()->get('userID');
-      }
+    // Javascript buildFeeBlock() participantId is mapped to _pId.
+    // @see templates/CRM/Event/Form/Participant.tpl
+    // @see CRM/Event/Form/EventFees.php
+    if (isset($form->_pId)) {
+      $contact_id = $form->_pId;
     }
+    // Look for contact_id in the form.
+    else if (isset($form->_contactId)) {
+      $contact_id = $form->_contactId;
+    }
+    // Otherwise look for contact_id in submit values.
+    else if (isset($form->_submitValues['contact_select_id'][1])) {
+      $contact_id = $form->_submitValues['contact_select_id'][1];
+    }
+    // Otherwise use the current logged-in user.
+    else {
+      $contact_id = CRM_Core_Session::singleton()->get('userID');
+    }
+
     $eid = $form->getVar('_eventId');
     $psid = $form->get('priceSetId');
 
