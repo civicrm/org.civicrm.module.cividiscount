@@ -33,25 +33,22 @@ CREATE TABLE `cividiscount_item` (
 -- *
 -- * cividiscount_track
 -- *
--- * Record when and where this discount was used.
+-- * Record how a discount was used.
 -- *
 -- *******************************************************/
 CREATE TABLE `cividiscount_track` (
      `id` int unsigned NOT NULL AUTO_INCREMENT  COMMENT 'Discount Item ID',
      `item_id` int unsigned    COMMENT 'FK to Item ID of the discount code',
      `contact_id` int unsigned    COMMENT 'FK to Contact ID for the contact that used this discount',
-     `used_date` datetime    COMMENT 'When was this discount used?',
-     `track` text    COMMENT 'Tracking code information?',
+     `used_date` datetime    COMMENT 'Date of use',
      `contribution_id` int unsigned    COMMENT 'FK to contribution table.',
-     `event_id` int unsigned    COMMENT 'FK to event table.',
-     `entity_table` varchar(64) NOT NULL   COMMENT 'Name of table where item being referenced is stored?',
-     `entity_id` int unsigned NOT NULL   COMMENT 'Foreign key to the referenced item?',
+     `entity_table` varchar(64) NOT NULL   COMMENT 'Name of table where item being referenced is stored',
+     `entity_id` int unsigned NOT NULL   COMMENT 'Foreign key to the referenced item',
+     `description` text    COMMENT 'Discount use description',
 
      PRIMARY KEY ( `id` ),
 
      CONSTRAINT FK_cividiscount_track_item_id FOREIGN KEY (`item_id`) REFERENCES `cividiscount_item`(`id`) ON DELETE SET NULL,
      CONSTRAINT FK_cividiscount_track_contact_id FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL,
-     CONSTRAINT FK_cividiscount_track_contribution_id FOREIGN KEY (`contribution_id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE,
-     CONSTRAINT FK_cividiscount_track_event_id FOREIGN KEY (`event_id`) REFERENCES `civicrm_event`(`id`) ON DELETE CASCADE
+     CONSTRAINT FK_cividiscount_track_contribution_id FOREIGN KEY (`contribution_id`) REFERENCES `civicrm_contribution`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci  ;
-

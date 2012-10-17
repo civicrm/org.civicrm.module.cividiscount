@@ -116,8 +116,8 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
   // Display discount textfield for offline membership/events
   $display_forms = array(
     'CRM_Contribute_Form_Contribution',
-    'CRM_Member_Form_Membership',
     'CRM_Event_Form_Participant',
+    'CRM_Member_Form_Membership',
     'CRM_Member_BAO_Membership',
   );
 
@@ -208,10 +208,11 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
  */
 function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
   if (!in_array($name, array(
+      'CRM_Contribute_Form_Contribution_Main',
       'CRM_Event_Form_Participant',
-      'CRM_Member_Form_Membership',
       'CRM_Event_Form_Registration_Register',
-      'CRM_Contribute_Form_Contribution_Main'))) {
+      'CRM_Event_Form_Registration_AdditionalParticipant',
+      'CRM_Member_Form_Membership'))) {
     return;
   }
 
@@ -419,178 +420,90 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 /**
  * Implementation of hook_civicrm_postProcess()
  *
- * If the event id of the form being loaded has a discount code, increment the
- * count and log the usage. If it's a membership, just log the usage.
- *
- * This function is a landmine... it should be called hook_landmine since we're
- * getting important chunks of information from the form values.
- *
- * If tracking ever stops working, look here.
+ * Record information about a discount use.
  */
 function cividiscount_civicrm_postProcess($class, &$form) {
-  $params = $form->getVar('_params');
-  $contactid = 0;
+  if (!in_array($class, array(
+      'CRM_Contribute_Form_Contribution_Confirm',
+      'CRM_Event_Form_Participant',
+      'CRM_Event_Form_Registration_Confirm',
+      'CRM_Event_Form_Registration_Register',
+      'CRM_Event_Form_Registration_AdditionalParticipant',
+      'CRM_Member_Form_Membership'))) {
+    return;
+  }
 
   $discountInfo = $form->getVar('_discountInfo');
   if (!$discountInfo) {
     return;
   }
-  $discount = $discountInfo['discount'];
-
-  // Events
-  if (in_array($class, array(
-        'CRM_Event_Form_Registration_Confirm',
-        'CRM_Event_Form_Participant'))) {
-
-    $eid = $form->getVar('_eventId');
-    if ($class == 'CRM_Event_Form_Registration_Confirm') {
-      $contactid = $params['contactID'];
-      $pids = $form->getVar('_participantIDS');
-      $pid = $pids[0];
-    }
-    else {
-      $contactid = $form->getVar('_contactId');
-      $pid       = $form->getVar('_pId');
-    }
-
-    if (!empty($params['contributionID'])) {
-      $contributionid = $params['contributionID'];
-    }
-    $track = array(
-      'id' => $pid,
-      'type' => 'Event',
-      'description' => CRM_Utils_Array::value('description', $params),
-   );
-
-    // Membership
-  }
-  else if (in_array($class, array('CRM_Contribute_Form_Contribution_Confirm'))) {
-    // Skip processing if it's a standard contribution form (no membership/event info)?
-    if (empty($params['membershipID'])) {
-      return;
-    }
-    $mid = $params['membershipID'];
-
-    // Need to lookup the contact id if it's a 100% discount.
-    if (!empty($params['contactID'])) {
-      $contactid = $params['contactID'];
-    }
-    else {
-      $contactid = _get_civicrm_contactid_by_memberid($params['membershipID']);
-    }
-
-    if (!empty($params['contributionID'])) {
-      $contributionid = $params['contributionID'];
-    }
-
-    $track = array(
-      'id' => $mid,
-      'type' => 'Membership',
-      'description' => $params['description']
-   );
-
-  }
-  else if (in_array($class, array('CRM_Member_Form_Membership'))) {
-    // FIXME: not able to add membership id or description because those values are
-    // not in the form params when submitting offline membership.
-    //
-    // In addition, a contribution id doesn't seem to exist yet.
-    $contactid = $form->getVar('_contactID');
-    $track = array(
-      'id' => NULL,
-      'type' => 'Membership',
-      'description' => 'Offline membership'
-   );
-
-  }
-  else {
-    return;
-  }
-
-  // FIXME: When registering multiple participants, the contactids aren't
-  // available to us at this point, so we have to make a db call to find them.
-  // Will submit patch to core.
-  //
-  // CRM_Event_Form_Registration_Confirm = online event registration
-  // CRM_Event_Form_Participant = offline event registration
 
   require_once 'CDM/BAO/Item.php';
   require_once 'CDM/DAO/Track.php';
-
   require_once 'CRM/Utils/Time.php';
   $ts = CRM_Utils_Time::getTime();
+  $discount = $discountInfo['discount'];
+  $params = $form->getVar('_params');
+  $description = CRM_Utils_Array::value('amount_level', $params);
 
-  if (in_array($class, array(
-        'CRM_Event_Form_Registration_Confirm',
-        'CRM_Event_Form_Participant'))) {
+  // Online event registration.
+  if ($class == 'CRM_Event_Form_Registration_Confirm') {
+    $pids = $form->getVar('_participantIDS');
+    foreach ($pids as $pid) {
+      $participant = _get_participant($pid);
+      $contact_id = $participant['contact_id'];
+      $contribution_id = _get_civicrm_contributionid_by_participantid($pid);
 
-
-    if ($class == 'CRM_Event_Form_Registration_Confirm') {
-
-      foreach ($pids as $pid) {
-
-        $participant = _get_participant($pid);
-        $contactid = $participant['contact_id'];
-
-        CDM_BAO_Item::incrementUsage($discount['id']);
-
-        $track = new CDM_DAO_Track();
-        $track->item_id = $discount['id'];
-        $track->contact_id = $contactid;
-        $track->contribution_id = $contributionid;
-        $track->event_id = $eid;
-        $track->entity_table = 'civicrm_participant';
-        $track->entity_id = $pid;
-        $track->used_date = $ts;
-
-        $track->save();
-      }
+      CDM_BAO_Item::incrementUsage($discount['id']);
+      $track = new CDM_DAO_Track();
+      $track->item_id = $discount['id'];
+      $track->contact_id = $contact_id;
+      $track->contribution_id = $contribution_id;
+      $track->entity_table = 'civicrm_participant';
+      $track->entity_id = $pid;
+      $track->used_date = $ts;
+      $track->description = $description;
+      $track->save();
     }
-    else {
-
-      // XXX: If an offline event registration was made, the participant id is unknown.
-      if (!empty($pid)) {
-        CDM_BAO_Item::incrementUsage($discount['id']);
-
-        $track = new CDM_DAO_Track();
-        $track->item_id = $discount['id'];
-        $track->contact_id = $contactid;
-        $track->contribution_id = $contributionid;
-        $track->event_id = $eid;
-        $track->entity_table = 'civicrm_participant';
-        $track->entity_id = $pid;
-        $track->used_date = $ts;
-
-        $track->save();
-      }
-    }
-  }
-  else if (in_array($class, array(
-        'CRM_Contribute_Form_Contribution_Confirm',
-        'CRM_Member_Form_Membership'))) {
-
-    CDM_BAO_Item::incrementUsage($discount['id']);
-
-    $track = new CDM_DAO_Track();
-    $track->item_id = $discount['id'];
-    $track->contact_id = $contactid;
-    $track->contribution_id = $contributionid;
-    $track->entity_table = 'civicrm_membership';
-    $track->entity_id = $mid;
-    $track->used_date = $ts;
-
-    $track->save();
-
   }
   else {
+    $contact_id = $discountInfo['contact_id'];
+    $contribution_id = NULL;
+    // Online or offline event registration.
+    if ($class == 'CRM_Event_Form_Registration_Register' || $class =='CRM_Event_Form_Participant') {
+      $entity_id = $form->getVar('_id');
+      $contribution_id = _get_civicrm_contributionid_by_participantid($entity_id);
+      $entity_table = 'civicrm_participant';
+    }
+    // Online or offline membership.
+    // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
+    // form - CRM_Contribute_Form_Contribution_Confirm confirms the
+    // transaction.
+    else if ($class == 'CRM_Contribute_Form_Contribution_Confirm' || $class == 'CRM_Member_Form_Membership') {
+      $membership_type = $params['selectMembership'];
+      // Check to make sure the discount actually applied to this membership.
+      if (!CRM_Utils_Array::value($membership_type, $discount['memberships'])) {
+        return;
+      }
+      $entity_table = 'civicrm_membership';
+      $entity_id = $params['membershipID'];
+      $contribution_id = _get_civicrm_contributionid_by_membershipid($entity_id);
+      $description = CRM_Utils_Array::value('description', $params);
+    }
+    else {
+      $entity_table = 'civicrm_contribution';
+      $entity_id = $contribution_id;
+    }
+
+    CDM_BAO_Item::incrementUsage($discount['id']);
     $track = new CDM_DAO_Track();
     $track->item_id = $discount['id'];
-    $track->contact_id = $contactid;
-    $track->contribution_id = $contributionid;
-    $track->entity_table = 'civicrm_contribution';
-    $track->entity_id = $contributionid;
+    $track->contact_id = $contact_id;
+    $track->contribution_id = $contribution_id;
+    $track->entity_table = $entity_table;
+    $track->entity_id = $entity_id;
     $track->used_date = $ts;
-
+    $track->description = $description;
     $track->save();
   }
 }
@@ -746,6 +659,10 @@ function _get_candidate_discounts($code, $contact_id) {
   return array($discounts, $autodiscount);
 }
 
+/**
+ * Filter out discounts that don't offer a discount to the specified $id in the
+ * category $field.
+ */
 function _filter_discounts($discounts, $field, $id) {
   return array_filter($discounts, function($discount) use($field, $id) { return CRM_Utils_Array::value($id, $discount[$field]); });
 }
@@ -847,6 +764,32 @@ function _get_civicrm_contactid_by_memberid($mid) {
   }
 
   return $cid;
+}
+
+/**
+ * Returns a contribution id for a participant id
+ */
+function _get_civicrm_contributionid_by_participantid($pid) {
+  $sql = "SELECT contribution_id FROM civicrm_participant_payment WHERE participant_id = $pid";
+  $dao =& CRM_Core_DAO::executeQuery($sql, array());
+  if ($dao->fetch()) {
+    return $dao->contribution_id;
+  }
+
+  return NULL;
+}
+
+/**
+ * Returns a contribution id for a membership id
+ */
+function _get_civicrm_contributionid_by_membershipid($mid) {
+  $sql = "SELECT contribution_id FROM civicrm_membership_payment WHERE membership_id = $mid";
+  $dao =& CRM_Core_DAO::executeQuery($sql, array());
+  if ($dao->fetch()) {
+    return $dao->contribution_id;
+  }
+
+  return NULL;
 }
 
 /**

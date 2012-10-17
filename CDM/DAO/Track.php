@@ -98,32 +98,17 @@ class CDM_DAO_Track extends CRM_Core_DAO {
    */
   public $contact_id;
   /**
-   * When was this discount used?
+   * Date of discount use.
    *
    * @var datetime
    */
   public $used_date;
-  /**
-   * Tracking code information?
-   *
-   * @var text
-   */
-  public $track;
-
   /**
    * FK to contribution table.
    *
    * @var int unsigned
    */
   public $contribution_id;
-
-  /**
-   * FK to event table.
-   *
-   * @var int unsigned
-   */
-  public $event_id;
-
   /**
    * Name of table where item being referenced is stored?
    *
@@ -136,6 +121,12 @@ class CDM_DAO_Track extends CRM_Core_DAO {
    * @var int unsigned
    */
   public $entity_id;
+  /**
+   * Discount use description.
+   *
+   * @var text
+   */
+  public $description;
   /**
    * class constructor
    *
@@ -158,7 +149,6 @@ class CDM_DAO_Track extends CRM_Core_DAO {
         'item_id' => 'cividiscount_item:id',
         'contact_id' => 'civicrm_contact:id',
         'contribution_id' => 'civicrm_contribution:id',
-        'event_id' => 'civicrm_event:id',
       );
     }
     return self::$_links;
@@ -192,20 +182,10 @@ class CDM_DAO_Track extends CRM_Core_DAO {
             'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
             'title' => ts('Used Date'),
           ),
-          'track' => array(
-            'name' => 'track',
-            'type' => CRM_Utils_Type::T_TEXT,
-            'title' => ts('Track'),
-          ),
           'contribution_id' => array(
             'name' => 'contribution_id',
             'type' => CRM_Utils_Type::T_INT,
             'FKClassName' => 'CRM_Contribute_DAO_Contribution',
-          ),
-          'event_id' => array(
-            'name' => 'event_id',
-            'type' => CRM_Utils_Type::T_INT,
-            'FKClassName' => 'CRM_Event_DAO_Event',
           ),
           'entity_table' => array(
             'name' => 'entity_table',
@@ -219,6 +199,11 @@ class CDM_DAO_Track extends CRM_Core_DAO {
             'name' => 'entity_id',
             'type' => CRM_Utils_Type::T_INT,
             'required' => true,
+          ),
+          'description' => array(
+            'name' => 'description',
+            'type' => CRM_Utils_Type::T_TEXT,
+            'title' => ts('Description'),
           ),
        );
     }

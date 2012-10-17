@@ -87,8 +87,6 @@ class CDM_BAO_Track extends CDM_DAO_Track {
     require_once 'CRM/Member/BAO/Membership.php';
     require_once 'CRM/Contact/BAO/Contact.php';
 
-    $events = CDM_Utils::getEvents();
-
     $where = '';
 
     $sql = "
@@ -96,9 +94,9 @@ SELECT    t.item_id as item_id,
       t.contact_id as contact_id,
       t.used_date as used_date,
       t.contribution_id as contribution_id,
-      t.event_id as event_id,
       t.entity_table as entity_table,
-      t.entity_id as entity_id ";
+      t.entity_id as entity_id,
+      t.description as description ";
 
     $from = " FROM cividiscount_track AS t ";
 
@@ -127,15 +125,17 @@ SELECT    t.item_id as item_id,
       $row['display_name'] = CRM_Contact_BAO_Contact::displayName($dao->contact_id);
       $row['used_date'] = $dao->used_date;
       $row['contribution_id'] = $dao->contribution_id;
-      $row['event_id'] = $dao->event_id;
       $row['entity_table'] = $dao->entity_table;
       $row['entity_id'] = $dao->entity_id;
+      $row['description'] = $dao->description;
       if (isset($dao->code)) {
         $row['code'] = $dao->code;
       }
       if ($row['entity_table'] == 'civicrm_participant') {
-        if (array_key_exists($dao->event_id, $events)) {
-          $row['event_title'] = $events[$dao->event_id];
+        $event_id = self::_get_participant_event($dao->entity_id);
+        $events = CDM_Utils::getEvents();
+        if (array_key_exists($event_id, $events)) {
+          $row['event_title'] = $events[$event_id];
         }
       }
       else if ($row['entity_table'] == 'civicrm_membership') {
@@ -152,6 +152,18 @@ SELECT    t.item_id as item_id,
     return $rows;
   }
 
+  /**
+   * Look up event id from participant id.
+   */
+  static function _get_participant_event($participant_id) {
+    $sql = "SELECT event_id FROM civicrm_participant WHERE id = $participant_id";
+    $dao =& CRM_Core_DAO::executeQuery($sql, array());
+    if ($dao->fetch()) {
+      return $dao->event_id;
+    }
+
+    return NULL;
+  }
 
   /**
    * Function to delete discount codes track
