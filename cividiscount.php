@@ -780,9 +780,11 @@ function _get_civicrm_contributionid_by_participantid($pid) {
 
 /**
  * Returns a contribution id for a membership id
+ *
+ * Note membership_id may not be unique, so retrieve the largest (latest) one.
  */
 function _get_civicrm_contributionid_by_membershipid($mid) {
-  $sql = "SELECT contribution_id FROM civicrm_membership_payment WHERE membership_id = $mid";
+  $sql = "SELECT contribution_id FROM civicrm_membership_payment WHERE membership_id = $mid ORDER BY contribution_id DESC";
   $dao =& CRM_Core_DAO::executeQuery($sql, array());
   if ($dao->fetch()) {
     return $dao->contribution_id;
