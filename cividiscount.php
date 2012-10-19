@@ -793,20 +793,6 @@ function _get_civicrm_contributionid_by_membershipid($mid) {
   return NULL;
 }
 
-/**
- * Add the discount textfield to a form
- */
-function _add_discount_textfield(&$form) {
-  $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
-  $template =& CRM_Core_Smarty::singleton();
-  $bhfe = $template->get_template_vars('beginHookFormElements');
-  if (!$bhfe) {
-    $bhfe = array();
-  }
-  $bhfe[] = 'discountcode';
-  $form->assign('beginHookFormElements', $bhfe);
-}
-
 function _get_participant($pid = 0) {
   require_once 'api/api.php';
   $result = civicrm_api('Participant', 'get', array('version' => '3', 'participant_id' => $pid));
@@ -826,3 +812,18 @@ function _get_membership($mid = 0) {
 
   return $a;
 }
+
+/**
+ * Add the discount textfield to a form
+ */
+function _add_discount_textfield(&$form) {
+  $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
+  $template =& CRM_Core_Smarty::singleton();
+  $bhfe = $template->get_template_vars('beginHookFormElements');
+  if (!$bhfe) {
+    $bhfe = array();
+  }
+  $bhfe[] = 'discountcode';
+  $form->assign('beginHookFormElements', $bhfe);
+}
+
