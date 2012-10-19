@@ -122,16 +122,8 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
   );
 
   if (in_array($fname, $display_forms)) {
-    // and only when creating new event participant/membership
-    // See http://drupal.org/node/1251198 and http://drupal.org/node/1096688
-    $formid = $form->getVar('_id');
-    if (!empty($formid)) {
-      return;
-    }
 
-    if ((isset($form->_single) &&
-        $form->_single == 1) ||
-        $form->_context == 'membership') {
+    if ($form->getVar('_single') == 1 || $form->getVar('_context') == 'membership') {
       _add_discount_textfield($form);
       $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
       if ($code) {
@@ -261,7 +253,9 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
  * Check all priceset items and only apply the discount to the discounted items.
  */
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
-  if (!empty($amounts) && is_array($amounts) && ($pagetype == 'event' /*|| $pagetype == 'contribution'*/)) {
+  if (($form->getVar('_action') & CRM_Core_Action::ADD) &&
+      !empty($amounts) && is_array($amounts) &&
+      ($pagetype == 'event' /*|| $pagetype == 'contribution'*/)) {
     // Retrieve the contact_id depending on submission context.
     // Javascript buildFeeBlock() participantId is mapped to _pId.
     // @see templates/CRM/Event/Form/Participant.tpl
@@ -378,6 +372,11 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
   // Ignore the thank you page.
   if ($form->getVar('_name') == 'ThankYou') {
+    return;
+  }
+
+  // Only discount new or renewal memberships.
+  if (!($form->getVar('_action') & (CRM_Core_Action::ADD | CRM_Core_Action::RENEW))) {
     return;
   }
 
