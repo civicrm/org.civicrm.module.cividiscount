@@ -426,7 +426,6 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       'CRM_Contribute_Form_Contribution_Confirm',
       'CRM_Event_Form_Participant',
       'CRM_Event_Form_Registration_Confirm',
-      'CRM_Event_Form_Registration_Register',
       'CRM_Event_Form_Registration_AdditionalParticipant',
       'CRM_Member_Form_Membership'))) {
     return;
@@ -446,12 +445,15 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   $description = CRM_Utils_Array::value('amount_level', $params);
 
   // Online event registration.
+  // Note that CRM_Event_Form_Registration_Register is an intermediate form.
+  // CRM_Event_Form_Registration_Confirm completes the transaction.
   if ($class == 'CRM_Event_Form_Registration_Confirm') {
     $pids = $form->getVar('_participantIDS');
     foreach ($pids as $pid) {
       $participant = _get_participant($pid);
-      $contact_id = $participant['contact_id'];
-      $contribution_id = _get_civicrm_contributionid_by_participantid($pid);
+      $contact_id = $participant['participant_contact_id'];
+      $participant_payment = _get_participant_payment($pid);
+      $contribution_id = $participant_payment['contribution_id'];
 
       CDM_BAO_Item::incrementUsage($discount['id']);
       $track = new CDM_DAO_Track();
@@ -465,28 +467,58 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $track->save();
     }
   }
+  // Online membership.
+  // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
+  // form - CRM_Contribute_Form_Contribution_Confirm completes the
+  // transaction.
+  else if ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
+    $membership_type = $params['selectMembership'];
+    // Check to make sure the discount actually applied to this membership.
+    if (!CRM_Utils_Array::value($membership_type, $discount['memberships'])) {
+      return;
+    }
+    $mids = $form->getVar('_membershipIDS');
+    $description = CRM_Utils_Array::value('description', $params);
+    foreach ($mids as $mid) {
+      $membership = _get_membership($mid);
+      $contact_id = $membership['membership_contact_id'];
+      $membership_payment = _get_membership_payment($mid);
+      $contribution_id = $membership_payment['contribution_id'];
+
+      CDM_BAO_Item::incrementUsage($discount['id']);
+      $track = new CDM_DAO_Track();
+      $track->item_id = $discount['id'];
+      $track->contact_id = $contact_id;
+      $track->contribution_id = $contribution_id;
+      $track->entity_table = 'civicrm_membership';
+      $track->entity_id = $mid;
+      $track->used_date = $ts;
+      $track->description = $description;
+      $track->save();
+    }
+  }
   else {
     $contact_id = $discountInfo['contact_id'];
     $contribution_id = NULL;
-    // Online or offline event registration.
-    if ($class == 'CRM_Event_Form_Registration_Register' || $class =='CRM_Event_Form_Participant') {
+    // Offline event registration.
+    if ($class =='CRM_Event_Form_Participant') {
       $entity_id = $form->getVar('_id');
-      $contribution_id = _get_civicrm_contributionid_by_participantid($entity_id);
+      $participant_payment = _get_participant_payment($entity_id);
+      $contribution_id = $participant_payment['contribution_id'];
       $entity_table = 'civicrm_participant';
     }
-    // Online or offline membership.
-    // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
-    // form - CRM_Contribute_Form_Contribution_Confirm confirms the
-    // transaction.
-    else if ($class == 'CRM_Contribute_Form_Contribution_Confirm' || $class == 'CRM_Member_Form_Membership') {
-      $membership_type = $params['selectMembership'];
+    // Offline membership.
+    else if ($class == 'CRM_Member_Form_Membership') {
+      $membership_types = $form->getVar('_memTypeSelected'); //$params['selectMembership'];
+      $membership_type = isset($membership_types[0]) ? $membership_types[0] : NULL;
       // Check to make sure the discount actually applied to this membership.
       if (!CRM_Utils_Array::value($membership_type, $discount['memberships'])) {
         return;
       }
-      $entity_table = 'civicrm_membership';
+      $entity_table = 'civicrm_membership'; // _values['membership_id'], 'contribution_id'
       $entity_id = $params['membershipID'];
-      $contribution_id = _get_civicrm_contributionid_by_membershipid($entity_id);
+      $membership_payment = _get_membership_payment($entity_id);
+      $contribution_id = $membership_payment['contribution_id'];
       $description = CRM_Utils_Array::value('description', $params);
     }
     else {
@@ -751,48 +783,31 @@ function _is_org($cid) {
   return FALSE;
 }
 
-/**
- * Returns a contact id for a member id
- */
-function _get_civicrm_contactid_by_memberid($mid) {
-  $sql = "SELECT contact_id FROM civicrm_membership WHERE id = $mid";
-  $dao =& CRM_Core_DAO::executeQuery($sql, array());
-  $cid = 0;
-  while ($dao->fetch()) {
-    $cid = $dao->contact_id;
+function _get_membership($mid = 0) {
+  require_once 'api/api.php';
+  $result = civicrm_api('Membership', 'get', array('version' => '3', 'membership_id' => $mid));
+  if ($result['is_error'] == 0) {
+    $a = array_shift($result['values']);
   }
 
-  return $cid;
+  return $a;
+}
+
+function _get_membership_payment($mid = 0) {
+  require_once 'api/api.php';
+  $result = civicrm_api('MembershipPayment', 'get', array('version' => '3', 'membership_id' => $mid));
+  if ($result['is_error'] == 0) {
+    $a = array_shift($result['values']);
+  }
+
+  return $a;
 }
 
 /**
- * Returns a contribution id for a participant id
- */
-function _get_civicrm_contributionid_by_participantid($pid) {
-  $sql = "SELECT contribution_id FROM civicrm_participant_payment WHERE participant_id = $pid";
-  $dao =& CRM_Core_DAO::executeQuery($sql, array());
-  if ($dao->fetch()) {
-    return $dao->contribution_id;
-  }
-
-  return NULL;
-}
-
-/**
- * Returns a contribution id for a membership id
+ * This function is broken at the moment.
  *
- * Note membership_id may not be unique, so retrieve the largest (latest) one.
+ * @see http://issues.civicrm.org/jira/browse/CRM-11108
  */
-function _get_civicrm_contributionid_by_membershipid($mid) {
-  $sql = "SELECT contribution_id FROM civicrm_membership_payment WHERE membership_id = $mid ORDER BY contribution_id DESC";
-  $dao =& CRM_Core_DAO::executeQuery($sql, array());
-  if ($dao->fetch()) {
-    return $dao->contribution_id;
-  }
-
-  return NULL;
-}
-
 function _get_participant($pid = 0) {
   require_once 'api/api.php';
   $result = civicrm_api('Participant', 'get', array('version' => '3', 'participant_id' => $pid));
@@ -803,9 +818,9 @@ function _get_participant($pid = 0) {
   return $a;
 }
 
-function _get_membership($mid = 0) {
+function _get_participant_payment($pid = 0) {
   require_once 'api/api.php';
-  $result = civicrm_api('Membership', 'get', array('version' => '3', 'membership_id' => $mid));
+  $result = civicrm_api('ParticipantPayment', 'get', array('version' => '3', 'participant_id' => $pid));
   if ($result['is_error'] == 0) {
     $a = array_shift($result['values']);
   }
