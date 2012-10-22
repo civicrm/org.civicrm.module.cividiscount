@@ -174,11 +174,11 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
         if ($code) {
           $defaults = array('discountcode' => $code);
           $form->setDefaults($defaults);
-          if (!in_array($fname, $display_forms)) {
-            // @todo looks like this would try to create an elemement with a
-            // duplicate name.
-            $form->addElement('hidden', 'discountcode', $code);
-          }
+          // @todo looks like this would try to create an elemement with a
+          // duplicate name. Plus it is unreachable code.
+          //if (!in_array($fname, $display_forms)) {
+          //  $form->addElement('hidden', 'discountcode', $code);
+          //}
         }
       }
     }
@@ -206,33 +206,27 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   $discountInfo = $form->getVar('_discountInfo');
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
 
-  if ($discountInfo && $discountInfo['autodiscount']) {
-    return;
-  }
-  else if (trim($code) == '') {
-    return;
-  }
-  else if (!$discountInfo) {
-    $errors['discountcode'] = ts('The discount code you entered is invalid.');
-    return;
-  }
-  else {
-    require_once 'CDM/BAO/Item.php';
-    $discount = $discountInfo['discount'];
+  if ((!$discountInfo || !$discountInfo['autodiscount']) && trim($code) != '') {
 
-    if ($discount['count_max'] > 0) {
-      // Initially 1 for person registering.
-      $apcount = 1;
-      $sv = $form->getVar('_submitValues');
-      if (array_key_exists('additional_participants', $sv)) {
-        $apcount += $sv['additional_participants'];
-      }
-      if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-        $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
+    if (!$discountInfo) {
+      $errors['discountcode'] = ts('The discount code you entered is invalid.');
+    }
+    else {
+      require_once 'CDM/BAO/Item.php';
+      $discount = $discountInfo['discount'];
+
+      if ($discount['count_max'] > 0) {
+        // Initially 1 for person registering.
+        $apcount = 1;
+        $sv = $form->getVar('_submitValues');
+        if (array_key_exists('additional_participants', $sv)) {
+          $apcount += $sv['additional_participants'];
+        }
+        if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+          $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
+        }
       }
     }
-
-    return;
   }
 }
 
@@ -539,8 +533,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
  * For participant and member delete, decrement the code usage value since
  * they are no longer using the code.
  *
- * FIXME: When a contact is deleted, we should also delete their tracking info/usage.
- * FIXME: When removing participant (and additional) from events, also delete their tracking info/usage.
+ * @todo When a contact is deleted, we should also delete their tracking info/usage.
+ * @todo When removing participant (and additional) from events, also delete their tracking info/usage.
  */
 function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
   if ($op == 'delete') {
