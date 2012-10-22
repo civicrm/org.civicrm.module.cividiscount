@@ -308,6 +308,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         return;
       }
     }
+    // @todo what is the purpose of this?
     else if ($pagetype == 'contribution') {
       if (!in_array(get_class($form), array(
             'CRM_Contribute_Form_Contribution',
@@ -505,7 +506,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       if (!CRM_Utils_Array::value($membership_type, $discount['memberships'])) {
         return;
       }
-      $entity_table = 'civicrm_membership'; // _values['membership_id'], 'contribution_id'
+      $entity_table = 'civicrm_membership';
       $entity_id = $params['membershipID'];
       $membership_payment = _get_membership_payment($entity_id);
       $contribution_id = $membership_payment['contribution_id'];
