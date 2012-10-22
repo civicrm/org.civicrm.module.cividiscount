@@ -114,14 +114,12 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
  */
 function cividiscount_civicrm_buildForm($fname, &$form) {
   // Display discount textfield for offline membership/events
-  $display_forms = array(
-    'CRM_Contribute_Form_Contribution',
-    'CRM_Event_Form_Participant',
-    'CRM_Member_Form_Membership',
-    'CRM_Member_BAO_Membership',
-  );
-
-  if (in_array($fname, $display_forms)) {
+  if (in_array($fname, array(
+        'CRM_Contribute_Form_Contribution',
+        'CRM_Event_Form_Participant',
+        'CRM_Member_Form_Membership',
+        'CRM_Member_BAO_Membership',
+      ))) {
 
     if ($form->getVar('_single') == 1 || $form->getVar('_context') == 'membership') {
       _add_discount_textfield($form);
@@ -131,62 +129,56 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
         $form->setDefaults($defaults);
       }
     }
-
-    return;
   }
+  else if (in_array($fname, array(
+            'CRM_Event_Form_Registration_Register',
+            'CRM_Event_Form_Registration_AdditionalParticipant',
+            'CRM_Contribute_Form_Contribution_Main',
+          ))) {
 
-  // Display the discount textfield for online events (including
-  // pricesets) and memberships.
-  $ids = array();
-  $formid = NULL;
+    // Display the discount textfield for online events (including
+    // pricesets) and memberships.
+    $ids = array();
+    $formid = NULL;
 
-  if ($fname == 'CRM_Event_Form_Registration_Register') {
-    $ids = _get_discounted_event_ids();
-    $formid = $form->getVar('_eventId');
-  }
-  elseif ($fname == 'CRM_Contribute_Form_Contribution_Main') {
-    $ids = _get_discounted_membership_ids();
-    $memtypes = explode(',', $form->_membershipBlock['membership_types']);
-
-    foreach ($memtypes as $k => $v) {
-
-      if (in_array($v, $ids)) {
-        $formid = $v;
-      }
-    }
-  }
-
-  if (empty($ids)) {
-    $psids = _get_discounted_priceset_ids();
-
-    if (!empty($psids)) {
+    if ($fname == 'CRM_Event_Form_Registration_Register') {
+      $ids = _get_discounted_event_ids();
       $formid = $form->getVar('_eventId');
-      $ids = $psids;
     }
-  }
-
-  // Try to add the textfield. If in a multi-step form, hide the textfield
-  // but preserve the value for later processing.
-  if ($formid != NULL && !empty($ids)) {
-
-    if (in_array($formid, array_keys($ids))) {
-      $display_forms = array(
-        'CRM_Event_Form_Registration_Register',
-        'CRM_Event_Form_Registration_AdditionalParticipant',
-        'CRM_Contribute_Form_Contribution_Main',
-     );
-
-      if (!in_array($fname, $display_forms)) {
-        return;
+    elseif ($fname == 'CRM_Contribute_Form_Contribution_Main') {
+      $ids = _get_discounted_membership_ids();
+      $memtypes = explode(',', $form->_membershipBlock['membership_types']);
+      // @todo what is this supposed to accomplish?
+      foreach ($memtypes as $k => $v) {
+        if (in_array($v, $ids)) {
+          $formid = $v;
+        }
       }
+    }
 
-      _add_discount_textfield($form);
-      $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-      if ($code) {
-        $defaults = array('discountcode' => $code);
-        $form->setDefaults($defaults);
-        if (!in_array($fname, $display_forms)) {
-          $form->addElement('hidden', 'discountcode', $code);
+    if (empty($ids)) {
+      $psids = _get_discounted_priceset_ids();
+
+      if (!empty($psids)) {
+        $formid = $form->getVar('_eventId');
+        $ids = $psids;
+      }
+    }
+
+    // Try to add the textfield. If in a multi-step form, hide the textfield
+    // but preserve the value for later processing.
+    if ($formid != NULL && !empty($ids)) {
+      if (in_array($formid, array_keys($ids))) {
+        _add_discount_textfield($form);
+        $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+        if ($code) {
+          $defaults = array('discountcode' => $code);
+          $form->setDefaults($defaults);
+          if (!in_array($fname, $display_forms)) {
+            // @todo looks like this would try to create an elemement with a
+            // duplicate name.
+            $form->addElement('hidden', 'discountcode', $code);
+          }
         }
       }
     }
@@ -200,11 +192,12 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
  */
 function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
   if (!in_array($name, array(
-      'CRM_Contribute_Form_Contribution_Main',
-      'CRM_Event_Form_Participant',
-      'CRM_Event_Form_Registration_Register',
-      'CRM_Event_Form_Registration_AdditionalParticipant',
-      'CRM_Member_Form_Membership'))) {
+        'CRM_Contribute_Form_Contribution_Main',
+        'CRM_Event_Form_Participant',
+        'CRM_Event_Form_Registration_Register',
+        'CRM_Event_Form_Registration_AdditionalParticipant',
+        'CRM_Member_Form_Membership',
+      ))) {
     return;
   }
 
@@ -301,6 +294,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         if (substr($key, 0, 16) == "_qf_Participant_") {
           // We can somewhat safely assume we're in the additional participant
           // registration form.
+          // @todo what is the effect of this?
           if ($_GET[$key] == 'true') {
             return;
           }
@@ -321,9 +315,10 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
     else if ($pagetype == 'contribution') {
-      if (!in_array(get_class($form),
-          array('CRM_Contribute_Form_Contribution',
-            'CRM_Contribute_Form_Contribution_Main'))) {
+      if (!in_array(get_class($form), array(
+            'CRM_Contribute_Form_Contribution',
+            'CRM_Contribute_Form_Contribution_Main',
+          ))) {
         return;
       }
     }
@@ -423,11 +418,12 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
  */
 function cividiscount_civicrm_postProcess($class, &$form) {
   if (!in_array($class, array(
-      'CRM_Contribute_Form_Contribution_Confirm',
-      'CRM_Event_Form_Participant',
-      'CRM_Event_Form_Registration_Confirm',
-      'CRM_Event_Form_Registration_AdditionalParticipant',
-      'CRM_Member_Form_Membership'))) {
+        'CRM_Contribute_Form_Contribution_Confirm',
+        'CRM_Event_Form_Participant',
+        'CRM_Event_Form_Registration_Confirm',
+        'CRM_Event_Form_Registration_AdditionalParticipant',
+        'CRM_Member_Form_Membership',
+      ))) {
     return;
   }
 
@@ -841,4 +837,3 @@ function _add_discount_textfield(&$form) {
   $bhfe[] = 'discountcode';
   $form->assign('beginHookFormElements', $bhfe);
 }
-
