@@ -2,10 +2,10 @@ A prototype for CMS independent extensions. Porting civievent_discount to this f
 
 NEEDED
 
-* Fix/check cividiscount_civicrm_buildForm() for both online and offline forms/cases:
+* Fix/check cividiscount_civicrm_buildForm() for both online, offline and renewal forms/cases:
   + check multi-step form case well
 
-* Fix/check cividiscount_civicrm_buildAmount() for both online and offline forms/cases:
+* Fix/check cividiscount_civicrm_buildAmount() for both online, offline and renewal forms/cases:
   + check multi-participant case well
 
 * Check all transaction amounts match amount displayed on forms.
