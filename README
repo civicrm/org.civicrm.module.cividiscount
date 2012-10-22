@@ -15,9 +15,19 @@ NEEDED
   + check generic generic contribution cases well
 
 * Enhance UI with an "apply discount" button that updates displayed prices on any forms
+  + basically you want to emulate having the discount code sent in via th URL and let the person know if discount code is
+    bogus
   + it would be nice to do this with ajax but isn't worth much effort.
 
 * Fix/check discount tracking tabs.
+
+* Fix or remove CDM_BAO_Item::copy(). Currently it's just a copy of CDM_BAO_Item::delete().
+
+* Create some user documentation
+  + Two types of discounts: automatic membership and code-based.
+  + Supports discounted memberships, events, pricesets
+  + Describe automatic member discounts (use random code never given to public)
+  + Show tracking interface
 
 * Adapt for 4.2 priceset structure.
 
@@ -26,14 +36,6 @@ NICE TO HAVE
 * Fix cividiscount_civicrm_pre():
   + When a contact is deleted, we should also delete their tracking info/usage.
   + When removing participant (and additional) from events, also delete their tracking info/usage.
-
-* Create some user documentation
-  + Two types of discounts: automatic membership and code-based.
-  + Supports discounted memberships, events, pricesets
-  + Describe automatic member discounts (use random code never given to public)
-  + Show tracking interface
-
-* Fix or remove CDM_BAO_Item::copy(). Currently it's just a copy of CDM_BAO_Item::delete().
 
 * Give some control over the placement of the discount code text field on the form.
 
