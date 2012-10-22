@@ -2,10 +2,10 @@ A prototype for CMS independent extensions. Porting civievent_discount to this f
 
 NEEDED
 
-* Fix/check cividiscount_civicrm_buildForm() for all forms/cases:
+* Fix/check cividiscount_civicrm_buildForm() for both online and offline forms/cases:
   + check multi-step form case well
 
-* Fix/check cividiscount_civicrm_buildAmount() for all forms/cases:
+* Fix/check cividiscount_civicrm_buildAmount() for both online and offline forms/cases:
   + check multi-participant case well
 
 * Check all transaction amounts match amount displayed on forms.
@@ -20,7 +20,6 @@ NEEDED
 * Fix/check discount tracking tabs.
 
 * Adapt for 4.2 priceset structure.
-
 
 NICE TO HAVE
 
@@ -37,7 +36,6 @@ NICE TO HAVE
 * Fix or remove CDM_BAO_Item::copy(). Currently it's just a copy of CDM_BAO_Item::delete().
 
 * Give some control over the placement of the discount code text field on the form.
-
 
 FIXED ALREADY
 
