@@ -832,3 +832,32 @@ function _add_discount_textfield(&$form) {
   $bhfe[] = 'discountcode';
   $form->assign('beginHookFormElements', $bhfe);
 }
+
+/**
+ * Add navigation for CiviDiscount under "Administer" menu
+ *
+ * @param $params associated array of navigation menus
+ */
+function cividiscount_civicrm_navigationMenu( &$params ) {
+  // get the id of Administer Menu
+  $administerMenuId = CRM_Core_DAO::getFieldValue('CRM_Core_BAO_Navigation', 'Administer', 'id', 'name');
+
+  // skip adding menu if there is no administer menu
+  if ($administerMenuId) {
+    // get the maximum key under adminster menu
+    $maxKey = max( array_keys($params[$administerMenuId]['child']));
+    $params[$administerMenuId]['child'][$maxKey+1] =  array (
+      'attributes' => array (
+        'label'      => 'CiviDiscount',
+        'name'       => 'CiviDiscount',
+        'url'        => 'civicrm/cividiscount&reset=1',
+        'permission' => 'administer CiviCRM',
+        'operator'   => NULL,
+        'separator'  => TRUE,
+        'parentID'   => $administerMenuId,
+        'navID'      => $maxKey+1,
+        'active'     => 1
+      )
+    );
+  }
+}
