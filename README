@@ -2,6 +2,8 @@ A prototype for CMS independent extensions. Porting civievent_discount to this f
 
 NEEDED
 
+* Create menu link for CiviDiscount extension under Administer
+
 * Fix/check cividiscount_civicrm_buildForm() for both online, offline and renewal forms/cases:
   + check multi-step form case well
 
