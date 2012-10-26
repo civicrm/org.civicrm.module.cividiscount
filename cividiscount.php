@@ -85,7 +85,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
       'weight' => '998',
     );
     if ($count > 0) {
-      $a['url'] = "/civicrm/cividiscount/usage?reset=1&oid=$cid&snippet=1";
+      $a['url'] = CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&oid={$cid}&snippet=1", false, null, false);
     }
     $tabs[] = $a;
   }
@@ -98,7 +98,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
     'weight' => '999',
   );
   if ($count > 0) {
-    $a['url'] = "/civicrm/cividiscount/usage?reset=1&cid=$cid&snippet=1";
+    $a['url'] = CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&cid={$cid}&snippet=1", false, null, false);
   }
   $tabs[] = $a;
 }

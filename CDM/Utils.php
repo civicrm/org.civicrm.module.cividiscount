@@ -70,6 +70,7 @@ SELECT    pfv.id as item_id,
 FROM      civicrm_price_field_value as pfv
 LEFT JOIN civicrm_price_field as pf on (pf.id = pfv.price_field_id)
 LEFT JOIN civicrm_price_set as ps on (ps.id = pf.price_set_id)
+WHERE ps.is_quick_config = 0
 ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 ";
         $dao = CRM_Core_DAO::executeQuery($sql);
