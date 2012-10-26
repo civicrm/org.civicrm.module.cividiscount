@@ -36,33 +36,42 @@
 
 class CDM_Utils {
 
-    static function getEvents() {
-        require_once 'CRM/Event/BAO/Event.php';
-        $eventInfo = CRM_Event_BAO_Event::getCompleteInfo();
-        if (! empty($eventInfo)) {
-            $events    = array();
-            foreach ($eventInfo as $info) {
-                $events[$info['event_id']] = $info['title'];
-            }
-            return $events;
-        }
-        return null;
+  static function getEvents() {
+    require_once 'CRM/Event/BAO/Event.php';
+    $eventInfo = CRM_Event_BAO_Event::getCompleteInfo();
+    if (! empty($eventInfo)) {
+      $events    = array();
+      foreach ($eventInfo as $info) {
+        $events[$info['event_id']] = $info['title'];
+      }
+      return $events;
+    }
+    return null;
+  }
+
+  static function getPriceSets() {
+    $values = self::getPriceSetsInfo();
+
+    $priceSets = array();
+    if (! empty($values)) {
+      foreach ($values as $set) {
+        $priceSets[$set['item_id']] = "{$set['ps_label']} :: {$set['pf_label']} :: {$set['item_label']}";
+      }
+    }
+    return $priceSets;
+  }
+
+  static function getPriceSetsInfo($priceSetId = null) {
+    $params = array();
+    if ($priceSetId) {
+      $additionalWhere = 'ps.id = %1';
+      $params = array(1 => array($priceSetId, 'Positive'));
+    }
+    else {
+      $additionalWhere = 'ps.is_quick_config = 0';
     }
 
-    static function getPriceSets() {
-        $values = self::getPriceSetsInfo();
-
-        $priceSets = array();
-        if (! empty($values)) {
-            foreach ($values as $set) {
-                $priceSets[$set['item_id']] = "{$set['ps_label']} :: {$set['pf_label']} :: {$set['item_label']}";
-            }
-        }
-        return $priceSets;
-    }
-
-    static function getPriceSetsInfo() {
-        $sql = "
+    $sql = "
 SELECT    pfv.id as item_id,
           pfv.label as item_label,
           pf.label as pf_label,
@@ -70,33 +79,34 @@ SELECT    pfv.id as item_id,
 FROM      civicrm_price_field_value as pfv
 LEFT JOIN civicrm_price_field as pf on (pf.id = pfv.price_field_id)
 LEFT JOIN civicrm_price_set as ps on (ps.id = pf.price_set_id)
-WHERE ps.is_quick_config = 0
+WHERE  {$additionalWhere}
 ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 ";
-        $dao = CRM_Core_DAO::executeQuery($sql);
-        $priceSets = array();
-        while ($dao->fetch()) {
-            $priceSets[$dao->item_id] = array(
-                                              'item_id' => $dao->item_id,
-                                              'item_label' => $dao->item_label,
-                                              'pf_label' => $dao->pf_label,
-                                              'ps_label' => $dao->ps_label
-                                             );
-        }
 
-        return $priceSets;
+    $dao = CRM_Core_DAO::executeQuery($sql, $params);
+    $priceSets = array();
+    while ($dao->fetch()) {
+      $priceSets[$dao->item_id] = array(
+        'item_id' => $dao->item_id,
+        'item_label' => $dao->item_label,
+        'pf_label' => $dao->pf_label,
+        'ps_label' => $dao->ps_label
+      );
     }
 
-    /**
-     * Sort of acts like array_intersect(). We want to match value of one array
-     * with key of another to return the id and title for things like events, membership, etc.
-     */
-    static function getIdsTitles($ids = array(), $titles = array()) {
-        $a = array();
-        foreach ($ids as $k => $v) {
-            $a[$v] = $titles[$v];
-        }
+    return $priceSets;
+  }
 
-        return $a;
+  /**
+   * Sort of acts like array_intersect(). We want to match value of one array
+   * with key of another to return the id and title for things like events, membership, etc.
+   */
+  static function getIdsTitles($ids = array(), $titles = array()) {
+    $a = array();
+    foreach ($ids as $k => $v) {
+      $a[$v] = $titles[$v];
     }
+
+    return $a;
+  }
 }

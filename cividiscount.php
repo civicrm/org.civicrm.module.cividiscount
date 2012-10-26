@@ -204,6 +204,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   // _discountInfo is assigned in cividiscount_civicrm_buildAmount() or
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
   $discountInfo = $form->getVar('_discountInfo');
+
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
 
   if ((!$discountInfo || !$discountInfo['autodiscount']) && trim($code) != '') {
@@ -240,13 +241,17 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
  * Check all priceset items and only apply the discount to the discounted items.
  */
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
-  if (($form->getVar('_action') & CRM_Core_Action::ADD) &&
-      !empty($amounts) && is_array($amounts) &&
+  if (( !$form->getVar('_action')
+        || ($form->getVar('_action') & CRM_Core_Action::PREVIEW)
+        || ($form->getVar('_action') & CRM_Core_Action::ADD)
+      )
+    && !empty($amounts) && is_array($amounts) &&
       ($pagetype == 'event' /*|| $pagetype == 'contribution'*/)) {
     // Retrieve the contact_id depending on submission context.
     // Javascript buildFeeBlock() participantId is mapped to _pId.
     // @see templates/CRM/Event/Form/Participant.tpl
     // @see CRM/Event/Form/EventFees.php
+
     if (isset($form->_pId)) {
       $contact_id = $form->_pId;
     }
@@ -319,7 +324,22 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     if (!empty($psid)) {
-      $discounts = _filter_discounts($discounts, 'pricesets', $psid);
+      if ($eid) {
+        $discounts = _filter_discounts($discounts, 'events', $eid);
+
+        if (!empty($discounts) && empty($discounts[0]['pricesets'])) {
+          // retrieve price set field associated with this priceset
+
+          require_once 'CDM/Utils.php';
+          $pricesets = CDM_Utils::getPriceSetsInfo($psid);
+
+          $discounts[0]['pricesets'] = array_combine(array_keys($pricesets), array_keys($pricesets));
+        }
+      }
+      else {
+        $discounts = _filter_discounts($discounts, 'pricesets', $psid);
+      }
+
       if (empty($discounts)) {
         return;
       }
