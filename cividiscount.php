@@ -528,14 +528,16 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     }
     // Offline membership.
     else if ($class == 'CRM_Member_Form_Membership') {
-      $membership_types = $form->getVar('_memTypeSelected'); //$params['selectMembership'];
+      $membership_types = $form->getVar('_memTypeSelected');
       $membership_type = isset($membership_types[0]) ? $membership_types[0] : NULL;
       // Check to make sure the discount actually applied to this membership.
       if (!CRM_Utils_Array::value($membership_type, $discount['memberships'])) {
         return;
       }
+
       $entity_table = 'civicrm_membership';
-      $entity_id = $params['membershipID'];
+      $entity_id = $form->getVar('_id');
+
       $membership_payment = _get_membership_payment($entity_id);
       $contribution_id = $membership_payment['contribution_id'];
       $description = CRM_Utils_Array::value('description', $params);
