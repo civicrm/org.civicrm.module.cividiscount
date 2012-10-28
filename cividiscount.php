@@ -246,7 +246,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         || ($form->getVar('_action') & CRM_Core_Action::ADD)
       )
     && !empty($amounts) && is_array($amounts) &&
-      ($pagetype == 'event' /*|| $pagetype == 'contribution'*/)) {
+      ($pagetype == 'event' || $pagetype == 'membership')) {
+
     // Retrieve the contact_id depending on submission context.
     // Javascript buildFeeBlock() participantId is mapped to _pId.
     // @see templates/CRM/Event/Form/Participant.tpl
@@ -272,7 +273,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $psid = $form->get('priceSetId');
 
     $v = $form->getVar('_values');
-    if (!empty($v['event']['currency'])) {
+    if (!empty($v['currency'])) {
+      $currency = $v['currency'];
+    } elseif (!empty($v['event']['currency'])) {
       $currency = $v['event']['currency'];
     }
     else {
@@ -309,12 +312,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
     if ($pagetype == 'event') {
       $discounts = _filter_discounts($discounts, 'events', $eid);
-      if (empty($discounts)) {
-        return;
-      }
     }
-    // @todo what is the purpose of this?
-    else if ($pagetype == 'contribution') {
+    else if ($pagetype == 'membership') {
       if (!in_array(get_class($form), array(
             'CRM_Contribute_Form_Contribution',
             'CRM_Contribute_Form_Contribution_Main',
@@ -323,13 +322,21 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
 
+    if (empty($discounts)) {
+      return;
+    }
+
     if (!empty($psid)) {
-      if ($eid) {
-        $discounts = _filter_discounts($discounts, 'events', $eid);
+      if (empty($discounts[0]['pricesets'])) {
+        if ($pagetype == 'events') {
+          $discounts = _filter_discounts($discounts, 'events', $eid);
+        }
+        elseif ($pagetype == 'memberships') {
+          $discounts = _filter_discounts($discounts, 'memberships', $eid);
+        }
 
         if (!empty($discounts) && empty($discounts[0]['pricesets'])) {
           // retrieve price set field associated with this priceset
-
           require_once 'CDM/Utils.php';
           $pricesets = CDM_Utils::getPriceSetsInfo($psid);
 
@@ -484,29 +491,30 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   // transaction.
   else if ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
     $membership_type = $params['selectMembership'];
-    // Check to make sure the discount actually applied to this membership.
-    if (!CRM_Utils_Array::value($membership_type, $discount['memberships'])) {
+    $membershipId = $params['membershipID'];
+
+    // check to make sure the discount actually applied to this membership.
+    if (!CRM_Utils_Array::value($membership_type, $discount['memberships']) || !$membershipId) {
       return;
     }
-    $mids = $form->getVar('_membershipIDS');
-    $description = CRM_Utils_Array::value('description', $params);
-    foreach ($mids as $mid) {
-      $membership = _get_membership($mid);
-      $contact_id = $membership['membership_contact_id'];
-      $membership_payment = _get_membership_payment($mid);
-      $contribution_id = $membership_payment['contribution_id'];
 
-      CDM_BAO_Item::incrementUsage($discount['id']);
-      $track = new CDM_DAO_Track();
-      $track->item_id = $discount['id'];
-      $track->contact_id = $contact_id;
-      $track->contribution_id = $contribution_id;
-      $track->entity_table = 'civicrm_membership';
-      $track->entity_id = $mid;
-      $track->used_date = $ts;
-      $track->description = $description;
-      $track->save();
-    }
+    $description = CRM_Utils_Array::value('description', $params);
+
+    $membership = _get_membership($membershipId);
+    $contact_id = $membership['contact_id'];
+    $membership_payment = _get_membership_payment($membershipId);
+    $contribution_id = $membership_payment['contribution_id'];
+
+    CDM_BAO_Item::incrementUsage($discount['id']);
+    $track = new CDM_DAO_Track();
+    $track->item_id = $discount['id'];
+    $track->contact_id = $contact_id;
+    $track->contribution_id = $contribution_id;
+    $track->entity_table = 'civicrm_membership';
+    $track->entity_id = $membershipId;
+    $track->used_date = $ts;
+    $track->description = $description;
+    $track->save();
   }
   else {
     $contact_id = $discountInfo['contact_id'];
