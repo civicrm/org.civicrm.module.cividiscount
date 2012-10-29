@@ -141,7 +141,8 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
     $ids = array();
     $formid = NULL;
 
-    if ($fname == 'CRM_Event_Form_Registration_Register') {
+    if ( in_array($fname, array('CRM_Event_Form_Registration_Register',
+      'CRM_Event_Form_Registration_AdditionalParticipant'))) {
       $ids = _get_discounted_event_ids();
       $formid = $form->getVar('_eventId');
     }
@@ -484,6 +485,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $track->description = $description;
       $track->save();
     }
+  } elseif ($class == 'CRM_Event_Form_Registration_AdditionalParticipant') {
+    return;
   }
   // Online membership.
   // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
