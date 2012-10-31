@@ -113,6 +113,11 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
  * Works for events and membership.
  */
 function cividiscount_civicrm_buildForm($fname, &$form) {
+  // skip for delete action
+  if ( $form->getVar('_action') && ($form->getVar('_action') & CRM_Core_Action::DELETE ) ) {
+    return false;
+  }
+
   // Display discount textfield for offline membership/events
   if (in_array($fname, array(
         'CRM_Contribute_Form_Contribution',
