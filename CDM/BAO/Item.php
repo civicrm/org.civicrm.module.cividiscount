@@ -36,14 +36,13 @@
 
 require_once 'CDM/DAO/Item.php';
 
-
 class CDM_BAO_Item extends CDM_DAO_Item {
 
   /**
    * class constructor
    */
   function __construct() {
-      parent::__construct();
+    parent::__construct();
   }
 
   /**
@@ -181,7 +180,6 @@ FROM    cividiscount_item
     return FALSE;
   }
 
-
   /**
    * Function to delete discount codes
    *
@@ -191,32 +189,7 @@ FROM    cividiscount_item
    * @static
    * @return true on success else false
    */
-  static function del($itemID)
-  {
-    require_once 'CRM/Utils/Rule.php';
-    if (! CRM_Utils_Rule::positiveInteger($itemID)) {
-      return false;
-    }
-
-    require_once 'CDM/DAO/Item.php';
-    $item = new CDM_DAO_Item();
-    $item->id = $itemID;
-    $item->delete();
-
-    return true;
-  }
-
-  /**
-   * Function to delete discount codes
-   *
-   * @param  int  $itemID     ID of the discount code to be deleted.
-   *
-   * @access public
-   * @static
-   * @return true on success else false
-   */
-  static function copy($itemID)
-  {
+  static function del($itemID) {
     require_once 'CRM/Utils/Rule.php';
     if (! CRM_Utils_Rule::positiveInteger($itemID)) {
       return false;
