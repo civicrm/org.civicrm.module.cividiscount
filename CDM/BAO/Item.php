@@ -118,14 +118,12 @@ FROM    cividiscount_item
 
   static function incrementUsage($id) {
     $currVal = CRM_Core_DAO::getFieldValue('CDM_DAO_Item', $id, 'count_use');
-
     return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'count_use', $currVal + 1);
   }
 
 
   static function decrementUsage($id) {
     $currVal = CRM_Core_DAO::getFieldValue('CDM_DAO_Item', $id, 'count_use');
-
     return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'count_use', $currVal - 1);
   }
 

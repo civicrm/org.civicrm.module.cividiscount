@@ -475,7 +475,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     $pids = $form->getVar('_participantIDS');
     foreach ($pids as $pid) {
       $participant = _get_participant($pid);
-      $contact_id = $participant['participant_contact_id'];
+      $contact_id = $participant['contact_id'];
       $participant_payment = _get_participant_payment($pid);
       $contribution_id = $participant_payment['contribution_id'];
 
@@ -525,7 +525,6 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     $track->save();
   }
   else {
-    $contact_id = $discountInfo['contact_id'];
     $contribution_id = NULL;
     // Offline event registration.
     if ($class =='CRM_Event_Form_Participant') {
@@ -533,6 +532,9 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $participant_payment = _get_participant_payment($entity_id);
       $contribution_id = $participant_payment['contribution_id'];
       $entity_table = 'civicrm_participant';
+
+      $participant = _get_participant($entity_id);
+      $contact_id = $participant['contact_id'];
     }
     // Offline membership.
     else if ($class == 'CRM_Member_Form_Membership') {
@@ -549,6 +551,9 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $membership_payment = _get_membership_payment($entity_id);
       $contribution_id = $membership_payment['contribution_id'];
       $description = CRM_Utils_Array::value('description', $params);
+
+      $membership = _get_membership($entity_id);
+      $contact_id = $membership['contact_id'];
     }
     else {
       $entity_table = 'civicrm_contribution';
@@ -571,40 +576,41 @@ function cividiscount_civicrm_postProcess($class, &$form) {
 /**
  * For participant and member delete, decrement the code usage value since
  * they are no longer using the code.
- *
- * @todo When a contact is deleted, we should also delete their tracking info/usage.
- * @todo When removing participant (and additional) from events, also delete their tracking info/usage.
+ * When a contact is deleted, we should also delete their tracking info/usage.
+ * When removing participant (and additional) from events, also delete their tracking info/usage.
  */
 function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
   if ($op == 'delete') {
-
-    $contactid = 0;
-
-    if ($name == 'Participant') {
+    if ( in_array($name, array('Individual','Household','Organization')) ) {
+      $result = _get_item_id_by_track(null, null, $id);
+    }
+    elseif ($name == 'Participant') {
       $result = _get_participant($id);
       $contactid = $result['contact_id'];
-
+      $result = _get_item_id_by_track('civicrm_participant', $id, $contactid);
     }
     else if ($name == 'Membership') {
       $result = _get_membership($id);
       $contactid = $result['contact_id'];
-
+      $result = _get_item_id_by_track('civicrm_membership', $id, $contactid);
     }
     else {
-      return;
+      return false;
     }
 
-    require_once 'CDM/BAO/Item.php';
-    require_once 'CDM/BAO/Track.php';
+    if (!empty($result)) {
+      require_once 'CDM/BAO/Item.php';
+      require_once 'CDM/BAO/Track.php';
 
-    $result = _get_item_id_by_track('civicrm_participant', $id, $contactid);
+      foreach ( $result as $value ) {
+        if (!empty($value['item_id'])) {
+          CDM_BAO_Item::decrementUsage($value['item_id']);
+        }
 
-    if (!empty($result['item_id'])) {
-      CDM_BAO_Item::decrementUsage($result['item_id']);
-    }
-
-    if (!empty($result['id'])) {
-      CDM_BAO_Track::del($result['id']);
+        if (!empty($value['id'])) {
+          CDM_BAO_Track::del($value['id']);
+        }
+      }
     }
   }
 }
@@ -788,13 +794,20 @@ function _getTrackingCountByOrg($cid) {
 }
 
 function _get_item_id_by_track($table, $eid, $cid) {
-  $sql = "SELECT id, item_id FROM cividiscount_track WHERE entity_table = '" . $table . "' AND entity_id = $eid AND contact_id = $cid";
+  if (!$table) {
+    $entityTableClause = "entity_table IN ('civicrm_membership','civicrm_participant')";
+  }
+  else {
+    $entityTableClause = "entity_table = '{$table}' AND entity_id = {$eid}";
+  }
+  $sql = "SELECT id, item_id FROM cividiscount_track WHERE {$entityTableClause} AND contact_id = $cid";
   $dao = CRM_Core_DAO::executeQuery($sql, array());
-  if ($dao->fetch()) {
-    return array('id' => $dao->id, 'item_id' => $dao->item_id);
+  $discountEntries = array();
+  while ($dao->fetch()) {
+    $discountEntries[] = array('id' => $dao->id, 'item_id' => $dao->item_id);
   }
 
-  return array();
+  return $discountEntries;
 }
 
 /**
