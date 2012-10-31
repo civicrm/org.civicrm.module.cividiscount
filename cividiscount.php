@@ -875,12 +875,13 @@ function _get_participant_payment($pid = 0) {
  */
 function _add_discount_textfield(&$form) {
   $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
+  $form->addElement('submit', 'applydiscount', ts('Apply'));
   $template =& CRM_Core_Smarty::singleton();
   $bhfe = $template->get_template_vars('beginHookFormElements');
   if (!$bhfe) {
     $bhfe = array();
   }
-  $bhfe[] = 'discountcode';
+  $bhfe = array('discountcode','applydiscount');
   $form->assign('beginHookFormElements', $bhfe);
 }
 
