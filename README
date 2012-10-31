@@ -8,8 +8,6 @@ NEEDED
 * Fix/check cividiscount_civicrm_buildAmount() for both online and offline forms/cases (event registration):
   + check multi-participant case well
 
-* Check all transaction amounts match amount displayed on forms.
-
 * Fix/check cividiscount_civicrm_postProcess() tracking for all forms/cases:
   + check we have correct participantID, membershipID, contributionID when it's needed for tracking
   + check generic generic contribution cases well
@@ -21,15 +19,12 @@ NEEDED
 
 * Fix/check discount tracking tabs.
 
-* Fix or remove CDM_BAO_Item::copy(). Currently it's just a copy of CDM_BAO_Item::delete().
-
 * Create some user documentation
   + Two types of discounts: automatic membership and code-based.
   + Supports discounted memberships, events, pricesets
   + Describe automatic member discounts (use random code never given to public)
   + Show tracking interface
 
-* Adapt for 4.2 priceset structure.
 
 NICE TO HAVE
 
@@ -39,7 +34,14 @@ NICE TO HAVE
 
 * Give some control over the placement of the discount code text field on the form.
 
+
 FIXED ALREADY
+
+* Check all transaction amounts match amount displayed on forms.
+
+* Fix or remove CDM_BAO_Item::copy(). Currently it's just a copy of CDM_BAO_Item::delete().
+
+* Adapt for 4.2 priceset structure.
 
 * Create menu link for CiviDiscount extension under Administer
 
