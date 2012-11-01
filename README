@@ -6,11 +6,7 @@ NEEDED
   + check multi-step form case well
 
 * Fix/check cividiscount_civicrm_buildAmount() for both online and offline forms/cases (event registration):
-  + check multi-participant case well
-
-* Fix/check cividiscount_civicrm_postProcess() tracking for all forms/cases:
-  + check we have correct participantID, membershipID, contributionID when it's needed for tracking
-  + check generic generic contribution cases well
+  + check multi-participant case well ( currently this needs to be enabled in code )
 
 * Enhance UI with an "apply discount" button that updates displayed prices on any forms
   + basically you want to emulate having the discount code sent in via th URL and let the person know if discount code is
@@ -44,6 +40,10 @@ FIXED ALREADY
   + When a contact is deleted, we should also delete their tracking info/usage.
   + When removing participant (and additional) from events, also delete their tracking info/usage.
   + When deleting membership record, also delete their tracking info/usage
+
+* Fix/check cividiscount_civicrm_postProcess() tracking for all forms/cases:
+  + check we have correct participantID, membershipID, contributionID when it's needed for tracking
+  + check generic generic contribution cases well ( discount is not available for this )
 
 * Fix/check discount tracking tabs.
 
