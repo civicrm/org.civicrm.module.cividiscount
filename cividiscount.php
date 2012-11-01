@@ -124,6 +124,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
         'CRM_Event_Form_Participant',
         'CRM_Member_Form_Membership',
         'CRM_Member_BAO_Membership',
+        'CRM_Member_Form_MembershipRenewal'
       ))) {
 
     if ($form->getVar('_single') == 1 || $form->getVar('_context') == 'membership') {
@@ -203,6 +204,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
         'CRM_Event_Form_Registration_Register',
         'CRM_Event_Form_Registration_AdditionalParticipant',
         'CRM_Member_Form_Membership',
+        'CRM_Member_Form_MembershipRenewal'
       ))) {
     return;
   }
@@ -451,6 +453,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
         'CRM_Event_Form_Registration_Confirm',
         'CRM_Event_Form_Registration_AdditionalParticipant',
         'CRM_Member_Form_Membership',
+        'CRM_Member_Form_MembershipRenewal'
       ))) {
     return;
   }
@@ -537,7 +540,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $contact_id = $participant['contact_id'];
     }
     // Offline membership.
-    else if ($class == 'CRM_Member_Form_Membership') {
+    elseif ( in_array($class, array('CRM_Member_Form_Membership','CRM_Member_Form_MembershipRenewal') ) ) {
       $membership_types = $form->getVar('_memTypeSelected');
       $membership_type = isset($membership_types[0]) ? $membership_types[0] : NULL;
       // Check to make sure the discount actually applied to this membership.
