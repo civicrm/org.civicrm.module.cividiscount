@@ -184,11 +184,6 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
         if ($code) {
           $defaults = array('discountcode' => $code);
           $form->setDefaults($defaults);
-          // @todo looks like this would try to create an elemement with a
-          // duplicate name. Plus it is unreachable code.
-          //if (!in_array($fname, $display_forms)) {
-          //  $form->addElement('hidden', 'discountcode', $code);
-          //}
         }
       }
     }
@@ -222,21 +217,21 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
 
     if (!$discountInfo) {
       $errors['discountcode'] = ts('The discount code you entered is invalid.');
+      return;
     }
-    else {
-      require_once 'CDM/BAO/Item.php';
-      $discount = $discountInfo['discount'];
 
-      if ($discount['count_max'] > 0) {
-        // Initially 1 for person registering.
-        $apcount = 1;
-        $sv = $form->getVar('_submitValues');
-        if (array_key_exists('additional_participants', $sv)) {
-          $apcount += $sv['additional_participants'];
-        }
-        if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-          $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
-        }
+    require_once 'CDM/BAO/Item.php';
+    $discount = $discountInfo['discount'];
+
+    if ($discount['count_max'] > 0) {
+      // Initially 1 for person registering.
+      $apcount = 1;
+      $sv = $form->getVar('_submitValues');
+      if (array_key_exists('additional_participants', $sv)) {
+        $apcount += $sv['additional_participants'];
+      }
+      if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+        $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
       }
     }
   }
@@ -318,6 +313,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
     list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
     if (empty($discounts)) {
+      if (!empty($code)) { // the user entered a code, so lets tell them its invalid
+        $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
+      }
       return;
     }
 
@@ -880,14 +878,20 @@ function _get_participant_payment($pid = 0) {
  * Add the discount textfield to a form
  */
 function _add_discount_textfield(&$form) {
-  $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
-  $form->addElement('submit', 'applydiscount', ts('Apply'));
+  $element = $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
+  $errorMessage = $form->get('discountCodeErrorMsg');
+  if ($errorMessage) {
+    $form->setElementError('discountcode', $errorMessage);
+  }
+  $form->set('discountCodeErrorMsg', null);
+  $buttonName = $form->getButtonName('reload');
+  $form->addElement('submit', $buttonName, ts('Apply'));
   $template =& CRM_Core_Smarty::singleton();
   $bhfe = $template->get_template_vars('beginHookFormElements');
   if (!$bhfe) {
     $bhfe = array();
   }
-  $bhfe = array('discountcode','applydiscount');
+  $bhfe = array('discountcode',$buttonName);
   $form->assign('beginHookFormElements', $bhfe);
 }
 
