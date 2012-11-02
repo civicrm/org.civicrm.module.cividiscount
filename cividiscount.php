@@ -114,7 +114,10 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
  */
 function cividiscount_civicrm_buildForm($fname, &$form) {
   // skip for delete action
-  if ( $form->getVar('_action') && ($form->getVar('_action') & CRM_Core_Action::DELETE ) ) {
+  // also skip when content is loaded via ajax, like payment processor, custom data etc
+  $snippet = CRM_Utils_Request::retrieve('snippet', 'String', CRM_Core_DAO::$_nullObject, false, null, 'REQUEST');
+
+  if ( $snippet || ( $form->getVar('_action') && ($form->getVar('_action') & CRM_Core_Action::DELETE ) ) ) {
     return false;
   }
 
