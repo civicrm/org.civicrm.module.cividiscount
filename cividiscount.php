@@ -336,7 +336,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     if (!empty($psid)) {
-      if (empty($discounts[0]['pricesets'])) {
+      $key = array_shift(array_keys($discounts));
+      if (empty($discounts[$key]['pricesets'])) {
         if ($pagetype == 'events') {
           $discounts = _filter_discounts($discounts, 'events', $eid);
         }
@@ -344,12 +345,12 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
           $discounts = _filter_discounts($discounts, 'memberships', $eid);
         }
 
-        if (!empty($discounts) && empty($discounts[0]['pricesets'])) {
+        if (!empty($discounts) && empty($discounts[$key]['pricesets'])) {
           // retrieve price set field associated with this priceset
           require_once 'CDM/Utils.php';
           $pricesets = CDM_Utils::getPriceSetsInfo($psid);
 
-          $discounts[0]['pricesets'] = array_combine(array_keys($pricesets), array_keys($pricesets));
+          $discounts[$key]['pricesets'] = array_combine(array_keys($pricesets), array_keys($pricesets));
         }
       }
       else {
@@ -360,7 +361,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         return;
       }
 
-      $discount = $discounts[0];
+      $discount = array_shift($discounts);
       foreach ($amounts as &$fee) {
         if (!is_array($fee['options'])) {
           continue;
@@ -375,7 +376,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
     else {
-      $discount = $discounts[0];
+      $discount = array_shift($discounts);
       foreach ($amounts as $aid => $vals) {
         list($amounts[$aid]['value'], $amounts[$aid]['label']) =
           _calc_discount($vals['value'], $vals['label'], $discount, $autodiscount, $currency);
@@ -439,7 +440,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     return;
   }
 
-  $discount = $discounts[0];
+  $discount = array_shift($discounts);
   foreach ($membershipTypeValues as &$values) {
     if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
       list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $discount, $autodiscount);
