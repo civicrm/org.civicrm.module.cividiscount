@@ -406,7 +406,20 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     return;
   }
 
-  $contact_id = CRM_Core_Session::singleton()->get('userID');
+  // Retrieve the contact_id depending on submission context.
+  // Look for contact_id in the form.
+  if (isset($form->_contactID)) {
+    $contact_id = $form->_contactID;
+  }
+  // Otherwise look for contact_id in submit values.
+  else if (isset($form->_submitValues['contact_select_id'][1])) {
+    $contact_id = $form->_submitValues['contact_select_id'][1];
+  }
+  // Otherwise use the current logged-in user.
+  else {
+    $contact_id = CRM_Core_Session::singleton()->get('userID');
+  }
+
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
   list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
   if (empty($discounts)) {
