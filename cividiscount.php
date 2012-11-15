@@ -130,7 +130,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
         'CRM_Member_Form_MembershipRenewal'
       ))) {
 
-    if ($form->getVar('_single') == 1 || $form->getVar('_context') == 'membership') {
+    if ($form->getVar('_single') == 1 || in_array($form->getVar('_context'), array('membership', 'standalone'))) {
       _add_discount_textfield($form);
       $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
       if ($code) {
