@@ -75,6 +75,7 @@ class CDM_Utils {
 SELECT    pfv.id as item_id,
           pfv.label as item_label,
           pf.label as pf_label,
+          pfv.membership_type_id as membership_type_id,
           ps.title as ps_label
 FROM      civicrm_price_field_value as pfv
 LEFT JOIN civicrm_price_field as pf on (pf.id = pfv.price_field_id)
@@ -90,7 +91,8 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
         'item_id' => $dao->item_id,
         'item_label' => $dao->item_label,
         'pf_label' => $dao->pf_label,
-        'ps_label' => $dao->ps_label
+        'ps_label' => $dao->ps_label,
+        'membership_type_id' => $dao->membership_type_id
       );
     }
 
