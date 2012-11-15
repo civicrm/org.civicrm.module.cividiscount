@@ -351,9 +351,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
       if ($isQuickConfigPriceSet) {
         $discounts[$key]['pricesets'] = array();
-        if ($pagetype == 'event') {
-          $discounts = _filter_discounts($discounts, 'events', $eid);
-        }
 
         if (!empty($discounts)) {
           // in this case discount is specified for event id or membership type id, so we need to get info of
