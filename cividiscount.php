@@ -335,8 +335,17 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       return;
     }
 
+    // note that $psid is always set since now everything is price set since CiviCRM v4.2
     if (!empty($psid)) {
       $key = array_shift(array_keys($discounts));
+      // here we check if discount is configured for events or for membership types.
+      // There are two scenarios:
+      // 1. Discount is configure for the event or membership type, in that case we should apply discount only
+      //    if default fee / membership type is configured. ( i.e price set with quick config true )
+      // 2. Discount is configure at price field level, in this case discount should be applied only for
+      //    that particular price set field.
+
+      // if empty means discount code is associated with the event or membership type
       if (empty($discounts[$key]['pricesets'])) {
         if ($pagetype == 'events') {
           $discounts = _filter_discounts($discounts, 'events', $eid);
@@ -345,16 +354,15 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
           $discounts = _filter_discounts($discounts, 'memberships', $eid);
         }
 
-        if (!empty($discounts) && empty($discounts[$key]['pricesets'])) {
-          // retrieve price set field associated with this priceset
-          require_once 'CDM/Utils.php';
-          $pricesets = CDM_Utils::getPriceSetsInfo($psid);
+        require_once 'CDM/Utils.php';
+        // here we need to check if selected price set is quick config
+        $isQuickConfigPriceSet = CDM_Utils::checkForQuickConfigPriceSet($psid);
 
+        if ($isQuickConfigPriceSet && !empty($discounts) && empty($discounts[$key]['pricesets'])) {
+          // retrieve price set field associated with this priceset
+          $pricesets = CDM_Utils::getPriceSetsInfo($psid);
           $discounts[$key]['pricesets'] = array_combine(array_keys($pricesets), array_keys($pricesets));
         }
-      }
-      else {
-        $discounts = _filter_discounts($discounts, 'pricesets', $psid);
       }
 
       if (empty($discounts)) {
@@ -376,6 +384,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
     else {
+      // TODO: need to check if this code ever called if not kill else block
       $discount = array_shift($discounts);
       foreach ($amounts as $aid => $vals) {
         list($amounts[$aid]['value'], $amounts[$aid]['label']) =

@@ -109,4 +109,20 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 
     return $a;
   }
+
+  /**
+   * check if price set is quick config price set, i.e for eg, if event is configured with default fee or
+   * usiing price sets
+   *
+   * @param int $priceSetId price set id
+   *
+   * @return boolean true is it is quickconfig else false
+   */
+  static function checkForQuickConfigPriceSet($priceSetId) {
+    if (CRM_Core_DAO::getFieldValue('CRM_Price_DAO_Set', $priceSetId, 'is_quick_config')) {
+      return true;
+    }
+
+    return false;
+  }
 }
