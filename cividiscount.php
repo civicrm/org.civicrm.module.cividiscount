@@ -452,20 +452,25 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
   // Get discounts that apply to at least one of the specified memberships.
   $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
-  $tmp_discounts = array();
-  foreach ($discounts as $discount) {
-    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
-      $tmp_discounts[] = $discount;
-    }
+
+  $tempDiscount = array();
+  if (count(array_intersect($discounts[$code]['memberships'], $mids)) > 0) {
+    $tempDiscount = $discounts;
   }
-  $discounts = $tmp_discounts;
+
+  if (count(array_intersect($discounts[$code]['autodiscount'], $mids)) > 0) {
+    $tempDiscount = $discounts;
+  }
+
+  $discounts = $tempDiscount;
   if (empty($discounts)) {
     return;
   }
 
   $discount = array_shift($discounts);
   foreach ($membershipTypeValues as &$values) {
-    if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
+    if (CRM_Utils_Array::value($values['id'], $discount['memberships']) ||
+        CRM_Utils_Array::value($values['id'], $discount['autodiscount'])) {
       list($value, $label) = _calc_discount($values['minimum_fee'], $values['name'], $discount, $autodiscount);
       $values['minimum_fee'] = $value;
       $values['name'] = $label;
