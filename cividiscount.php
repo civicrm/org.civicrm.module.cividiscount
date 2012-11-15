@@ -345,30 +345,34 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       // 2. Discount is configure at price field level, in this case discount should be applied only for
       //    that particular price set field.
 
-      // if empty means discount code is associated with the event or membership type
-      if (empty($discounts[$key]['pricesets'])) {
+      require_once 'CDM/Utils.php';
+      // here we need to check if selected price set is quick config
+      $isQuickConfigPriceSet = CDM_Utils::checkForQuickConfigPriceSet($psid);
+
+      if ($isQuickConfigPriceSet) {
+        $discounts[$key]['pricesets'] = array();
         if ($pagetype == 'event') {
           $discounts = _filter_discounts($discounts, 'events', $eid);
         }
 
-        require_once 'CDM/Utils.php';
-        // here we need to check if selected price set is quick config
-        $isQuickConfigPriceSet = CDM_Utils::checkForQuickConfigPriceSet($psid);
+        if (!empty($discounts)) {
+          // in this case discount is specified for event id or membership type id, so we need to get info of
+          // associated price set fields. For events discount is for all the fees but for memberships we need
+          // to filter at membership type level
 
-        if ($isQuickConfigPriceSet && !empty($discounts) && empty($discounts[$key]['pricesets'])) {
-          // retrieve price set field associated with this priceset
+          //retrieve price set field associated with this priceset
           $priceSetInfo = CDM_Utils::getPriceSetsInfo($psid);
-        }
 
-        if ($pagetype == 'event') {
-          $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
-        }
-        else {
-          // filter only valid membership types that have discount
-          foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
-            if ( !empty($priceFieldValues['membership_type_id']) &&
-              in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships'])) {
-              $discounts[$key]['pricesets'][$pfID] = $pfID;
+          if ($pagetype == 'event') {
+            $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
+          }
+          else {
+            // filter only valid membership types that have discount
+            foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
+              if ( !empty($priceFieldValues['membership_type_id']) &&
+                in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships'])) {
+                $discounts[$key]['pricesets'][$pfID] = $pfID;
+              }
             }
           }
         }
