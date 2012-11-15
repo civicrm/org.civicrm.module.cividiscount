@@ -259,15 +259,15 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     // @see templates/CRM/Event/Form/Participant.tpl
     // @see CRM/Event/Form/EventFees.php
 
-    if (isset($form->_pId)) {
+    if (!empty($form->_pId)) {
       $contact_id = $form->_pId;
     }
     // Look for contact_id in the form.
-    else if (isset($form->_contactId)) {
+    else if (!empty($form->_contactId)) {
       $contact_id = $form->_contactId;
     }
     // Otherwise look for contact_id in submit values.
-    else if (isset($form->_submitValues['contact_select_id'][1])) {
+    else if (!empty($form->_submitValues['contact_select_id'][1])) {
       $contact_id = $form->_submitValues['contact_select_id'][1];
     }
     // Otherwise use the current logged-in user.
@@ -418,11 +418,11 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
   // Retrieve the contact_id depending on submission context.
   // Look for contact_id in the form.
-  if (isset($form->_contactID)) {
+  if (!empty($form->_contactID)) {
     $contact_id = $form->_contactID;
   }
   // Otherwise look for contact_id in submit values.
-  else if (isset($form->_submitValues['contact_select_id'][1])) {
+  else if (!empty($form->_submitValues['contact_select_id'][1])) {
     $contact_id = $form->_submitValues['contact_select_id'][1];
   }
   // Otherwise use the current logged-in user.
