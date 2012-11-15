@@ -732,7 +732,7 @@ function _get_candidate_discounts($code, $contact_id) {
   if ($code) {
     $discount = _get_discount($code);
     if ($discount) {
-      $discounts = array($discount);
+      $discounts = array($discount['code'] => $discount);
     }
   }
   else {
