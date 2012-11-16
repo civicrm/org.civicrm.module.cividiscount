@@ -329,6 +329,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
           ))) {
         return;
       }
+
+      $discounts = _filter_membership_discount($discounts, $form->_membershipTypeValues);
     }
 
     if (empty($discounts)) {
@@ -338,6 +340,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     // note that $psid is always set since now everything is price set since CiviCRM v4.2
     if (!empty($psid)) {
       $key = array_shift(array_keys($discounts));
+
       // here we check if discount is configured for events or for membership types.
       // There are two scenarios:
       // 1. Discount is configure for the event or membership type, in that case we should apply discount only
@@ -368,7 +371,10 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
             foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
               if ( !empty($priceFieldValues['membership_type_id']) &&
                 (in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships']) ||
-                 in_array($priceFieldValues['membership_type_id'], $discounts[$key]['autodiscount']))) {
+                 ( in_array($priceFieldValues['membership_type_id'], $discounts[$key]['autodiscount']))
+                   && empty($discounts[$key]['events'])
+                  )
+              ) {
                 $discounts[$key]['pricesets'][$pfID] = $pfID;
               }
             }
@@ -447,21 +453,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     return;
   }
 
-  // Get discounts that apply to at least one of the specified memberships.
-  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
-
-  $tempDiscount = array();
-  foreach ($discounts as $discount) {
-    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
-      $tempDiscount[] = $discount;
-    }
-
-    if (count(array_intersect($discount['autodiscount'], $mids)) > 0) {
-      $tempDiscount[] = $discount;
-    }
-  }
-
-  $discounts = $tempDiscount;
+  $discounts = _filter_membership_discount($discounts, $membershipTypeValues);
   if (empty($discounts)) {
     return;
   }
@@ -483,6 +475,23 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   ));
 }
 
+function _filter_membership_discount(&$discounts, &$membershipTypeValues) {
+  // get discounts that apply to at least one of the specified memberships.
+  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
+
+  $tempDiscount = array();
+  foreach ($discounts as $discount) {
+    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
+      $tempDiscount[$discount['code']] = $discount;
+    }
+
+    if (count(array_intersect($discount['autodiscount'], $mids)) > 0 && empty($discount['events'])) {
+      $tempDiscount[$discount['code']] = $discount;
+    }
+  }
+
+  return $tempDiscount;
+}
 /**
  * Implementation of hook_civicrm_postProcess()
  *
