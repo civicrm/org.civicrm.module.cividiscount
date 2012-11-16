@@ -451,12 +451,14 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
 
   $tempDiscount = array();
-  if (count(array_intersect($discounts[$code]['memberships'], $mids)) > 0) {
-    $tempDiscount = $discounts;
-  }
+  foreach ($discounts as $discount) {
+    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
+      $tempDiscount[] = $discount;
+    }
 
-  if (count(array_intersect($discounts[$code]['autodiscount'], $mids)) > 0) {
-    $tempDiscount = $discounts;
+    if (count(array_intersect($discount['autodiscount'], $mids)) > 0) {
+      $tempDiscount[] = $discount;
+    }
   }
 
   $discounts = $tempDiscount;
