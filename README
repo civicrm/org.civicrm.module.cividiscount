@@ -2,17 +2,10 @@ A prototype for CMS independent extensions. Porting civievent_discount to this f
 
 NEEDED
 
-* Fix/check cividiscount_civicrm_buildForm() for both online, offline and renewal forms/cases (memberships):
-  + check multi-step form case well
-
-* Fix/check cividiscount_civicrm_buildAmount() for both online and offline forms/cases (event registration):
-  + check multi-participant case well ( currently this needs to be enabled in code )
-
 * Enhance UI with an "apply discount" button that updates displayed prices on any forms
   + basically you want to emulate having the discount code sent in via th URL and let the person know if discount code is
     bogus
   + it would be nice to do this with ajax but isn't worth much effort.
-
 
 * Create some user documentation
   + Two types of discounts: automatic membership and code-based.
@@ -25,8 +18,13 @@ NICE TO HAVE
 
 * Give some control over the placement of the discount code text field on the form.
 
-
 FIXED ALREADY
+
+* Fix/check cividiscount_civicrm_buildAmount() for both online and offline forms/cases (event registration):
+  + check multi-participant case well ( currently this needs to be enabled in code )
+
+* Fix/check cividiscount_civicrm_buildForm() for both online, offline and renewal forms/cases (memberships):
+  + check multi-step form case well
 
 * Check all transaction amounts match amount displayed on forms.
 
