@@ -475,23 +475,6 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   ));
 }
 
-function _filter_membership_discount(&$discounts, &$membershipTypeValues) {
-  // get discounts that apply to at least one of the specified memberships.
-  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
-
-  $tempDiscount = array();
-  foreach ($discounts as $discount) {
-    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
-      $tempDiscount[$discount['code']] = $discount;
-    }
-
-    if (count(array_intersect($discount['autodiscount'], $mids)) > 0 && empty($discount['events'])) {
-      $tempDiscount[$discount['code']] = $discount;
-    }
-  }
-
-  return $tempDiscount;
-}
 /**
  * Implementation of hook_civicrm_postProcess()
  *
@@ -785,6 +768,22 @@ function _get_candidate_discounts($code, $contact_id) {
  */
 function _filter_discounts($discounts, $field, $id) {
   return array_filter($discounts, function($discount) use($field, $id) { return CRM_Utils_Array::value($id, $discount[$field]); });
+}
+
+/**
+ * Get discounts that apply to at least one of the specified memberships.
+ */
+function _filter_membership_discount($discounts, $membershipTypeValues) {
+  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
+
+  $tempDiscounts = array();
+  foreach ($discounts as $code => $discount) {
+    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
+      $tempDiscounts[$code] = $discount;
+    }
+  }
+
+  return $tempDiscounts;
 }
 
 /**
