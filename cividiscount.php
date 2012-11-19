@@ -582,6 +582,11 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     elseif ( in_array($class, array('CRM_Member_Form_Membership','CRM_Member_Form_MembershipRenewal') ) ) {
       $membership_types = $form->getVar('_memTypeSelected');
       $membership_type = isset($membership_types[0]) ? $membership_types[0] : NULL;
+
+      if (!$membership_type) {
+        $membership_type = $form->getVar('_memType');
+      }
+
       // Check to make sure the discount actually applied to this membership.
       if (!CRM_Utils_Array::value($membership_type, $discount['memberships'])) {
         return;
