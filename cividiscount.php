@@ -263,8 +263,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $contact_id = $form->_pId;
     }
     // Look for contact_id in the form.
-    else if (!empty($form->_contactId)) {
-      $contact_id = $form->_contactId;
+    else if ($form->getVar('_contactID')) {
+      $contact_id = $form->getVar('_contactID');
     }
     // Otherwise look for contact_id in submit values.
     else if (!empty($form->_submitValues['contact_select_id'][1])) {
@@ -746,15 +746,17 @@ function _get_candidate_discounts($code, $contact_id) {
     }
   }
   else {
-    // Otherwise collect automatic discounts for the user.
-    require_once 'CRM/Member/BAO/Membership.php';
-    $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, NULL, FALSE);
-    if ($membership && $membership['is_current_member']) {
-      $mid = $membership['membership_type_id'];
-      $automatic_discounts = array_filter(_get_discounts(), function($discount) use($mid) { return CRM_Utils_Array::value($mid, $discount['autodiscount']); });
-      if (!empty($automatic_discounts)) {
-        $discounts = $automatic_discounts;
-        $autodiscount = TRUE;
+    // calculate automatic discount only if contact id is set.
+    if ($contact_id) {
+      require_once 'CRM/Member/BAO/Membership.php';
+      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, NULL, FALSE);
+      if ($membership && $membership['is_current_member']) {
+        $mid = $membership['membership_type_id'];
+        $automatic_discounts = array_filter(_get_discounts(), function($discount) use($mid) { return CRM_Utils_Array::value($mid, $discount['autodiscount']); });
+        if (!empty($automatic_discounts)) {
+          $discounts = $automatic_discounts;
+          $autodiscount = TRUE;
+        }
       }
     }
   }
