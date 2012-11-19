@@ -344,8 +344,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
     // note that $psid is always set since now everything is price set since CiviCRM v4.2
     if (!empty($psid)) {
-      $key = array_shift(array_keys($discounts));
-
       // here we check if discount is configured for events or for membership types.
       // There are two scenarios:
       // 1. Discount is configure for the event or membership type, in that case we should apply discount only
@@ -358,37 +356,32 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $isQuickConfigPriceSet = CDM_Utils::checkForQuickConfigPriceSet($psid);
 
       if ($isQuickConfigPriceSet) {
+        $key = array_shift(array_keys($discounts));
         $discounts[$key]['pricesets'] = array();
 
-        if (!empty($discounts)) {
-          // in this case discount is specified for event id or membership type id, so we need to get info of
-          // associated price set fields. For events discount is for all the fees but for memberships we need
-          // to filter at membership type level
+        // in this case discount is specified for event id or membership type id, so we need to get info of
+        // associated price set fields. For events discount is for all the fees but for memberships we need
+        // to filter at membership type level
 
-          //retrieve price set field associated with this priceset
-          $priceSetInfo = CDM_Utils::getPriceSetsInfo($psid);
+        //retrieve price set field associated with this priceset
+        $priceSetInfo = CDM_Utils::getPriceSetsInfo($psid);
 
-          if ($pagetype == 'event') {
-            $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
-          }
-          else {
-            // filter only valid membership types that have discount
-            foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
-              if ( !empty($priceFieldValues['membership_type_id']) &&
+        if ($pagetype == 'event') {
+          $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
+        }
+        else {
+          // filter only valid membership types that have discount
+          foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
+            if ( !empty($priceFieldValues['membership_type_id']) &&
                 (in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships']) ||
                  ( in_array($priceFieldValues['membership_type_id'], $discounts[$key]['autodiscount']))
                    && empty($discounts[$key]['events'])
                   )
-              ) {
-                $discounts[$key]['pricesets'][$pfID] = $pfID;
-              }
+                ) {
+              $discounts[$key]['pricesets'][$pfID] = $pfID;
             }
           }
         }
-      }
-
-      if (empty($discounts)) {
-        return;
       }
 
       $discount = array_shift($discounts);
