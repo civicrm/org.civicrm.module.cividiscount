@@ -435,8 +435,8 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
   // Retrieve the contact_id depending on submission context.
   // Look for contact_id in the form.
-  if (!empty($form->_contactID)) {
-    $contact_id = $form->_contactID;
+  if ($form->getVar('_contactID')) {
+    $contact_id = $form->getVar('_contactID');
   }
   // Otherwise look for contact_id in submit values.
   else if (!empty($form->_submitValues['contact_select_id'][1])) {
