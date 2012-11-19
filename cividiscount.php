@@ -266,6 +266,11 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     else if ($form->getVar('_contactID')) {
       $contact_id = $form->getVar('_contactID');
     }
+    // note that contact id variable is not consistent on some forms hence we need this double check :(
+    // we need to clean up CiviCRM code sometime in future
+    else if ($form->getVar('_contactId')) {
+      $contact_id = $form->getVar('_contactId');
+    }
     // Otherwise look for contact_id in submit values.
     else if (!empty($form->_submitValues['contact_select_id'][1])) {
       $contact_id = $form->_submitValues['contact_select_id'][1];
