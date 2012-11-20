@@ -398,14 +398,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         }
       }
     }
-    else {
-      // TODO: need to check if this code ever called if not kill else block
-      $discount = array_shift($discounts);
-      foreach ($amounts as $aid => $vals) {
-        list($amounts[$aid]['value'], $amounts[$aid]['label']) =
-          _calc_discount($vals['value'], $vals['label'], $discount, $autodiscount, $currency);
-      }
-    }
 
     $form->setVar('_discountInfo', array(
       'discount' => $discount,
