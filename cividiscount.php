@@ -440,6 +440,9 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
   list($discounts, $autodiscount) = _get_candidate_discounts($code, $contact_id);
   if (empty($discounts)) {
+    if (!empty($code)) { // the user entered a code, so lets tell them its invalid
+      $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
+    }
     return;
   }
 
