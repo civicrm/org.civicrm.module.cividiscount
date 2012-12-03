@@ -197,19 +197,19 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
  */
 function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
   if (!in_array($name, array(
-        'CRM_Contribute_Form_Contribution_Main',
-        'CRM_Event_Form_Participant',
-        'CRM_Event_Form_Registration_Register',
-        'CRM_Event_Form_Registration_AdditionalParticipant',
-        'CRM_Member_Form_Membership',
-        'CRM_Member_Form_MembershipRenewal'
-      ))) {
+    'CRM_Contribute_Form_Contribution_Main',
+    'CRM_Event_Form_Participant',
+    'CRM_Event_Form_Registration_Register',
+    'CRM_Event_Form_Registration_AdditionalParticipant',
+    'CRM_Member_Form_Membership',
+    'CRM_Member_Form_MembershipRenewal'
+  ))) {
     return;
   }
 
   // _discountInfo is assigned in cividiscount_civicrm_buildAmount() or
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
-  $discountInfo = $form->getVar('_discountInfo');
+  $discountInfo = $form->get('_discountInfo');
 
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
 
@@ -399,7 +399,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
 
-    $form->setVar('_discountInfo', array(
+    $form->set('_discountInfo', array(
       'discount' => $discount,
       'autodiscount' => $autodiscount,
       'contact_id' => $contact_id,
@@ -461,7 +461,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     }
   }
 
-  $form->setVar('_discountInfo', array(
+  $form->set('_discountInfo', array(
     'discount' => $discount,
     'autodiscount' => $autodiscount,
     'contact_id' => $contact_id,
@@ -475,17 +475,17 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
  */
 function cividiscount_civicrm_postProcess($class, &$form) {
   if (!in_array($class, array(
-        'CRM_Contribute_Form_Contribution_Confirm',
-        'CRM_Event_Form_Participant',
-        'CRM_Event_Form_Registration_Confirm',
-        'CRM_Event_Form_Registration_AdditionalParticipant',
-        'CRM_Member_Form_Membership',
-        'CRM_Member_Form_MembershipRenewal'
-      ))) {
+    'CRM_Contribute_Form_Contribution_Confirm',
+    'CRM_Event_Form_Participant',
+    'CRM_Event_Form_Registration_Confirm',
+    'CRM_Event_Form_Registration_AdditionalParticipant',
+    'CRM_Member_Form_Membership',
+    'CRM_Member_Form_MembershipRenewal'
+  ))) {
     return;
   }
 
-  $discountInfo = $form->getVar('_discountInfo');
+  $discountInfo = $form->get('_discountInfo');
   if (!$discountInfo) {
     return;
   }
