@@ -183,7 +183,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
 
     // add memberships, events, pricesets
     require_once 'CRM/Member/BAO/MembershipType.php';
-    $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
+    $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
     $autodiscount = $mTypes = array();
     if (! empty($membershipTypes)) {
       $this->_multiValued['autodiscount'] =
