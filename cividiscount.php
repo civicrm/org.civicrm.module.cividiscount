@@ -746,19 +746,29 @@ function _get_candidate_discounts($code, $contact_id) {
   else {
     // calculate automatic discount only if contact id is set.
     if ($contact_id) {
+      // get all contact memberships
       require_once 'CRM/Member/BAO/Membership.php';
-      $membership = CRM_Member_BAO_Membership::getContactMembership($contact_id, NULL, FALSE);
-      if ($membership && $membership['is_current_member']) {
-        $mid = $membership['membership_type_id'];
-        $automatic_discounts = array_filter(_get_discounts(), function($discount) use($mid) { return CRM_Utils_Array::value($mid, $discount['autodiscount']); });
-        if (!empty($automatic_discounts)) {
-          $discounts = $automatic_discounts;
-          $autodiscount = TRUE;
+      $contactMemberships = CRM_Member_BAO_Membership::getAllContactMembership($contact_id);
+
+      // get all membership types ordered by weight
+      $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
+
+      // if there are multiple memberships for a contact, then give preference to membership type order by weight.
+      foreach($membershipTypes as $memTypeId => $dontCare ) {
+        if (array_key_exists($memTypeId, $contactMemberships) &&
+          CRM_Core_DAO::getFieldValue('CRM_Member_DAO_MembershipStatus', $contactMemberships[$memTypeId]['status_id'],
+          'is_current_member', 'id')
+        ) {
+          $automatic_discounts = array_filter(_get_discounts(), function($discount) use($memTypeId) { return CRM_Utils_Array::value($memTypeId, $discount['autodiscount']); });
+          if (!empty($automatic_discounts)) {
+            $discounts = $automatic_discounts;
+            $autodiscount = TRUE;
+            break;
+          }
         }
       }
     }
   }
-
   return array($discounts, $autodiscount);
 }
 
