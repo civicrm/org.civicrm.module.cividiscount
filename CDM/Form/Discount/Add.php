@@ -72,10 +72,11 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
       }
     }
 
-    $this->_multiValued = array('autodiscount' => null,
-                                 'memberships'  => null,
-                                 'events'       => null,
-                                 'pricesets'    => null);
+    $this->_multiValued = array(
+      'autodiscount' => null,
+      'memberships'  => null,
+      'events'       => null,
+      'pricesets'    => null);
 
     require_once 'CDM/BAO/Item.php';
   }
@@ -105,7 +106,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
         $defaults[$mv] = array();
         if (! empty($values)) {
           foreach ($values as $val) {
-              $defaults[$mv][] = $val;
+            $defaults[$mv][] = $val;
           }
         }
       }
@@ -140,17 +141,17 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
 
     $this->applyFilter('__ALL__', 'trim');
     $element =& $this->add('text',
-                           'code',
-                           ts('Code'),
-                           CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'code'),
-                           true);
+      'code',
+      ts('Code'),
+      CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'code'),
+      true);
     $this->addRule('code',
-                    ts('Code already exists in Database.'),
-                    'objectExists',
-                    array('CDM_DAO_Item', $this->_id, 'code'));
+      ts('Code already exists in Database.'),
+      'objectExists',
+      array('CDM_DAO_Item', $this->_id, 'code'));
     $this->addRule('code',
-                    ts('Code can only consist of alpha-numeric characters'),
-                    'variable');
+      ts('Code can only consist of alpha-numeric characters'),
+      'variable');
     if ($this->_action & CRM_Core_Action::UPDATE) {
       $element->freeze();
     }
@@ -160,9 +161,10 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
     $this->addMoney('amount', ts('Discount'), true, CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'amount'), false);
 
     $this->add('select', 'amount_type', ts('Amount Type'),
-                array(1 => ts('Percentage'),
-                       2 => ts('Monetary')),
-                true);
+      array(
+        1 => ts('Percentage'),
+        2 => ts('Monetary')),
+      true);
 
     $this->add('text', 'count_max', ts('Usage'), CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'count_max'), true);
     $this->addRule('count_max', ts('Must be an integer'), 'integer');
@@ -185,25 +187,25 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
     $autodiscount = $mTypes = array();
     if (! empty($membershipTypes)) {
       $this->_multiValued['autodiscount'] =
-          $this->_multiValued['memberships'] = $membershipTypes;
+      $this->_multiValued['memberships'] = $membershipTypes;
 
       $this->addElement('advmultiselect',
-                         'autodiscount',
-                         ts('Automatic Discount'),
-                         $membershipTypes,
-                         array('size' => 5,
-                               'style' => 'width:200px',
-                               'class' => 'advmultiselect')
-                        );
+        'autodiscount',
+        ts('Automatic Discount'),
+        $membershipTypes,
+        array('size' => 5,
+          'style' => 'width:200px',
+          'class' => 'advmultiselect')
+      );
 
       $this->addElement('advmultiselect',
-                         'memberships',
-                         ts('Memberships'),
-                         $membershipTypes,
-                         array('size' => 5,
-                               'style' => 'width:200px',
-                               'class' => 'advmultiselect')
-                        );
+        'memberships',
+        ts('Memberships'),
+        $membershipTypes,
+        array('size' => 5,
+          'style' => 'width:200px',
+          'class' => 'advmultiselect')
+      );
     }
 
     require_once 'CDM/Utils.php';
@@ -211,29 +213,27 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
     if (! empty($events)) {
       $this->_multiValued['events'] = $events;
       $this->addElement('advmultiselect',
-                         'events',
-                         ts('Events'),
-                         $events,
-                         array('size' => 5,
-                               'style' => 'width:200px',
-                               'class' => 'advmultiselect')
-                        );
+        'events',
+        ts('Events'),
+        $events,
+        array('size' => 5,
+          'style' => 'width:200px',
+          'class' => 'advmultiselect')
+      );
     }
 
     $pricesets = CDM_Utils::getPriceSets();
     if (! empty($pricesets)) {
       $this->_multiValued['pricesets'] = $pricesets;
       $this->addElement('advmultiselect',
-                         'pricesets',
-                         ts('PriceSets'),
-                         $pricesets,
-                         array('size' => 5,
-                               'style' => 'width:200px',
-                               'class' => 'advmultiselect')
-                        );
+        'pricesets',
+        ts('PriceSets'),
+        $pricesets,
+        array('size' => 5,
+          'style' => 'width:200px',
+          'class' => 'advmultiselect')
+      );
     }
-
-
   }
 
   /**
@@ -249,61 +249,64 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
       return;
     }
 
-      // store the submitted values in an array
-      $params = $this->exportValues();
+    // store the submitted values in an array
+    $params = $this->exportValues();
 
-      // action is taken depending upon the mode
-      $item                  = new CDM_DAO_Item();
-      $item->code            = $params['code'];
-      $item->description     = $params['description'];
-      $item->amount          = $params['amount'];
-      $item->amount_type     = $params['amount_type'];
-      $item->count_max       = $params['count_max'];
+    // action is taken depending upon the mode
+    $item                  = new CDM_DAO_Item();
+    $item->code            = $params['code'];
+    $item->description     = $params['description'];
+    $item->amount          = $params['amount'];
+    $item->amount_type     = $params['amount_type'];
+    $item->count_max       = $params['count_max'];
 
-      foreach ($this->_multiValued as $mv => $dontCare) {
-        if (! empty($params[$mv])) {
-          $item->$mv =
-              CRM_Core_DAO::VALUE_SEPARATOR .
-              implode(CRM_Core_DAO::VALUE_SEPARATOR,
-                       array_values($params[$mv])) .
-              CRM_Core_DAO::VALUE_SEPARATOR;
-        }
-        else {
-          $item->$mv = 'null';
-        }
-      }
-
-      require_once 'CRM/Utils/Date.php';
-      if (! empty($params['active_on'])) {
-        $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
+    foreach ($this->_multiValued as $mv => $dontCare) {
+      if (! empty($params[$mv])) {
+        $item->$mv =
+          CRM_Core_DAO::VALUE_SEPARATOR .
+            implode(CRM_Core_DAO::VALUE_SEPARATOR,
+              array_values($params[$mv])) .
+            CRM_Core_DAO::VALUE_SEPARATOR;
       }
       else {
-        $item->active_on = 'null';
+        $item->$mv = 'null';
       }
-      if (! empty($params['expire_on'])) {
-        $item->expire_on = CRM_Utils_Date::processDate($params['expire_on']);
-      }
-      else {
-        $item->expire_on = 'null';
-      }
+    }
 
-      if (! empty($params['organization_id'])) {
-        $item->organization_id = $params['organization_id'];
-      }
-      else {
-        $item->organization_id = 'null';
-      }
+    require_once 'CRM/Utils/Date.php';
+    if (! empty($params['active_on'])) {
+      $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
+    }
+    else {
+      $item->active_on = 'null';
+    }
+    if (! empty($params['expire_on'])) {
+      $item->expire_on = CRM_Utils_Date::processDate($params['expire_on']);
+    }
+    else {
+      $item->expire_on = 'null';
+    }
 
-      $item->is_active       = $params['is_active'];
+    if (! empty($params['organization_id'])) {
+      $item->organization_id = $params['organization_id'];
+    }
+    else {
+      $item->organization_id = 'null';
+    }
 
-      if ($this->_action & CRM_Core_Action::UPDATE) {
-        $item->id = $this->_id;
-      }
+    $item->is_active = 1;
+    if (!CRM_Utils_Array::value('is_active', $params)) {
+      $item->is_active = 0;
+    }
 
-      $item->save();
+    if ($this->_action & CRM_Core_Action::UPDATE) {
+      $item->id = $this->_id;
+    }
 
-      CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
-                                      array(1 => $item->description ? $item->description : $item->code)));
+    $item->save();
+
+    CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
+      array(1 => $item->description ? $item->description : $item->code)));
   } //end of function
 
 }
