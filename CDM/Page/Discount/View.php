@@ -200,7 +200,7 @@ class CDM_Page_Discount_View extends CRM_Core_Page {
       $this->assign('events', $defaults['events']);
     }
 
-    $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
+    $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
     if (array_key_exists('memberships', $defaults)) {
       $defaults['memberships'] = CDM_Utils::getIdsTitles($defaults['memberships'], $membershipTypes);
       $this->assign('memberships', $defaults['memberships']);
