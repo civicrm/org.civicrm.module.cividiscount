@@ -141,7 +141,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
   }
   else if (in_array($fname, array(
             'CRM_Event_Form_Registration_Register',
-            'CRM_Event_Form_Registration_AdditionalParticipant',
+            //'CRM_Event_Form_Registration_AdditionalParticipant',
             'CRM_Contribute_Form_Contribution_Main',
           ))) {
 
@@ -150,8 +150,10 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
     $ids = array();
     $formid = NULL;
 
-    if ( in_array($fname, array('CRM_Event_Form_Registration_Register',
-      'CRM_Event_Form_Registration_AdditionalParticipant'))) {
+    if ( in_array($fname, array(
+      'CRM_Event_Form_Registration_Register',
+      //'CRM_Event_Form_Registration_AdditionalParticipant'
+    ))) {
       $ids = _get_discounted_event_ids();
       $formid = $form->getVar('_eventId');
     }
@@ -200,7 +202,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
     'CRM_Contribute_Form_Contribution_Main',
     'CRM_Event_Form_Participant',
     'CRM_Event_Form_Registration_Register',
-    'CRM_Event_Form_Registration_AdditionalParticipant',
+    //'CRM_Event_Form_Registration_AdditionalParticipant',
     'CRM_Member_Form_Membership',
     'CRM_Member_Form_MembershipRenewal'
   ))) {
@@ -474,7 +476,6 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     'CRM_Contribute_Form_Contribution_Confirm',
     'CRM_Event_Form_Participant',
     'CRM_Event_Form_Registration_Confirm',
-    'CRM_Event_Form_Registration_AdditionalParticipant',
     'CRM_Member_Form_Membership',
     'CRM_Member_Form_MembershipRenewal'
   ))) {
@@ -516,14 +517,11 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $track->description = $description;
       $track->save();
     }
-  } elseif ($class == 'CRM_Event_Form_Registration_AdditionalParticipant') {
-    return;
-  }
   // Online membership.
   // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
   // form - CRM_Contribute_Form_Contribution_Confirm completes the
   // transaction.
-  else if ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
+  } else if ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
     $membership_type = $params['selectMembership'];
     $membershipId = $params['membershipID'];
 
