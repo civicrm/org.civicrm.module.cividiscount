@@ -833,7 +833,7 @@ function _ignore_case() {
  * TODO: Add settings for admin to set this.
  */
 function _allow_multiple() {
-  return FALSE;
+  return TRUE;
 }
 
 function _getTrackingCount($cid) {
