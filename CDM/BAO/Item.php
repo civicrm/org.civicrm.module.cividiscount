@@ -127,12 +127,12 @@ FROM    cividiscount_item
     return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'count_use', $currVal - 1);
   }
 
-
   static function isValid($code) {
     if (!CDM_BAO_Item::isExpired($code) &&
       CDM_BAO_Item::isActive($code) &&
-      CDM_BAO_Item::isEnabled($code)) {
-
+      CDM_BAO_Item::isEnabled($code) &&
+      ($code['count_max'] == 0 || $code['count_max'] > $code['count_use'])
+    ) {
       return TRUE;
     }
 
@@ -140,7 +140,6 @@ FROM    cividiscount_item
   }
 
   static function isExpired($code) {
-
     if (empty($code['expire_on'])) {
       return FALSE;
     }
