@@ -222,7 +222,6 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
       return;
     }
 
-    require_once 'CDM/BAO/Item.php';
     $discount = $discountInfo['discount'];
 
     if ($discount['count_max'] > 0) {
@@ -803,8 +802,6 @@ function _filter_membership_discount($discounts, $membershipTypeValues) {
  */
 function _calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
   require_once 'CRM/Utils/Money.php';
-  $newamount = 0.00;
-  $newlabel = '';
   $title = $autodiscount ? 'Member Discount' : "Discount {$discount['code']}";
 
   if ($discount['amount_type'] == '2') {
