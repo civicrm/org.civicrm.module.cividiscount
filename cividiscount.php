@@ -382,6 +382,26 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
 
       $discount = array_shift($discounts);
+
+      // we need a extra check to make sure discount is valid for additional participants
+      // check the max usage and existing usage of discount code
+      if ($pagetype == 'event' && _allow_multiple()) {
+        if ($discount['count_max'] > 0) {
+          // Initially 1 for person registering.
+          $apcount = 1;
+
+          $sv = $form->getVar('_submitValues');
+          if (array_key_exists('additional_participants', $sv)) {
+            $apcount += $sv['additional_participants'];
+          }
+          if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+            $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
+            return;
+          }
+        }
+
+      }
+
       foreach ($amounts as &$fee) {
         if (!is_array($fee['options'])) {
           continue;
