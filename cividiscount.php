@@ -500,6 +500,13 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   // CRM_Event_Form_Registration_Confirm completes the transaction.
   if ($class == 'CRM_Event_Form_Registration_Confirm') {
     $pids = $form->getVar('_participantIDS');
+
+    // if multiple participant discount is not enabled then only use primary participant info for discount
+    // and ignore additional participants
+    if (!_allow_multiple()) {
+      $pids = array($pids[0]);
+    }
+
     foreach ($pids as $pid) {
       $participant = _get_participant($pid);
       $contact_id = $participant['contact_id'];
@@ -517,6 +524,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $track->description = $description;
       $track->save();
     }
+
   // Online membership.
   // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
   // form - CRM_Contribute_Form_Contribution_Confirm completes the

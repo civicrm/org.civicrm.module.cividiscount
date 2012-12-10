@@ -117,14 +117,13 @@ FROM    cividiscount_item
 
 
   static function incrementUsage($id) {
-    $currVal = CRM_Core_DAO::getFieldValue('CDM_DAO_Item', $id, 'count_use');
-    return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'count_use', $currVal + 1);
+    $sql = "UPDATE cividiscount_item SET count_use = count_use+1 WHERE id = {$id}";
+    return CRM_Core_DAO::executeQuery($sql);
   }
 
-
   static function decrementUsage($id) {
-    $currVal = CRM_Core_DAO::getFieldValue('CDM_DAO_Item', $id, 'count_use');
-    return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'count_use', $currVal - 1);
+    $sql = "UPDATE cividiscount_item SET count_use = count_use-1 WHERE id = {$id}";
+    return CRM_Core_DAO::executeQuery($sql);
   }
 
   static function isValid($code) {
