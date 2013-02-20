@@ -1,6 +1,6 @@
 <extension key="org.civicrm.module.cividiscount" type="module">
 <downloadUrl>
-https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v4.2.1
+https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v4.2.7
 </downloadUrl>
 <file>cividiscount</file>
 <name>CiviDiscount Module Extension</name>
@@ -20,11 +20,12 @@ https://github.com/dlobo/org.civicrm.module.cividiscount/
 <author>CiviCRM LLC</author>
 <email>info@civicrm.org</email>
 </maintainer>
-<releaseDate>2012-09-12</releaseDate>
-<version>1.2</version>
-<develStage>alpha</develStage>
+<releaseDate>2013-02-20</releaseDate>
+<version>2.0</version>
+<develStage>beta</develStage>
 <compatibility>
-<ver>4.2</ver>
+<ver>4.2.7</ver>
+<ver>4.3</ver>
 </compatibility>
 <comments>
 For support, please contact project team on the forums. (http://forum.civicrm.org)
