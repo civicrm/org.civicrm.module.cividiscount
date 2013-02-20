@@ -357,7 +357,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $isQuickConfigPriceSet = CDM_Utils::checkForQuickConfigPriceSet($psid);
 
       if ($isQuickConfigPriceSet) {
-        $key = array_shift(array_keys($discounts));
+        $keys = array_keys($discounts);
+        $key = array_shift($keys);
         $discounts[$key]['pricesets'] = array();
 
         // in this case discount is specified for event id or membership type id, so we need to get info of
