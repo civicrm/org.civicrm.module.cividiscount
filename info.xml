@@ -1,6 +1,6 @@
 <extension key="org.civicrm.module.cividiscount" type="module">
 <downloadUrl>
-https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v4.2.7
+https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v2.0
 </downloadUrl>
 <file>cividiscount</file>
 <name>CiviDiscount Module Extension</name>
