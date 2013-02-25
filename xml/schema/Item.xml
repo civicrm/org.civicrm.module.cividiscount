@@ -4,7 +4,7 @@
   <base>CDM</base>
   <class>Item</class>
   <name>cividiscount_item</name>
-  <comment>A discount entry.</comment>
+  <comment>A discount item</comment>
   <add>4.1</add>
   <field>
       <name>id</name>
@@ -22,7 +22,7 @@
        <type>varchar</type>
        <length>255</length>
        <required>true</required>
-       <comment>Discount Code.</comment>
+       <comment>Discount Code</comment>
        <add>4.1</add>
   </field>
   <field>
@@ -30,7 +30,7 @@
        <type>varchar</type>
        <length>255</length>
        <required>true</required>
-       <comment>Discount Description.</comment>
+       <comment>Discount Description</comment>
        <add>4.1</add>
   </field>
   <field>
@@ -38,7 +38,7 @@
        <type>varchar</type>
        <length>255</length>
        <required>true</required>
-       <comment>Amount of discount either actual or percentage?</comment>
+       <comment>Amount of discount, actual or percentage</comment>
        <add>4.1</add>
   </field>
   <field>
@@ -46,14 +46,14 @@
        <type>varchar</type>
        <length>4</length>
        <required>true</required>
-       <comment>Type of discount, actual or percentage?</comment>
+       <comment>Type of discount, actual or percentage</comment>
        <add>4.1</add>
   </field>
   <field>
        <name>count_max</name>
        <type>int</type>
        <required>true</required>
-       <comment>Max number of times this code can be used.</comment>
+       <comment>Max number of times this code can be used</comment>
        <add>4.1</add>
   </field>
   <field>
@@ -61,7 +61,7 @@
        <type>int</type>
        <required>true</required>
           <default>0</default>
-       <comment>Number of times this code has been used.</comment>
+       <comment>Number of times this code has been used</comment>
        <add>4.1</add>
   </field>
   <field>
@@ -85,7 +85,7 @@
   <field>
        <name>autodiscount</name>
        <type>text</type>
-       <comment>Some sort of autodiscounting mechanism?</comment>
+       <comment>Serialized list of memberships. A user with one of them has the discount automatically applied</comment>
        <add>4.1</add>
   </field>
   <field>
@@ -104,19 +104,19 @@
   <field>
        <name>active_on</name>
        <type>datetime</type>
-       <comment>When is this discount activated?</comment>
+       <comment>Date this discount activated</comment>
        <add>4.1</add>
   </field>
   <field>
        <name>expire_on</name>
        <type>datetime</type>
-       <comment>When does this discount expire?</comment>
+       <comment>Date this discount expires</comment>
        <add>4.1</add>
   </field>
   <field>
        <name>is_active</name>
        <type>boolean</type>
-       <comment>Is this property active?</comment>
+       <comment>Is this discount active?</comment>
        <add>4.1</add>
   </field>
 </table>

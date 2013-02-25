@@ -83,7 +83,7 @@
       <tr class="crm-discount-item-form-block-auto-discount">
           <td class="label">{$form.autodiscount.label}</td>
           <td>{$form.autodiscount.html}<br />
-            <span class="description">{ts}Anyone in the selected memberships will automatically have the discount code applied.{/ts}
+            <span class="description">{ts}Anyone in the selected memberships will automatically have the discount code applied. Autodiscount is generally used with a randomly-generated code which is <strong><em>not</em></strong> given out to users. Cividiscount will apply the discount to the memberships with no code required.{/ts}
           </td>
       </tr>
 {/if}
