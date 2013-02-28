@@ -72,6 +72,8 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
       }
     }
 
+    CRM_Utils_System::setTitle(ts('Discounts'));
+
     $this->_multiValued = array(
       'autodiscount' => null,
       'memberships'  => null,
@@ -194,7 +196,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
         ts('Automatic Discount'),
         $membershipTypes,
         array('size' => 5,
-          'style' => 'width:200px',
+          'style' => 'width:auto; min-width:150px;',
           'class' => 'advmultiselect')
       );
 
@@ -203,7 +205,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
         ts('Memberships'),
         $membershipTypes,
         array('size' => 5,
-          'style' => 'width:200px',
+          'style' => 'width:auto; min-width:150px;',
           'class' => 'advmultiselect')
       );
     }
@@ -217,7 +219,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
         ts('Events'),
         $events,
         array('size' => 5,
-          'style' => 'width:200px',
+          'style' => 'width:auto; min-width:150px;',
           'class' => 'advmultiselect')
       );
     }
@@ -230,7 +232,7 @@ class CDM_Form_Discount_Add extends CRM_Admin_Form {
         ts('PriceSets'),
         $pricesets,
         array('size' => 5,
-          'style' => 'width:200px',
+          'style' => 'width:auto; min-width:150px;',
           'class' => 'advmultiselect')
       );
     }
