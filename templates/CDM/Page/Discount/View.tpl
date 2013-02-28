@@ -36,7 +36,9 @@
     {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute')}
        <a class="button" href="{crmURL p='civicrm/cividiscount/discount/delete' q=$urlParams}"><span><div class="icon delete-icon"></div>{ts}Delete{/ts}</span></a>
     {/if}
-    {include file="CRM/common/formButtons.tpl" location="top"}
+    <span class="crm-button crm-button-type-cancel crm-button_discount-view_cancel">
+      <a class="button" style="color: #E6E6DC;" href="{crmURL p='civicrm/cividiscount/discount/list' q='reset=1'}">{ts}Done{/ts}</a>
+    </span>
     </div>
 </div>
 
@@ -124,7 +126,6 @@
     {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute')}
        <a class="button" href="{crmURL p='civicrm/cividiscount/discount/delete' q=$urlParams}"><span><div class="icon delete-icon"></div>{ts}Delete{/ts}</span></a>
     {/if}
-    {include file="CRM/common/formButtons.tpl" location="bottom"}
     </div>
 </div>
 </div>
