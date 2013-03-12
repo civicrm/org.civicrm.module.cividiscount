@@ -778,10 +778,18 @@ function _get_candidate_discounts($code, $contact_id) {
       // if there are multiple memberships for a contact, then give preference to membership type order by weight.
       foreach($membershipTypes as $memTypeId => $dontCare ) {
         if (array_key_exists($memTypeId, $contactMemberships) &&
-          CRM_Core_DAO::getFieldValue('CRM_Member_DAO_MembershipStatus', $contactMemberships[$memTypeId]['status_id'],
-          'is_current_member', 'id')
+          CRM_Core_DAO::getFieldValue(
+            'CRM_Member_DAO_MembershipStatus',
+            $contactMemberships[$memTypeId]['status_id'],
+            'is_current_member',
+            'id'
+          )
         ) {
-          $automatic_discounts = array_filter(_get_discounts(), function($discount) use($memTypeId) { return CRM_Utils_Array::value($memTypeId, $discount['autodiscount']); });
+          $automatic_discounts =
+            array_filter(
+              _get_discounts(),
+              function($discount) use($memTypeId) { return CRM_Utils_Array::value($memTypeId, $discount['autodiscount']); }
+            );
           if (!empty($automatic_discounts)) {
             $discounts = $automatic_discounts;
             $autodiscount = TRUE;
@@ -799,7 +807,10 @@ function _get_candidate_discounts($code, $contact_id) {
  * category $field.
  */
 function _filter_discounts($discounts, $field, $id) {
-  return array_filter($discounts, function($discount) use($field, $id) { return CRM_Utils_Array::value($id, $discount[$field]); });
+  return array_filter(
+    $discounts,
+    function($discount) use($field, $id) { return CRM_Utils_Array::value($id, $discount[$field]); }
+  );
 }
 
 /**
