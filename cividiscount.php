@@ -773,7 +773,7 @@ function _get_candidate_discounts($code, $contact_id) {
       $contactMemberships = CRM_Member_BAO_Membership::getAllContactMembership($contact_id);
 
       // get all membership types ordered by weight
-      $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes();
+      $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(FALSE);
 
       // if there are multiple memberships for a contact, then give preference to membership type order by weight.
       foreach($membershipTypes as $memTypeId => $dontCare ) {
