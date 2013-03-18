@@ -642,14 +642,14 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
       $result = _get_item_id_by_track(null, null, $id);
     }
     elseif ($name == 'Participant') {
-      $result = _get_participant($id);
-      $contactid = $result['contact_id'];
-      $result = _get_item_id_by_track('civicrm_participant', $id, $contactid);
+      if (($result = _get_participant($id)) && ($contactid = $result['contact_id'])) {
+        $result = _get_item_id_by_track('civicrm_participant', $id, $contactid);
+      }
     }
     else if ($name == 'Membership') {
-      $result = _get_membership($id);
-      $contactid = $result['contact_id'];
-      $result = _get_item_id_by_track('civicrm_membership', $id, $contactid);
+      if (($result = _get_membership($id)) && ($contactid = $result['contact_id'])) {
+        $result = _get_item_id_by_track('civicrm_membership', $id, $contactid);
+      }
     }
     else {
       return false;
@@ -923,45 +923,45 @@ function _get_membership($mid = 0) {
   require_once 'api/api.php';
   $result = civicrm_api('Membership', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {
-    $a = array_shift($result['values']);
+    return array_shift($result['values']);
   }
 
-  return $a;
+  return FALSE;
 }
 
 function _get_membership_payment($mid = 0) {
   require_once 'api/api.php';
   $result = civicrm_api('MembershipPayment', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {
-    $a = array_shift($result['values']);
+    return array_shift($result['values']);
   }
 
-  return $a;
+  return FALSE;
 }
 
-/**
- * This function is broken at the moment.
- *
- * @see http://issues.civicrm.org/jira/browse/CRM-11108
- */
 function _get_participant($pid = 0) {
   require_once 'api/api.php';
-  $result = civicrm_api('Participant', 'get', array('version' => '3', 'participant_id' => $pid));
+  // v3 participant API is broken at the moment.
+  // @see http://issues.civicrm.org/jira/browse/CRM-11108
+  $result = civicrm_api('Participant', 'get', array('version' => '3', 'participant_id' => $pid, 'participant_test' => 0));
+  if ($result['is_error'] == 0 && $result['count'] == 0) {
+    $result = civicrm_api('Participant', 'get', array('version' => '3', 'participant_id' => $pid, 'participant_test' => 1));
+  }
   if ($result['is_error'] == 0) {
-    $a = array_shift($result['values']);
+    return array_shift($result['values']);
   }
 
-  return $a;
+  return FALSE;
 }
 
 function _get_participant_payment($pid = 0) {
   require_once 'api/api.php';
   $result = civicrm_api('ParticipantPayment', 'get', array('version' => '3', 'participant_id' => $pid));
   if ($result['is_error'] == 0) {
-    $a = array_shift($result['values']);
+    return array_shift($result['values']);
   }
 
-  return $a;
+  return FALSE;
 }
 
 /**
