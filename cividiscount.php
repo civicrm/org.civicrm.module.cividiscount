@@ -211,7 +211,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
 
   // _discountInfo is assigned in cividiscount_civicrm_buildAmount() or
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
-  $discountInfo = $form->get('_discountInfo');
+  $discountInfo = $form->getVar('_discountInfo');
 
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
 
@@ -417,7 +417,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
 
-    $form->set('_discountInfo', array(
+    $form->setVar('_discountInfo', array(
       'discount' => $discount,
       'autodiscount' => $autodiscount,
       'contact_id' => $contact_id,
@@ -479,7 +479,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     }
   }
 
-  $form->set('_discountInfo', array(
+  $form->setVar('_discountInfo', array(
     'discount' => $discount,
     'autodiscount' => $autodiscount,
     'contact_id' => $contact_id,
@@ -502,7 +502,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     return;
   }
 
-  $discountInfo = $form->get('_discountInfo');
+  $discountInfo = $form->getVar('_discountInfo');
   if (!$discountInfo) {
     return;
   }
