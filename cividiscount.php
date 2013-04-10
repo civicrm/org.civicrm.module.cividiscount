@@ -850,7 +850,9 @@ function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, 
     $newlabel = $label ." ({$title}: {$discount['amount']}% {$discount['description']})";
   }
 
-  if ($newamount < 0) { $newamount = 0.00; }
+  if ($newamount <= 0) { 
+    $newamount = "0.00";
+  }
 
   return array($newamount, $newlabel);
 }
