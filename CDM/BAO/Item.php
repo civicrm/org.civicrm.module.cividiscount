@@ -70,7 +70,7 @@ class CDM_BAO_Item extends CDM_DAO_Item {
   }
 
   static function getValidDiscounts() {
-    $codes = array();
+    $discounts = array();
 
     $sql = "
 SELECT  id,
@@ -93,11 +93,20 @@ FROM    cividiscount_item
     while ($dao->fetch()) {
       $a = (array) $dao;
       if (CDM_BAO_Item::isValid($a)) {
-        $codes[$a['code']] = $a;
+        $discounts[$a['code']] = $a;
       }
     }
 
-    return $codes;
+    // Expand set-valued fields.
+    $fields = array('events', 'pricesets', 'memberships', 'autodiscount');
+    foreach ($discounts as &$discount) {
+      foreach ($fields as $field) {
+        $items = array_filter(explode(CRM_Core_DAO::VALUE_SEPARATOR, $discount[$field]));
+        $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
+      }
+    }
+
+    return $discounts;
   }
 
   /**

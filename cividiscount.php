@@ -677,17 +677,8 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
  */
 function _cividiscount_get_discounts() {
   require_once 'CDM/BAO/Item.php';
-  $discounts = CDM_BAO_Item::getValidDiscounts();
-  // This should probably go into CDM_BAO_Item::getValidDiscounts().
-  $fields = array('events', 'pricesets', 'memberships', 'autodiscount');
-  foreach ($discounts as &$discount) {
-    foreach ($fields as $field) {
-      $items = array_filter(explode(CRM_Core_DAO::VALUE_SEPARATOR, $discount[$field]));
-      $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
-    }
-  }
-
-  return $discounts;
+  
+  return CDM_BAO_Item::getValidDiscounts();
 }
 
 /**
