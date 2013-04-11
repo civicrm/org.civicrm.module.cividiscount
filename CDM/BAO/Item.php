@@ -46,6 +46,73 @@ class CDM_BAO_Item extends CDM_DAO_Item {
   }
 
   /**
+   * Takes an associative array and creates a discount item
+   *
+   * This function extracts all the params it needs to initialize the created
+   * discount item. The params array could contain additional unused name/value
+   * pairs
+   *
+   * @param array  $params (reference ) an assoc array of name/value pairs
+   *
+   * @return object CDM_BAO_Item object
+   * @access public
+   * @static
+   */
+  static function &add(&$params) {
+    require_once 'CRM/Utils/Date.php';
+
+    $item = new CDM_DAO_Item();
+    $item->code = $params['code'];
+    $item->description = $params['description'];
+    $item->amount = $params['amount'];
+    $item->amount_type = $params['amount_type'];
+    $item->count_max = $params['count_max'];
+
+    foreach ($params['multi_valued'] as $mv => $dontCare) {
+      if (!empty($params[$mv])) {
+        $item->$mv =
+          CRM_Core_DAO::VALUE_SEPARATOR .
+          implode(CRM_Core_DAO::VALUE_SEPARATOR, array_values($params[$mv])) .
+          CRM_Core_DAO::VALUE_SEPARATOR;
+      }
+      else {
+        $item->$mv = 'null';
+      }
+    }
+
+    if (! empty($params['id'])) {
+      $item->id = $params['id'];
+    }
+
+    $item->is_active = CRM_Utils_Array::value('is_active', $params) ? 1 : 0;
+
+    if (! empty($params['active_on'])) {
+      $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
+    }
+    else {
+      $item->active_on = 'null';
+    }
+
+    if (! empty($params['expire_on'])) {
+      $item->expire_on = CRM_Utils_Date::processDate($params['expire_on']);
+    }
+    else {
+      $item->expire_on = 'null';
+    }
+
+    if (! empty($params['organization_id'])) {
+      $item->organization_id = $params['organization_id'];
+    }
+    else {
+      $item->organization_id = 'null';
+    }
+
+    $item->save();
+
+    return $item;
+  }
+
+  /**
    * Takes a bunch of params that are needed to match certain criteria and
    * retrieves the relevant objects. Typically the valid params are only
    * contact_id. We'll tweak this function to be more full featured over a period

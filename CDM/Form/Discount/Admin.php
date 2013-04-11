@@ -42,9 +42,7 @@ require_once 'CRM/Admin/Form.php';
  */
 class CDM_Form_Discount_Admin extends CRM_Admin_Form {
   protected $_multiValued = null;
-
   protected $_orgID = null;
-
   protected $_cloneID = null;
 
   function preProcess() {
@@ -251,64 +249,17 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       return;
     }
 
-    // store the submitted values in an array
     $params = $this->exportValues();
 
-    // action is taken depending upon the mode
-    $item                  = new CDM_DAO_Item();
-    $item->code            = $params['code'];
-    $item->description     = $params['description'];
-    $item->amount          = $params['amount'];
-    $item->amount_type     = $params['amount_type'];
-    $item->count_max       = $params['count_max'];
-
-    foreach ($this->_multiValued as $mv => $dontCare) {
-      if (! empty($params[$mv])) {
-        $item->$mv =
-          CRM_Core_DAO::VALUE_SEPARATOR .
-            implode(CRM_Core_DAO::VALUE_SEPARATOR,
-              array_values($params[$mv])) .
-            CRM_Core_DAO::VALUE_SEPARATOR;
-      }
-      else {
-        $item->$mv = 'null';
-      }
-    }
-
-    require_once 'CRM/Utils/Date.php';
-    if (! empty($params['active_on'])) {
-      $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
-    }
-    else {
-      $item->active_on = 'null';
-    }
-    if (! empty($params['expire_on'])) {
-      $item->expire_on = CRM_Utils_Date::processDate($params['expire_on']);
-    }
-    else {
-      $item->expire_on = 'null';
-    }
-
-    if (! empty($params['organization_id'])) {
-      $item->organization_id = $params['organization_id'];
-    }
-    else {
-      $item->organization_id = 'null';
-    }
-
-    $item->is_active = 1;
-    if (!CRM_Utils_Array::value('is_active', $params)) {
-      $item->is_active = 0;
-    }
-
     if ($this->_action & CRM_Core_Action::UPDATE) {
-      $item->id = $this->_id;
+      $params['id'] = $this->_id;
     }
+    $params['multi_valued'] = $this->_multiValued;
 
-    $item->save();
+    $item = CDM_BAO_Item::add($params);
 
     CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
       array(1 => $item->description ? $item->description : $item->code)));
-  } //end of function
+  }
 
 }
