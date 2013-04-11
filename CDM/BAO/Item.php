@@ -107,7 +107,11 @@ class CDM_BAO_Item extends CDM_DAO_Item {
       $item->organization_id = 'null';
     }
 
+    $id = empty($params['id']) ? NULL : $params['id'];
+    $op = $id ? 'edit' : 'create';
+    CRM_Utils_Hook::pre($op, 'CiviDiscount', $id, $params);
     $item->save();
+    CRM_Utils_Hook::post($op, 'CiviDiscount', $item->id, $item);
 
     return $item;
   }
@@ -262,16 +266,17 @@ FROM    cividiscount_item
    * @return true on success else false
    */
   static function del($itemID) {
-    require_once 'CRM/Utils/Rule.php';
-    if (! CRM_Utils_Rule::positiveInteger($itemID)) {
-      return false;
-    }
-
-    require_once 'CDM/DAO/Item.php';
     $item = new CDM_DAO_Item();
     $item->id = $itemID;
-    $item->delete();
 
-    return true;
+    if ($item->find(TRUE)) {
+      CRM_Utils_Hook::pre('delete', 'CiviDiscount', $item->id, $item);
+      $item->delete();
+      CRM_Utils_Hook::post('delete', 'CiviDiscount', $item->id, $item);
+
+      return TRUE;
+    }
+
+    return FALSE;
   }
 }
