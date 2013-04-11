@@ -37,10 +37,10 @@
 require_once 'CRM/Admin/Form.php';
 
 /**
- * This class generates form components for Location Type
+ * This class generates form components for cividiscount administration.
  *
  */
-class CDM_Form_Discount_Add extends CRM_Admin_Form {
+class CDM_Form_Discount_Admin extends CRM_Admin_Form {
   protected $_multiValued = null;
 
   protected $_orgID = null;
