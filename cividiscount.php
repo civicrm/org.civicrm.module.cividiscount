@@ -850,8 +850,11 @@ function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, 
     $newlabel = $label ." ({$title}: {$discount['amount']}% {$discount['description']})";
   }
 
-  if ($newamount <= 0) { 
-    $newamount = "0.00";
+  $newamount = round($newamount, 2);
+  // Return a formatted string for zero amount.
+  // @see http://issues.civicrm.org/jira/browse/CRM-12278
+  if ($newamount <= 0) {
+    $newamount = '0.00';
   }
 
   return array($newamount, $newlabel);
