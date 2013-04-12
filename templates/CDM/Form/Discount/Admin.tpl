@@ -90,7 +90,7 @@
       <tr class="crm-discount-item-form-block-events">
           <td class="label">{$form.events.label}</td>
           <td>{$form.events.html}<br />
-            <span class="description">{ts}Allow discounts to be used on the selected events. Only active current and future events are listed.<br /><strong><em>If you use price sets for your events, you also need to select any discountable price sets below.</em></strong>{/ts}
+            <span class="description">{ts}Allow discounts to be used on the selected events. Only active, public and current/future events are listed.<br /><strong><em>If you use price sets for your events, you also need to select any discountable price sets below.</em></strong>{/ts}
           </td>
       </tr>
 {/if}
