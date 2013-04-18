@@ -87,7 +87,7 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic {
 
                             CRM_Core_Action::ENABLE => array(
                                                               'name'  => ts('Enable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CDM_BAO_Item' . '\' ,\'' . 'enable-disable' . '\', 0, \'CiviDiscount_Item\');"',
+                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CDM_BAO_Item' . '\' ,\'' . 'disable-enable' . '\', 0, \'CiviDiscount_Item\');"',
                                                               'ref'   => 'enable-action',
                                                               'title' => ts('Enable Discount Code')
                                                             ),
