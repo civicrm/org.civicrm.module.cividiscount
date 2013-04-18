@@ -72,24 +72,24 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic {
                                                               'qs'    => 'id=%%id%%&reset=1',
                                                               'title' => ts('View Discount Code')
                                                             ),
+                            CRM_Core_Action::UPDATE  => array(
+                                                              'name'  => ts('Edit'),
+                                                              'url'   => 'civicrm/cividiscount/discount/edit',
+                                                              'qs'    => '&id=%%id%%&reset=1',
+                                                              'title' => ts('Edit Discount Code')
+                                                            ),
                             CRM_Core_Action::DISABLE => array(
                                                               'name'  => ts('Disable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
+                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CDM_BAO_Item' . '\', \'' . 'enable-disable' . '\', 0, \'CiviDiscount_Item\');"',
                                                               'ref'   => 'disable-action',
                                                               'title' => ts('Disable Discount Code')
                                                             ),
 
                             CRM_Core_Action::ENABLE => array(
                                                               'name'  => ts('Enable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
+                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CDM_BAO_Item' . '\' ,\'' . 'enable-disable' . '\', 0, \'CiviDiscount_Item\');"',
                                                               'ref'   => 'enable-action',
                                                               'title' => ts('Enable Discount Code')
-                                                            ),
-                            CRM_Core_Action::UPDATE  => array(
-                                                              'name'  => ts('Edit'),
-                                                              'url'   => 'civicrm/cividiscount/discount/edit',
-                                                              'qs'    => '&id=%%id%%&reset=1',
-                                                              'title' => ts('Edit Discount Code')
                                                             ),
                             CRM_Core_Action::DELETE  => array(
                                                               'name'  => ts('Delete'),
@@ -129,3 +129,4 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic {
     return 'civicrm/cividiscount/discount';
   }
 }
+

@@ -28,9 +28,9 @@
 </div>
 
 {if $rows}
-<div id="dcode">
+<div id="discount-list">
     {strip}
-    {* handle enable/disable actions*}
+    {* handle enable/disable actions *}
     {include file="CRM/common/enableDisable.tpl"}
     {include file="CRM/common/jsortable.tpl"}
     <table id="options" class="display">
@@ -45,7 +45,7 @@
     </tr>
     </thead>
     {foreach from=$rows item=row}
-    <tr id="row_{$row.id}" class="{if NOT $row.is_active} disabled{/if}{cycle values="odd-row,even-row"} {$row.class}">
+    <tr id="CiviDiscount_Item_{$row.id}" class="{$row.class}{if NOT $row.is_active} disabled{/if}">
         <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>
         <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
         <td class="right"><a href="/civicrm/cividiscount/report?id={$row.id}&reset=1">{$row.count_use}</a> / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
