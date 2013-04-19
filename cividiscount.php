@@ -211,7 +211,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
 
   // _discountInfo is assigned in cividiscount_civicrm_buildAmount() or
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
-  $discountInfo = $form->getVar('_discountInfo');
+  $discountInfo = $form->get('_discountInfo');
 
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
 
@@ -417,7 +417,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
 
-    $form->setVar('_discountInfo', array(
+    $form->set('_discountInfo', array(
       'discount' => $discount,
       'autodiscount' => $autodiscount,
       'contact_id' => $contact_id,
@@ -479,7 +479,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     }
   }
 
-  $form->setVar('_discountInfo', array(
+  $form->set('_discountInfo', array(
     'discount' => $discount,
     'autodiscount' => $autodiscount,
     'contact_id' => $contact_id,
@@ -502,7 +502,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     return;
   }
 
-  $discountInfo = $form->getVar('_discountInfo');
+  $discountInfo = $form->get('_discountInfo');
   if (!$discountInfo) {
     return;
   }
@@ -677,7 +677,7 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
  */
 function _cividiscount_get_discounts() {
   require_once 'CDM/BAO/Item.php';
-  
+
   return CDM_BAO_Item::getValidDiscounts();
 }
 
@@ -1009,3 +1009,4 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
     );
   }
 }
+
