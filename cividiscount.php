@@ -316,6 +316,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
     }
 
+    $form->set('_discountInfo', NULL);
     $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
     list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($code, $contact_id);
     if (empty($discounts)) {
@@ -455,6 +456,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     $contact_id = CRM_Core_Session::singleton()->get('userID');
   }
 
+  $form->set('_discountInfo', NULL);
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
   list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($code, $contact_id);
   if (empty($discounts)) {
