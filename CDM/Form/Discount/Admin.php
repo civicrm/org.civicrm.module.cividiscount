@@ -191,7 +191,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
 
       $this->addElement('advmultiselect',
         'autodiscount',
-        ts('Automatic Discount'),
+        ts('Automatic Discount for Members'),
         $membershipTypes,
         array('size' => 5,
           'style' => 'width:auto; min-width:150px;',
