@@ -46,7 +46,7 @@ require_once 'CDM/BAO/Item.php';
  * {@getfields item_create}
  * @access public
  */
-function civicrm_api3_item_create($params) {
+function civicrm_api3_discount_code_create($params) {
   return _civicrm_api3_basic_create('CDM_BAO_Item', $params);
 }
 
@@ -56,7 +56,7 @@ function civicrm_api3_item_create($params) {
  * The metadata is used for setting defaults, documentation & validation
  * @param array $params array or parameters determined by getfields
  */
-function _civicrm_api3_item_create_spec(&$params) {
+function _civicrm_api3_discount_code_create_spec(&$params) {
   $params['is_active']['api.default'] = 1;
   $params['multi_valued']['api.default'] = array();
   $params['multi_valued']['title'] = 'List of discount types being passed in';
@@ -72,7 +72,7 @@ function _civicrm_api3_item_create_spec(&$params) {
  * {@getfields item_get}
  * @access public
  */
-function civicrm_api3_item_get($params) {
+function civicrm_api3_discount_code_get($params) {
   return _civicrm_api3_basic_get('CDM_BAO_Item', $params);
 }
 
@@ -88,7 +88,7 @@ function civicrm_api3_item_get($params) {
  * {@getfields item_delete}
  * @access public
  */
-function civicrm_api3_item_delete($params) {
+function civicrm_api3_discount_code_delete($params) {
   return _civicrm_api3_basic_delete('CDM_BAO_Item', $params);
 }
 
