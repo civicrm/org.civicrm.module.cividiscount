@@ -1,0 +1,70 @@
+{*
+ +--------------------------------------------------------------------+
+ | CiviCRM version 4.1                                                |
+ +--------------------------------------------------------------------+
+ | Copyright CiviCRM LLC (c) 2004-2011                                |
+ +--------------------------------------------------------------------+
+ | This file is a part of CiviCRM.                                    |
+ |                                                                    |
+ | CiviCRM is free software; you can copy, modify, and distribute it  |
+ | under the terms of the GNU Affero General Public License           |
+ | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
+ |                                                                    |
+ | CiviCRM is distributed in the hope that it will be useful, but     |
+ | WITHOUT ANY WARRANTY; without even the implied warranty of         |
+ | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
+ | See the GNU Affero General Public License for more details.        |
+ |                                                                    |
+ | You should have received a copy of the GNU Affero General Public   |
+ | License and the CiviCRM Licensing Exception along                  |
+ | with this program; if not, contact CiviCRM LLC                     |
+ | at info[AT]civicrm[DOT]org. If you have questions about the        |
+ | GNU Affero General Public License or the licensing of CiviCRM,     |
+ | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
+ +--------------------------------------------------------------------+
+*}
+
+{htxt id="active_on"}
+  <p>
+    {ts}This discount will not be usable before this date. Leave blank to have it be enabled right away.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="expire_on"}
+  <p>
+    {ts}This discount will not be usable after this date. Leave blank to have it never expire.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="organization"}
+  <p>
+    {ts}Used to associate this discount code with an organization. Every time this code is used it will be recorded on that organization's contact record.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="autodiscount"}
+  <p>
+    {ts}Anyone with the selected memberships will automatically have the discount code applied.{/ts}
+  </p>
+  <p>
+    {ts}Autodiscount is generally used with a randomly-generated code which is <em>not</em> given out to users. Cividiscount will apply the discount to the members with no code required.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="events"}
+  <p>
+    {ts}Allow discounts to be used on the selected events. Only active, public and current/future events are listed.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="pricesets"}
+  <p>
+    {ts}You can apply this discount to one or more fields in a price set. The discount will be applied to each selected field that the user selects.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="memberships"}
+  <p>
+    {ts}Discount the price of purchasing memberships. Only active memberships with start and end dates defined will appear in this list.{/ts}
+  </p>
+{/htxt}

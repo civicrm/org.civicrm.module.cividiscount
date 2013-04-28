@@ -67,36 +67,35 @@
           </td>
       </tr>
       <tr class="crm-discount-item-form-block-active_on">
-          <td class="label">{$form.active_on.label}</td>
+          <td class="label">{$form.active_on.label} {help id="active_on" title=$form.active_on.label}</td>
           <td>{include file="CRM/common/jcalendar.tpl" elementName=active_on}</td>
       </tr>
       <tr class="crm-discount-item-form-block-expire_on">
-          <td class="label">{$form.expire_on.label}</td>
+          <td class="label">{$form.expire_on.label} {help id="expire_on" title=$form.expire_on.label}</td>
           <td>{include file="CRM/common/jcalendar.tpl" elementName=expire_on}</td>
       </tr>
       <tr class="crm-discount-item-form-block-organization_id">
-          <td class="label">{$form.organization.label}</td>
+          <td class="label">{$form.organization.label} {help id="organization" title=$form.organization.label}</td>
           <td>{$form.organization.html|crmReplace:class:twenty}</td>
       </tr>
 {if $form.autodiscount}
       <tr class="crm-discount-item-form-block-auto-discount">
-          <td class="label">{$form.autodiscount.label}</td>
-          <td>{$form.autodiscount.html}<br />
-            <span class="description">{ts}Anyone in the selected memberships will automatically have the discount code applied. Autodiscount is generally used with a randomly-generated code which is <strong><em>not</em></strong> given out to users. Cividiscount will apply the discount to the memberships with no code required.{/ts}
+          <td class="label">{$form.autodiscount.label} {help id="autodiscount" title=$form.autodiscount.label}</td>
+          <td>{$form.autodiscount.html}
           </td>
       </tr>
 {/if}
 {if $form.events}
       <tr class="crm-discount-item-form-block-events">
-          <td class="label">{$form.events.label}</td>
+          <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
           <td>{$form.events.html}<br />
-            <span class="description">{ts}Allow discounts to be used on the selected events. Only active, public and current/future events are listed.<br /><strong><em>If you use price sets for your events, you also need to select any discountable price sets below.</em></strong>{/ts}
+            <span class="description"><strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
           </td>
       </tr>
 {/if}
 {if $form.pricesets}
       <tr class="crm-discount-item-form-block-price-set">
-          <td class="label">{$form.pricesets.label}</td>
+          <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
           <td>{$form.pricesets.html}<br />
             <span class="description">{ts}{/ts}
           </td>
@@ -104,7 +103,7 @@
 {/if}
 {if $form.memberships}
       <tr class="crm-discount-item-form-block-memberships">
-          <td class="label">{$form.memberships.label}</td>
+          <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
           <td>{$form.memberships.html}<br />
             <span class="description">{ts}{/ts}
           </td>
