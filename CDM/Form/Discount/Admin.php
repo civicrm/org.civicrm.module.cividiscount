@@ -2,9 +2,9 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.1                                                |
+ | CiviCRM version 4.3                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2011                                |
+ | Copyright CiviCRM LLC (c) 2004-2013                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -29,7 +29,7 @@
 /**
  *
  * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2011
+ * @copyright CiviCRM LLC (c) 2004-2013
  * $Id$
  *
  */
@@ -191,7 +191,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
 
       $this->addElement('advmultiselect',
         'autodiscount',
-        ts('Automatic Discount'),
+        ts('Automatic Discount for Members'),
         $membershipTypes,
         array('size' => 5,
           'style' => 'width:auto; min-width:150px;',
