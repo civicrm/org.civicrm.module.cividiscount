@@ -24,48 +24,49 @@
  +--------------------------------------------------------------------+
 *}
 <div id="help">
-    {ts}Discount codes can be applied against events, memberships and price sets.{/ts}
+  {ts}Discount codes can be applied against events, memberships and price sets.{/ts}
 </div>
 
 {if $rows}
-<div id="discount-list">
+  <div id="discount-list">
     {strip}
     {* handle enable/disable actions *}
-    {include file="CRM/common/enableDisable.tpl"}
-    {include file="CRM/common/jsortable.tpl"}
-    <table id="options" class="display">
-    <thead>
-    <tr>
-        <th id="sortable">{ts}Name / Description{/ts}</th>
-        <th>{ts}Amount{/ts}</th>
-        <th>{ts}Usage{/ts}</th>
-        <th>{ts}Start Date{/ts}</th>
-        <th>{ts}End Date{/ts}</th>
-        <th></th>
-    </tr>
-    </thead>
-    {foreach from=$rows item=row}
-    <tr id="CiviDiscount_Item-{$row.id}" class="{$row.class}{if NOT $row.is_active} disabled{/if}">
-        <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>
-        <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
-        {assign var='urlParams' value="id=`$row.id`&reset=1"}
-        <td class="right"><a href="{crmURL p='civicrm/cividiscount/report' q=$urlParams}">{$row.count_use}</a> / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
-        <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>
-        <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
-        <td>{$row.action|replace:'xx':$row.id}</td>
-    </tr>
-    {/foreach}
-    </table>
+      {include file="CRM/common/enableDisable.tpl"}
+      {include file="CRM/common/jsortable.tpl"}
+      <table id="options" class="display">
+        <thead>
+        <tr>
+          <th id="sortable">{ts}Name / Description{/ts}</th>
+          <th>{ts}Amount{/ts}</th>
+          <th>{ts}Usage{/ts}</th>
+          <th>{ts}Start Date{/ts}</th>
+          <th>{ts}End Date{/ts}</th>
+          <th></th>
+        </tr>
+        </thead>
+        {foreach from=$rows item=row}
+          <tr id="CiviDiscount_Item-{$row.id}" class="{$row.class}{if NOT $row.is_active} disabled{/if}">
+            <td class="crm-discount-code">{$row.code} <br/> {$row.description}</td>
+            <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
+            <td class="right"><a href='{crmURL p='civicrm/cividiscount/report' q="id=`$row.id`&reset=1"}'>{$row.count_use}</a>
+              / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
+            <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>
+            <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
+            <td>{$row.action|replace:'xx':$row.id}</td>
+          </tr>
+        {/foreach}
+      </table>
     {/strip}
 
     <div class="action-link">
-        <a href="{crmURL p='civicrm/cividiscount/discount/add q="reset=1"}" id="newDiscountCode" class="button"><span>&raquo; {ts}New Discount Code{/ts}</span></a>
+      <a href='{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}' id="newDiscountCode"
+         class="button"><span>&raquo; {ts}New Discount Code{/ts}</span></a>
     </div>
-</div>
+  </div>
 {else}
-    <div class="messages status no-popup">
-      <div class="icon inform-icon"></div>
-      {capture assign=crmURL}{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}{/capture}
-      {ts 1=$crmURL}There are no discount codes. You can <a href='%1'>add one</a>.{/ts}
-    </div>
+  <div class="messages status no-popup">
+    <div class="icon inform-icon"></div>
+    {capture assign=crmURL}{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}{/capture}
+    {ts 1=$crmURL}There are no discount codes. You can<a href='%1'>add one</a>.{/ts}
+  </div>
 {/if}
