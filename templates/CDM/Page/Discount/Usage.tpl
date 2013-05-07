@@ -38,7 +38,8 @@
         {foreach from=$rows item=row}
 		    {if $row}
             {if $hide_contact === NULL}
-              <td><a href="/civicrm/contact/view?reset=1&cid={$row.contact_id}">{$row.display_name}</a>&nbsp;&nbsp;(ID:{$row.contact_id})</td>
+              {assign var='urlParams' value="cid=`$row.contact_id`&reset=1"}
+              <td><a href="{crmURL p='civicrm/contact/view' q=$urlParams}">{$row.display_name}</a>&nbsp;&nbsp;(ID:{$row.contact_id})</td>
             {/if}
             <td>{$row.event_title}</td>
             <td>{$row.membership_title}</td>
