@@ -48,7 +48,8 @@
     <tr id="CiviDiscount_Item-{$row.id}" class="{$row.class}{if NOT $row.is_active} disabled{/if}">
         <td class="crm-discount-code">{$row.code} <br /> {$row.description}</td>
         <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
-        <td class="right"><a href="/civicrm/cividiscount/report?id={$row.id}&reset=1">{$row.count_use}</a> / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
+        {assign var='urlParams' value="id=`$row.id`&reset=1"}
+        <td class="right"><a href="{crmURL p='civicrm/cividiscount/report' q=$urlParams}">{$row.count_use}</a> / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
         <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>
         <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
         <td>{$row.action|replace:'xx':$row.id}</td>
