@@ -57,7 +57,8 @@
     </tr>
     <tr>
         <td class="label">{ts}Usage{/ts}</td>
-    	  <td><a href="/civicrm/cividiscount/report?id={$code_id}&reset=1">{$count_use}</a> / {if $count_max eq 0}{ts}Unlimited{/ts}{else}{$count_max}{/if}</td>
+        {assign var='urlParams' value="id=`$code_id`&reset=1"}
+    	<td><a href="{crmURL p='civicrm/cividiscount/report' q=$urlParams}">{$count_use}</a> / {if $count_max eq 0}{ts}Unlimited{/ts}{else}{$count_max}{/if}</td>
     </tr>
     <tr>
         <td class="label">{ts}Start Date{/ts}</td>

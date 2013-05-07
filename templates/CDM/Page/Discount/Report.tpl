@@ -33,8 +33,9 @@
         <th class="label">{ts}Date{/ts}</th>
     <tr>
         {foreach from=$rows item=row}
-		    {if $row}
-            <td><a href="/civicrm/contact/view?reset=1&cid={$row.contact_id}">{$row.display_name}</a>&nbsp;&nbsp;(ID:{$row.contact_id})</td>
+        {if $row}
+            {assign var='urlParams' value="cid=`$row.contact_id`&reset=1"}
+            <td><a href="{crmURL q='civicrm/contact/view' q=$urlParams}">{$row.display_name}</a>&nbsp;&nbsp;(ID:{$row.contact_id})</td>
             <td>{$row.event_title}</td>
             <td>{$row.membership_title}</td>
             <td>{$row.used_date|crmDate}</td>
