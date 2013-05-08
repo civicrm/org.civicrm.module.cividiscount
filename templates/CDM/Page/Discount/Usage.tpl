@@ -34,9 +34,10 @@
       <th class="label">{ts}Membership{/ts}</th>
       <th class="label">{ts}Date{/ts}</th>
       <th class="label">{ts}Code{/ts}</th>
-    <tr>
-      {foreach from=$rows item=row}
-        {if $row}
+    </tr>
+    {foreach from=$rows item=row}
+      {if $row}
+        <tr>
           {if $hide_contact === NULL}
             {assign var='urlParams' value="cid=`$row.contact_id`&reset=1"}
             <td>
@@ -47,8 +48,9 @@
           <td>{$row.membership_title}</td>
           <td>{$row.used_date|crmDate}</td>
           <td>{$row.code}</td>
-        {/if}
-      {/foreach}
+        </tr>
+      {/if}
+    {/foreach}
     </tr>
   </table>
 </div>
