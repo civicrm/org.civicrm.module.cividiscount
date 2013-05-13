@@ -362,19 +362,20 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
       $keys = array_keys($discounts);
       $key = array_shift($keys);
-      $discounts[$key]['pricesets'] = array();
 
       // in this case discount is specified for event id or membership type id, so we need to get info of
-      // associated price set fields. For events discount is for all the fees but for memberships we need
-      // to filter at membership type level
+      // associated price set fields. For events discount we already have the list, but for memberships we
+      // need to filter at membership type level
 
       //retrieve price set field associated with this priceset
       $priceSetInfo = CDM_Utils::getPriceSetsInfo($psid);
 
       if ($pagetype == 'event') {
-        $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
+        // Do nothing, we already have the list of discountable price set items for this event
+        // as $discounts[$key]['pricesets'] from _cividiscount_get_candidate_discounts(); above
       }
       else {
+        $discounts[$key]['pricesets'] = array();
         // filter only valid membership types that have discount
         foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
           if ( !empty($priceFieldValues['membership_type_id']) &&
