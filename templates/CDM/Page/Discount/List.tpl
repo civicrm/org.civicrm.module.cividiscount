@@ -67,6 +67,6 @@
   <div class="messages status no-popup">
     <div class="icon inform-icon"></div>
     {capture assign=crmURL}{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}{/capture}
-    {ts 1=$crmURL}There are no discount codes. You can<a href='%1'>add one</a>.{/ts}
+    {ts 1=$crmURL}There are no discount codes. You can <a href='%1'>add one</a>.{/ts}
   </div>
 {/if}
