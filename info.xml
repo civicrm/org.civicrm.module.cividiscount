@@ -4,7 +4,7 @@ https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v2.2
 </downloadUrl>
 <file>cividiscount</file>
 <name>CiviDiscount Module Extension</name>
-<description>This module requires PHP v5.3+ and Civi v4.3+</description>
+<description>This module requires PHP v5.3+ and Civi v4.3.7+</description>
 <urls>
 <url desc="Main Extension Page">
 http://civicrm.org/extension/cividiscount-extension
