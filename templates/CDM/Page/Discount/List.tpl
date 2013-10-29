@@ -45,7 +45,6 @@
         </tr>
         </thead>
         {foreach from=$rows item=row}
-          {$row.action}
           <tr id="CiviDiscount_Item-{$row.id}" class="{$row.class}{if NOT $row.is_active} disabled{/if}">
             <td class="crm-discount-code">{$row.code} <br/> {$row.description}</td>
             <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
