@@ -52,9 +52,7 @@
               / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
             <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>
             <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
-            <td>{$row.action|replace:'xx':$row.id}
-              <a href="/civicrm/cividiscount/discount/copy?&amp;cloneID={$row.id}&amp;reset=1" class = "action-item" title="Copy Discount Code">Copy</a>
-            </td>
+            <td>{$row.action|replace:'xx':$row.id}</td>
           </tr>
         {/foreach}
       </table>
