@@ -170,6 +170,18 @@ class CDM_DAO_Item extends CRM_Core_DAO {
    */
   public $is_active;
   /**
+   * Is there a message to users not eligible for a discount?
+   *
+   * @var boolean
+   */
+  public $discount_msg_enabled;
+  /**
+   * Discount message.
+   *
+   * @var string
+   */
+  public $discount_msg;
+  /**
    * class constructor
    *
    * @access public
@@ -289,6 +301,17 @@ class CDM_DAO_Item extends CRM_Core_DAO {
           'is_active' => array(
             'name' => 'is_active',
             'type' => CRM_Utils_Type::T_BOOLEAN,
+          ),
+          'discount_msg_enabled' => array(
+            'name' => 'discount_msg_enabled',
+            'type' => CRM_Utils_Type::T_BOOLEAN,
+          ),
+          'discount_msg' => array(
+            'name' => 'discount_msg',
+            'type' => CRM_Utils_Type::T_STRING,
+            'title' => ts('Discount Message'),
+            'maxlength' => 255,
+            'size' => CRM_Utils_Type::HUGE,
           ),
        );
     }

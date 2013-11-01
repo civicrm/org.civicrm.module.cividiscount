@@ -114,6 +114,14 @@
       {/if}
       <tr>
         <td>&nbsp;</td>
+        <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
+      </tr>
+      <tr class="crm-discount-item-form-block-discount-message">
+        <td class="label">{$form.discount_msg.label} {help id="discount-message" title=$form.discount_msg.label}</td>
+        <td>{$form.discount_msg.html}</td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
         <td>{$form.is_active.html} {$form.is_active.label}</td>
       </tr>
     </table>
