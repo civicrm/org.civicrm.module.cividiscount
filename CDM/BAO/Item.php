@@ -295,7 +295,9 @@ FROM    cividiscount_item
 
     if ($item->find(TRUE)) {
       unset($item->id);
+      $item->count_use = 0;
       $item->code = $newCode;
+
       CRM_Utils_Hook::pre('create', 'CiviDiscount', null, $params);
       $item->save();
       CRM_Utils_Hook::post('create', 'CiviDiscount', $item->id, $item);
