@@ -125,8 +125,20 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
    * @return boolean true is it is quickconfig else false
    */
   static function checkForQuickConfigPriceSet($priceSetId) {
-    if (CRM_Core_DAO::getFieldValue('CRM_Price_DAO_Set', $priceSetId, 'is_quick_config')) {
-      return true;
+    if (
+      version_compare(
+        CRM_Utils_System::version(),
+        '4.4'
+      ) >= 0
+    ) {
+      if (CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceSet', $priceSetId, 'is_quick_config')) {
+        return true;
+      }
+    }
+    else {
+      if (CRM_Core_DAO::getFieldValue('CRM_Price_DAO_Set', $priceSetId, 'is_quick_config')) {
+        return true;
+      }
     }
 
     return false;
