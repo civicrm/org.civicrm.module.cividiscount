@@ -135,7 +135,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
   public function buildQuickForm() {
     parent::buildQuickForm();
 
-    if ($this->_action & CRM_Core_Action::DELETE) {
+    if ($this->_action & (CRM_Core_Action::DELETE | CRM_Core_Action::COPY)) {
       return;
     }
 
@@ -246,6 +246,15 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
     if ($this->_action & CRM_Core_Action::DELETE) {
       CDM_BAO_Item::del($this->_id);
       CRM_Core_Session::setStatus(ts('Selected Discount has been deleted.'));
+      return;
+    }
+
+    if ($this->_action & CRM_Core_Action::COPY) {
+      $params = $this->exportValues();
+      require_once 'CDM/Utils.php';
+      $newCode = CDM_Utils::randomString('abcdefghjklmnpqrstwxyz23456789', 8);
+      CDM_BAO_Item::copy($this->_cloneID, $params, $newCode);
+      CRM_Core_Session::setStatus(ts('Selected Discount has been duplicated.'));
       return;
     }
 

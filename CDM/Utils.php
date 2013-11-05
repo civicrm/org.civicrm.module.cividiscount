@@ -143,4 +143,25 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 
     return false;
   }
+
+  /**
+   * Function to generate a random discount code.
+   *
+   * @param string  $chars  Collection of characters to be used for the code.
+   * @param int     $len    Length of the code
+   *
+   * @access public
+   * @static
+   * @return string New random discount code.
+   */
+  static function randomString($chars, $len) {
+    $str = '';
+    for ($i = 0; $i <= $len; $i++) {
+      $max = strlen($chars) - 1;
+      $num = floor(mt_rand() / mt_getrandmax() * $max);
+      $temp = substr($chars, $num, 1);
+      $str .= $temp;
+    }
+    return $str;
+  }
 }

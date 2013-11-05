@@ -78,6 +78,12 @@ class CDM_Page_Discount_List extends CRM_Core_Page_Basic {
                                                               'qs'    => '&id=%%id%%&reset=1',
                                                               'title' => ts('Edit Discount Code')
                                                             ),
+                            CRM_Core_Action::COPY  => array(
+                                                              'name'  => ts('Copy'),
+                                                              'url'   => 'civicrm/cividiscount/discount/copy',
+                                                              'qs'    => '&cloneID=%%id%%&reset=1',
+                                                              'title' => ts('Clone Discount Code')
+                            ),
                             CRM_Core_Action::DISABLE => array(
                                                               'name'  => ts('Disable'),
                                                               'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CDM_BAO_Item' . '\', \'' . 'enable-disable' . '\', 0, \'CiviDiscount_Item\');"',

@@ -279,4 +279,31 @@ FROM    cividiscount_item
 
     return FALSE;
   }
+
+  /**
+   * Function to copy discount codes
+   *
+   * @param  int  $itemID     ID of the discount code to be copied.
+   *
+   * @access public
+   * @static
+   * @return true on success else false
+   */
+  static function copy($itemID, $params, $newCode) {
+    $item = new CDM_DAO_Item();
+    $item->id = $itemID;
+
+    if ($item->find(TRUE)) {
+      unset($item->id);
+      $item->count_use = 0;
+      $item->code = $newCode;
+
+      CRM_Utils_Hook::pre('create', 'CiviDiscount', null, $params);
+      $item->save();
+      CRM_Utils_Hook::post('create', 'CiviDiscount', $item->id, $item);
+      return TRUE;
+    }
+
+    return FALSE;
+  }
 }
