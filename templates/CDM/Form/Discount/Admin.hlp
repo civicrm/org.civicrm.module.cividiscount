@@ -68,3 +68,9 @@
     {ts}Discount the price of purchasing memberships. Only active memberships with start and end dates defined will appear in this list.{/ts}
   </p>
 {/htxt}
+
+{htxt id="discount-message"}
+  <p>
+    {ts}Enter the message you'd like users to see if they are not receiving a discount. Can be used to promote membership.<br />The message will appear above the form.{/ts}
+  </p>
+{/htxt}

@@ -28,6 +28,31 @@ function cividiscount_civicrm_uninstall() {
 }
 
 /**
+ * Implementation of hook_civicrm_upgrade()
+ *
+ * @param $op
+ * @param CRM_Queue_Queue $queue
+ * @return array|void
+ */
+function cividiscount_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+  if ($upgrader = cividiscount_upgrader()) {
+    return $upgrader->onUpgrade($op, $queue);
+  }
+}
+
+/**
+ * Upgrader, civix-style
+ */
+function cividiscount_upgrader() {
+  if (!file_exists(__DIR__.'/CRM/CiviDiscount/Upgrader.php')) {
+    return NULL;
+  } else {
+    require_once 'CRM/CiviDiscount/Upgrader.php';
+    return CRM_CiviDiscount_Upgrader_Base::instance();
+  }
+}
+
+/**
  * Implementation of hook_civicrm_config()
  */
 function cividiscount_civicrm_config(&$config) {
@@ -326,6 +351,18 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       if (!empty($code)) { // the user entered a code, so lets tell them its invalid
         $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
       }
+      // Check if a discount is available
+      if ($pagetype == 'event') {
+        $discounts = _cividiscount_get_discounts();
+        foreach ($discounts as $code => $discount) {
+          if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
+                $discount['discount_msg_enabled']) {
+            // Display discount available message
+            CRM_Core_Session::setStatus(html_entity_decode($discount['discount_msg']), '', 'no-popup');
+          }
+        }
+      }
+
       return;
     }
 

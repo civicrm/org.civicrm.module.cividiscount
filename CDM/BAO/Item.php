@@ -67,6 +67,7 @@ class CDM_BAO_Item extends CDM_DAO_Item {
     $item->amount = $params['amount'];
     $item->amount_type = $params['amount_type'];
     $item->count_max = $params['count_max'];
+    $item->discount_msg = $params['discount_msg'];
 
     foreach ($params['multi_valued'] as $mv => $dontCare) {
       if (!empty($params[$mv])) {
@@ -85,6 +86,7 @@ class CDM_BAO_Item extends CDM_DAO_Item {
     }
 
     $item->is_active = CRM_Utils_Array::value('is_active', $params) ? 1 : 0;
+    $item->discount_msg_enabled = CRM_Utils_Array::value('discount_msg_enabled', $params) ? 1 : 0;
 
     if (! empty($params['active_on'])) {
       $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
@@ -156,6 +158,8 @@ SELECT  id,
     expire_on,
     active_on,
     is_active,
+    discount_msg_enabled,
+    discount_msg,
     count_use,
     count_max
 FROM    cividiscount_item

@@ -97,6 +97,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       CDM_BAO_Item::retrieve($params, $defaults);
     }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
+    $defaults['discount_msg_enabled'] = $origID ? CRM_Utils_Array::value('discount_msg_enabled', $defaults) : 1;
 
     foreach ($this->_multiValued as $mv => $info) {
       if (! empty($defaults[$mv])) {
@@ -123,6 +124,11 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       $this->_orgID = $defaults['organization_id'];
       $this->assign('currentOrganization', $defaults['organization_id']);
     }
+    // Convert if using html
+    if (!empty($defaults['discount_msg'])) {
+      $defaults['discount_msg'] = html_entity_decode($defaults['discount_msg']);
+    }
+
     return $defaults;
   }
 
@@ -180,6 +186,9 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
 
     // is this discount active ?
     $this->addElement('checkbox', 'is_active', ts('Is this discount active?'));
+
+    $this->addElement('checkbox', 'discount_msg_enabled', ts('Display a message to users not eligible for this discount?'));
+    $this->add('text', 'discount_msg', ts('Message to users not eligible for discount'), CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'discount_msg'));
 
     // add memberships, events, pricesets
     require_once 'CRM/Member/BAO/MembershipType.php';
