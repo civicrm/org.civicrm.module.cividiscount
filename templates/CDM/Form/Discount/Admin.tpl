@@ -25,10 +25,9 @@
 *}
 {* this template is used for adding/editing discounts  *}
 <h3>
-  {if $action eq 1}{ts}New Discount{/ts}{elseif $action eq 2}{ts}Edit Discount{/ts}{else}{ts}Delete Discount{/ts}{/if}
+  {if $action eq 1}{ts}New Discount{/ts}{elseif $action eq 2}{ts}Edit Discount{/ts}{else}{ts}Delete Discount - {$discountValue.code}{/ts}{/if}
 </h3>
 <div class="crm-block crm-form-block crm-discount-item-form-block">
-  <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="top"}</div>
   {if $action eq 8}
     <div class="messages status">
       <dl>
@@ -36,11 +35,12 @@
         <div class="icon inform-icon"></div>
         </dt>
         <dd>
-          {ts}WARNING: Deleting this discount code will prevent users who have this code to avail of this discount.{/ts} {ts}Do you want to continue?{/ts}
+          {ts 1=$discountValue.code}WARNING: Deleting this discount code (%1) will prevent users who have this code to avail of this discount.{/ts} {ts}Do you want to continue?{/ts}
         </dd>
       </dl>
     </div>
   {else}
+    <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="top"}</div>
     <table class="form-layout-compressed">
       <tr class="crm-discount-item-form-block-label">
         <td class="label">{$form.code.label}</td>
@@ -91,8 +91,11 @@
         <tr class="crm-discount-item-form-block-events">
           <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
           <td>{$form.events.html}<br/>
+	  {if $form.pricesets}
             <span
               class="description"><strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
+            </span>
+          {/if}
           </td>
         </tr>
       {/if}

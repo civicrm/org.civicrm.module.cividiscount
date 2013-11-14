@@ -35,6 +35,7 @@
  */
 
 require_once 'CRM/Admin/Form.php';
+require_once 'CDM/BAO/Item.php';
 
 /**
  * This class generates form components for cividiscount administration.
@@ -76,9 +77,8 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       'autodiscount' => null,
       'memberships'  => null,
       'events'       => null,
-      'pricesets'    => null);
-
-    require_once 'CDM/BAO/Item.php';
+      'pricesets'    => null
+    );
   }
 
   function setDefaultValues() {
@@ -97,6 +97,9 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       CDM_BAO_Item::retrieve($params, $defaults);
     }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
+
+    // assign the defaults to smarty so delete can use it
+    $this->assign('discountValue', $defaults);
 
     foreach ($this->_multiValued as $mv => $info) {
       if (! empty($defaults[$mv])) {
