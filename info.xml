@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension key="org.civicrm.module.cividiscount" type="module">
 <downloadUrl>
-https://github.com/dlobo/org.civicrm.module.cividiscount/zipball/v2.4
+https://github.com/dlobo/org.civicrm.module.cividiscount/archive/v2.5.zip
 </downloadUrl>
 <file>cividiscount</file>
 <name>CiviDiscount Module Extension</name>
-<description>This module requires PHP v5.3+ and Civi v4.4+</description>
+<description>This module requires PHP v5.3+ and Civi v4.3+</description>
 <urls>
 <url desc="Main Extension Page">
 http://civicrm.org/extension/cividiscount-extension
@@ -22,9 +22,10 @@ https://github.com/dlobo/org.civicrm.module.cividiscount/
 <email>info@civicrm.org</email>
 </maintainer>
 <releaseDate>2013-11-05</releaseDate>
-<version>2.4</version>
+<version>2.5</version>
 <develStage>stable</develStage>
 <compatibility>
+<ver>4.3</ver>
 <ver>4.4</ver>
 </compatibility>
 <comments>
