@@ -34,22 +34,13 @@
  *
  */
 
-require_once 'CRM/Core/Page.php';
-require_once 'CDM/DAO/Item.php';
+require_once 'CRM/Core/Page/Basic.php';
+require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
- * Page for displaying discount code details
+ * Page for displaying list of discount codes
  */
-class CDM_Page_Discount_Report extends CRM_Core_Page {
-  /**
-   * The id of the discount code
-   *
-   * @var int
-   */
-  protected $_id;
-
-  protected $_multiValued = null;
-
+class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
   /**
    * The action links that we need to display for the browse screen
    *
@@ -64,7 +55,7 @@ class CDM_Page_Discount_Report extends CRM_Core_Page {
    * @return string Classname of BAO.
    */
   function getBAOName() {
-    return 'CDM_BAO_Item';
+    return 'CRM_CiviDiscount_BAO_Item';
   }
 
   /**
@@ -75,31 +66,42 @@ class CDM_Page_Discount_Report extends CRM_Core_Page {
   function &links() {
     if (!(self::$_links)) {
       self::$_links = array(
+                            CRM_Core_Action::VIEW  => array(
+                                                              'name'  => ts('View'),
+                                                              'url'   => 'civicrm/cividiscount/discount/view',
+                                                              'qs'    => 'id=%%id%%&reset=1',
+                                                              'title' => ts('View Discount Code')
+                                                            ),
                             CRM_Core_Action::UPDATE  => array(
                                                               'name'  => ts('Edit'),
                                                               'url'   => 'civicrm/cividiscount/discount/edit',
                                                               'qs'    => '&id=%%id%%&reset=1',
-                                                              'title' => ts('Edit Discount')
-                                                             ),
+                                                              'title' => ts('Edit Discount Code')
+                                                            ),
+                            CRM_Core_Action::COPY  => array(
+                                                              'name'  => ts('Copy'),
+                                                              'url'   => 'civicrm/cividiscount/discount/copy',
+                                                              'qs'    => '&cloneID=%%id%%&reset=1',
+                                                              'title' => ts('Clone Discount Code')
+                            ),
                             CRM_Core_Action::DISABLE => array(
                                                               'name'  => ts('Disable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
+                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CRM_CiviDiscount_BAO_Item' . '\', \'' . 'enable-disable' . '\', 0, \'CiviDiscount_Item\');"',
                                                               'ref'   => 'disable-action',
-                                                              'title' => ts('Disable Discount')
-                                                             ),
+                                                              'title' => ts('Disable Discount Code')
+                                                            ),
 
                             CRM_Core_Action::ENABLE => array(
                                                               'name'  => ts('Enable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
+                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CRM_CiviDiscount_BAO_Item' . '\' ,\'' . 'disable-enable' . '\', 0, \'CiviDiscount_Item\');"',
                                                               'ref'   => 'enable-action',
-                                                              'title' => ts('Enable Discount')
+                                                              'title' => ts('Enable Discount Code')
                                                             ),
-
                             CRM_Core_Action::DELETE  => array(
                                                               'name'  => ts('Delete'),
                                                               'url'   => 'civicrm/cividiscount/discount/delete',
                                                               'qs'    => '&id=%%id%%',
-                                                              'title' => ts('Delete Discount')
+                                                              'title' => ts('Delete Discount Code')
                                                             )
                            );
     }
@@ -112,7 +114,7 @@ class CDM_Page_Discount_Report extends CRM_Core_Page {
    * @return string Classname of edit form.
    */
   function editForm() {
-    return 'CDM_Form_Item';
+    return 'CRM_CiviDiscount_Form_Item';
   }
 
   /**
@@ -132,33 +134,5 @@ class CDM_Page_Discount_Report extends CRM_Core_Page {
   function userContext($mode = null) {
     return 'civicrm/cividiscount/discount';
   }
-
-  function preProcess() {
-    $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, false);
-
-    require_once 'CRM/Utils/Rule.php';
-    if (! CRM_Utils_Rule::positiveInteger($this->_id)) {
-      CRM_Core_Error::fatal(ts('We need a valid discount ID for view'));
-    }
-
-    $this->assign('id', $this->_id);
-    $defaults = array();
-    $params = array('id' => $this->_id);
-
-    require_once 'CDM/BAO/Item.php';
-    CDM_BAO_Item::retrieve($params, $defaults);
-
-    require_once 'CDM/BAO/Track.php';
-    $rows = CDM_BAO_Track::getUsageByCode($this->_id);
-
-    $this->assign('rows', $rows);
-    $this->assign('code_details', $defaults);
-
-    CRM_Utils_System::setTitle($defaults['code']);
-  }
-
-  function run() {
-    $this->preProcess();
-    return parent::run();
-  }
 }
+

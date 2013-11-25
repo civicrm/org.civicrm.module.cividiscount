@@ -1,53 +1,26 @@
 <?php
 
+require_once 'cividiscount.civix.php';
+
 /**
  * Implementation of hook_civicrm_install()
  */
 function cividiscount_civicrm_install() {
-  $cividiscountRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-  $cividiscountSQL = $cividiscountRoot . DIRECTORY_SEPARATOR . 'cividiscount.sql';
-
-  CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $cividiscountSQL);
-
-  // rebuild the menu so our path is picked up
-  CRM_Core_Invoke::rebuildMenuAndCaches();
+  return _cividiscount_civix_civicrm_install();
 }
 
 /**
  * Implementation of hook_civicrm_uninstall()
  */
 function cividiscount_civicrm_uninstall() {
-  $cividiscountRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-
-  $cividiscountSQL = $cividiscountRoot . DIRECTORY_SEPARATOR . 'cividiscount.uninstall.sql';
-
-  CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $cividiscountSQL);
-
-  // rebuild the menu so our path is picked up
-  CRM_Core_Invoke::rebuildMenuAndCaches();
+  return _cividiscount_civix_civicrm_uninstall();
 }
 
 /**
  * Implementation of hook_civicrm_config()
  */
 function cividiscount_civicrm_config(&$config) {
-  $template =& CRM_Core_Smarty::singleton();
-
-  $cividiscountRoot =
-    dirname(__FILE__) . DIRECTORY_SEPARATOR;
-
-  $cividiscountDir = $cividiscountRoot . 'templates';
-
-  if (is_array($template->template_dir)) {
-    array_unshift($template->template_dir, $cividiscountDir);
-  }
-  else {
-    $template->template_dir = array($cividiscountDir, $template->template_dir);
-  }
-
-  // also fix php include path
-  $include_path = $cividiscountRoot . PATH_SEPARATOR . get_include_path();
-  set_include_path($include_path);
+  _cividiscount_civix_civicrm_config($config);
 }
 
 /**
@@ -63,11 +36,44 @@ function cividiscount_civicrm_perm() {
  * Implementation of hook_civicrm_xmlMenu
  */
 function cividiscount_civicrm_xmlMenu(&$files) {
-  $files[] =
-    dirname(__FILE__) . DIRECTORY_SEPARATOR .
-    'xml'               . DIRECTORY_SEPARATOR .
-    'Menu'              . DIRECTORY_SEPARATOR .
-    'cividiscount.xml';
+  _cividiscount_civix_civicrm_xmlMenu($files);
+}
+
+/**
+ * Implementation of hook_civicrm_enable
+ */
+function cividiscount_civicrm_enable() {
+  return _cividiscount_civix_civicrm_enable();
+}
+
+/**
+ * Implementation of hook_civicrm_disable
+ */
+function cividiscount_civicrm_disable() {
+  return _cividiscount_civix_civicrm_disable();
+}
+
+/**
+ * Implementation of hook_civicrm_upgrade
+ *
+ * @param $op string, the type of operation being performed; 'check' or 'enqueue'
+ * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
+ *
+ * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
+ *                for 'enqueue', returns void
+ */
+function cividiscount_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+  return _cividiscount_civix_civicrm_upgrade($op, $queue);
+}
+
+/**
+ * Implementation of hook_civicrm_managed
+ *
+ * Generate a list of entities to create/deactivate/delete when this module
+ * is installed, disabled, uninstalled.
+ */
+function cividiscount_civicrm_managed(&$entities) {
+  return _cividiscount_civix_civicrm_managed($entities);
 }
 
 /**
@@ -326,6 +332,18 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       if (!empty($code)) { // the user entered a code, so lets tell them its invalid
         $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
       }
+      // Check if a discount is available
+      if ($pagetype == 'event') {
+        $discounts = _cividiscount_get_discounts();
+        foreach ($discounts as $code => $discount) {
+          if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
+                $discount['discount_msg_enabled']) {
+            // Display discount available message
+            CRM_Core_Session::setStatus(html_entity_decode($discount['discount_msg']), '', 'no-popup');
+          }
+        }
+      }
+
       return;
     }
 
@@ -356,25 +374,26 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       // 2. Discount is configure at price field level, in this case discount should be applied only for
       //    that particular price set field.
 
-      require_once 'CDM/Utils.php';
+      require_once 'CRM/CiviDiscount/Utils.php';
       // here we need to check if selected price set is quick config
-      $isQuickConfigPriceSet = CDM_Utils::checkForQuickConfigPriceSet($psid);
+      $isQuickConfigPriceSet = CRM_CiviDiscount_Utils::checkForQuickConfigPriceSet($psid);
 
       $keys = array_keys($discounts);
       $key = array_shift($keys);
-      $discounts[$key]['pricesets'] = array();
 
       // in this case discount is specified for event id or membership type id, so we need to get info of
-      // associated price set fields. For events discount is for all the fees but for memberships we need
-      // to filter at membership type level
+      // associated price set fields. For events discount we already have the list, but for memberships we
+      // need to filter at membership type level
 
       //retrieve price set field associated with this priceset
-      $priceSetInfo = CDM_Utils::getPriceSetsInfo($psid);
+      $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
 
       if ($pagetype == 'event') {
-        $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
+        // Do nothing, we already have the list of discountable price set items for this event
+        // as $discounts[$key]['pricesets'] from _cividiscount_get_candidate_discounts(); above
       }
       else {
+        $discounts[$key]['pricesets'] = array();
         // filter only valid membership types that have discount
         foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
           if ( !empty($priceFieldValues['membership_type_id']) &&
@@ -511,8 +530,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     return;
   }
 
-  require_once 'CDM/BAO/Item.php';
-  require_once 'CDM/DAO/Track.php';
+  require_once 'CRM/CiviDiscount/BAO/Item.php';
+  require_once 'CRM/CiviDiscount/DAO/Track.php';
   require_once 'CRM/Utils/Time.php';
   $ts = CRM_Utils_Time::getTime();
   $discount = $discountInfo['discount'];
@@ -537,8 +556,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $participant_payment = _cividiscount_get_participant_payment($pid);
       $contribution_id = $participant_payment['contribution_id'];
 
-      CDM_BAO_Item::incrementUsage($discount['id']);
-      $track = new CDM_DAO_Track();
+      CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
+      $track = new CRM_CiviDiscount_DAO_Track();
       $track->item_id = $discount['id'];
       $track->contact_id = $contact_id;
       $track->contribution_id = $contribution_id;
@@ -569,8 +588,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     $membership_payment = _cividiscount_get_membership_payment($membershipId);
     $contribution_id = $membership_payment['contribution_id'];
 
-    CDM_BAO_Item::incrementUsage($discount['id']);
-    $track = new CDM_DAO_Track();
+    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
+    $track = new CRM_CiviDiscount_DAO_Track();
     $track->item_id = $discount['id'];
     $track->contact_id = $contact_id;
     $track->contribution_id = $contribution_id;
@@ -621,8 +640,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $entity_id = $contribution_id;
     }
 
-    CDM_BAO_Item::incrementUsage($discount['id']);
-    $track = new CDM_DAO_Track();
+    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
+    $track = new CRM_CiviDiscount_DAO_Track();
     $track->item_id = $discount['id'];
     $track->contact_id = $contact_id;
     $track->contribution_id = $contribution_id;
@@ -660,16 +679,16 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
     }
 
     if (!empty($result)) {
-      require_once 'CDM/BAO/Item.php';
-      require_once 'CDM/BAO/Track.php';
+      require_once 'CRM/CiviDiscount/BAO/Item.php';
+      require_once 'CRM/CiviDiscount/BAO/Track.php';
 
       foreach ( $result as $value ) {
         if (!empty($value['item_id'])) {
-          CDM_BAO_Item::decrementUsage($value['item_id']);
+          CRM_CiviDiscount_BAO_Item::decrementUsage($value['item_id']);
         }
 
         if (!empty($value['id'])) {
-          CDM_BAO_Track::del($value['id']);
+          CRM_CiviDiscount_BAO_Track::del($value['id']);
         }
       }
     }
@@ -680,9 +699,9 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
  * Returns an array of all discount codes.
  */
 function _cividiscount_get_discounts() {
-  require_once 'CDM/BAO/Item.php';
+  require_once 'CRM/CiviDiscount/BAO/Item.php';
 
-  return CDM_BAO_Item::getValidDiscounts();
+  return CRM_CiviDiscount_BAO_Item::getValidDiscounts();
 }
 
 /**

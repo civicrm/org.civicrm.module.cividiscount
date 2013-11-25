@@ -31,4 +31,7 @@ https://github.com/dlobo/org.civicrm.module.cividiscount/
 <comments>
 For support, please contact the team on the forums. (http://forum.civicrm.org)
 </comments>
+<civix>
+  <namespace>CRM/CiviDiscount</namespace>
+</civix>
 </extension>

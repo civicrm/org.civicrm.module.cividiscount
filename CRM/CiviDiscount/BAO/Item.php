@@ -34,9 +34,9 @@
  *
  */
 
-require_once 'CDM/DAO/Item.php';
+require_once 'CRM/CiviDiscount/DAO/Item.php';
 
-class CDM_BAO_Item extends CDM_DAO_Item {
+class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
 
   /**
    * class constructor
@@ -54,19 +54,20 @@ class CDM_BAO_Item extends CDM_DAO_Item {
    *
    * @param array  $params (reference ) an assoc array of name/value pairs
    *
-   * @return object CDM_BAO_Item object
+   * @return object CRM_CiviDiscount_BAO_Item object
    * @access public
    * @static
    */
   static function &add(&$params) {
     require_once 'CRM/Utils/Date.php';
 
-    $item = new CDM_DAO_Item();
+    $item = new CRM_CiviDiscount_DAO_Item();
     $item->code = $params['code'];
     $item->description = $params['description'];
     $item->amount = $params['amount'];
     $item->amount_type = $params['amount_type'];
     $item->count_max = $params['count_max'];
+    $item->discount_msg = $params['discount_msg'];
 
     foreach ($params['multi_valued'] as $mv => $dontCare) {
       if (!empty($params[$mv])) {
@@ -85,6 +86,7 @@ class CDM_BAO_Item extends CDM_DAO_Item {
     }
 
     $item->is_active = CRM_Utils_Array::value('is_active', $params) ? 1 : 0;
+    $item->discount_msg_enabled = CRM_Utils_Array::value('discount_msg_enabled', $params) ? 1 : 0;
 
     if (! empty($params['active_on'])) {
       $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
@@ -126,12 +128,12 @@ class CDM_BAO_Item extends CDM_DAO_Item {
    * @param array $params   (reference) an assoc array of name/value pairs
    * @param array $defaults (reference) an assoc array to hold the flattened values
    *
-   * @return object CDM_BAO_Item object on success, null otherwise
+   * @return object CRM_CiviDiscount_BAO_Item object on success, null otherwise
    * @access public
    * @static
    */
   static function retrieve(&$params, &$defaults) {
-    $item = new CDM_DAO_Item();
+    $item = new CRM_CiviDiscount_DAO_Item();
     $item->copyValues($params);
     if ($item->find(true)) {
       CRM_Core_DAO::storeValues($item, $defaults);
@@ -156,6 +158,8 @@ SELECT  id,
     expire_on,
     active_on,
     is_active,
+    discount_msg_enabled,
+    discount_msg,
     count_use,
     count_max
 FROM    cividiscount_item
@@ -163,7 +167,7 @@ FROM    cividiscount_item
     $dao =& CRM_Core_DAO::executeQuery($sql, array());
     while ($dao->fetch()) {
       $a = (array) $dao;
-      if (CDM_BAO_Item::isValid($a)) {
+      if (CRM_CiviDiscount_BAO_Item::isValid($a)) {
         $discounts[$a['code']] = $a;
       }
     }
@@ -192,7 +196,7 @@ FROM    cividiscount_item
    * @static
    */
   static function setIsActive($id, $is_active) {
-    return CRM_Core_DAO::setFieldValue('CDM_DAO_Item', $id, 'is_active', $is_active);
+    return CRM_Core_DAO::setFieldValue('CRM_CiviDiscount_DAO_Item', $id, 'is_active', $is_active);
   }
 
 
@@ -207,9 +211,9 @@ FROM    cividiscount_item
   }
 
   static function isValid($code) {
-    if (!CDM_BAO_Item::isExpired($code) &&
-      CDM_BAO_Item::isActive($code) &&
-      CDM_BAO_Item::isEnabled($code) &&
+    if (!CRM_CiviDiscount_BAO_Item::isExpired($code) &&
+      CRM_CiviDiscount_BAO_Item::isActive($code) &&
+      CRM_CiviDiscount_BAO_Item::isEnabled($code) &&
       ($code['count_max'] == 0 || $code['count_max'] > $code['count_use'])
     ) {
       return TRUE;
@@ -266,7 +270,7 @@ FROM    cividiscount_item
    * @return true on success else false
    */
   static function del($itemID) {
-    $item = new CDM_DAO_Item();
+    $item = new CRM_CiviDiscount_DAO_Item();
     $item->id = $itemID;
 
     if ($item->find(TRUE)) {
@@ -274,6 +278,33 @@ FROM    cividiscount_item
       $item->delete();
       CRM_Utils_Hook::post('delete', 'CiviDiscount', $item->id, $item);
 
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Function to copy discount codes
+   *
+   * @param  int  $itemID     ID of the discount code to be copied.
+   *
+   * @access public
+   * @static
+   * @return true on success else false
+   */
+  static function copy($itemID, $params, $newCode) {
+    $item = new CRM_CiviDiscount_DAO_Item();
+    $item->id = $itemID;
+
+    if ($item->find(TRUE)) {
+      unset($item->id);
+      $item->count_use = 0;
+      $item->code = $newCode;
+
+      CRM_Utils_Hook::pre('create', 'CiviDiscount', null, $params);
+      $item->save();
+      CRM_Utils_Hook::post('create', 'CiviDiscount', $item->id, $item);
       return TRUE;
     }
 

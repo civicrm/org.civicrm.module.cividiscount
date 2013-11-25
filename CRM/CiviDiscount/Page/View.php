@@ -35,12 +35,12 @@
  */
 
 require_once 'CRM/Core/Page.php';
-require_once 'CDM/DAO/Item.php';
+require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
  * Page for displaying discount code details
  */
-class CDM_Page_Discount_View extends CRM_Core_Page {
+class CRM_CiviDiscount_Page_View extends CRM_Core_Page {
   /**
    * The id of the discount code
    *
@@ -64,7 +64,7 @@ class CDM_Page_Discount_View extends CRM_Core_Page {
    * @return string Classname of BAO.
    */
   function getBAOName() {
-    return 'CDM_BAO_Item';
+    return 'CRM_CiviDiscount_BAO_Item';
   }
 
   /**
@@ -83,14 +83,14 @@ class CDM_Page_Discount_View extends CRM_Core_Page {
                                                             ),
                             CRM_Core_Action::DISABLE => array(
                                                               'name'  => ts('Disable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
+                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CRM_CiviDiscount_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
                                                               'ref'   => 'disable-action',
                                                               'title' => ts('Disable Discount')
                                                             ),
 
                             CRM_Core_Action::ENABLE => array(
                                                               'name'  => ts('Enable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CDM_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
+                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CRM_CiviDiscount_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
                                                               'ref'   => 'enable-action',
                                                               'title' => ts('Enable Discount')
                                                             ),
@@ -112,7 +112,7 @@ class CDM_Page_Discount_View extends CRM_Core_Page {
    * @return string Classname of edit form.
    */
   function editForm() {
-    return 'CDM_Form_Item';
+    return 'CRM_CiviDiscount_Form_Item';
   }
 
   /**
@@ -145,8 +145,8 @@ class CDM_Page_Discount_View extends CRM_Core_Page {
     $defaults = array();
     $params = array('id' => $this->_id);
 
-    require_once 'CDM/BAO/Item.php';
-    CDM_BAO_Item::retrieve($params, $defaults);
+    require_once 'CRM/CiviDiscount/BAO/Item.php';
+    CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
 
     $this->assign('code_id', $defaults['id']);
     $this->assign('code', $defaults['code']);
@@ -191,29 +191,29 @@ class CDM_Page_Discount_View extends CRM_Core_Page {
       }
     }
 
-    require_once 'CDM/Utils.php';
+    require_once 'CRM/CiviDiscount/Utils.php';
     require_once 'CRM/Member/BAO/MembershipType.php';
 
     if (array_key_exists('events', $defaults)) {
-      $events = CDM_Utils::getEvents();
-      $defaults['events'] = CDM_Utils::getIdsTitles($defaults['events'], $events);
+      $events = CRM_CiviDiscount_Utils::getEvents();
+      $defaults['events'] = CRM_CiviDiscount_Utils::getIdsTitles($defaults['events'], $events);
       $this->assign('events', $defaults['events']);
     }
 
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
     if (array_key_exists('memberships', $defaults)) {
-      $defaults['memberships'] = CDM_Utils::getIdsTitles($defaults['memberships'], $membershipTypes);
+      $defaults['memberships'] = CRM_CiviDiscount_Utils::getIdsTitles($defaults['memberships'], $membershipTypes);
       $this->assign('memberships', $defaults['memberships']);
     }
 
     if (array_key_exists('autodiscount', $defaults)) {
-      $defaults['autodiscount'] = CDM_Utils::getIdsTitles($defaults['autodiscount'], $membershipTypes);
+      $defaults['autodiscount'] = CRM_CiviDiscount_Utils::getIdsTitles($defaults['autodiscount'], $membershipTypes);
       $this->assign('autodiscount', $defaults['autodiscount']);
     }
 
     if (array_key_exists('pricesets', $defaults)) {
-      $priceSets = CDM_Utils::getPriceSets();
-      $defaults['pricesets'] = CDM_Utils::getIdsTitles($defaults['pricesets'], $priceSets);
+      $priceSets = CRM_CiviDiscount_Utils::getPriceSets();
+      $defaults['pricesets'] = CRM_CiviDiscount_Utils::getIdsTitles($defaults['pricesets'], $priceSets);
       $this->assign('pricesets', $defaults['pricesets']);
     }
 

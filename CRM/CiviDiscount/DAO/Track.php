@@ -33,14 +33,14 @@
  */
 require_once 'CRM/Core/DAO.php';
 require_once 'CRM/Utils/Type.php';
-class CDM_DAO_Item extends CRM_Core_DAO {
+class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
   /**
    * static instance to hold the table name
    *
    * @var string
    * @static
    */
-  static $_tableName = 'cividiscount_item';
+  static $_tableName = 'cividiscount_track';
   /**
    * static instance to hold the field values
    *
@@ -86,96 +86,55 @@ class CDM_DAO_Item extends CRM_Core_DAO {
    */
   public $id;
   /**
-   * Discount Code.
-   *
-   * @var string
-   */
-  public $code;
-  /**
-   * Discount Description.
-   *
-   * @var string
-   */
-  public $description;
-  /**
-   * Amount of discount either actual or percentage?
-   *
-   * @var string
-   */
-  public $amount;
-  /**
-   * Type of discount, actual or percentage?
-   *
-   * @var string
-   */
-  public $amount_type;
-  /**
-   * Max number of times this code can be used.
-   *
-   * @var int
-   */
-  public $count_max;
-  /**
-   * Number of times this code has been used.
-   *
-   * @var int
-   */
-  public $count_use;
-  /**
-   * Serialized list of events for which this code can be used
-   *
-   * @var text
-   */
-  public $events;
-  /**
-   * Serialized list of pricesets for which this code can be used
-   *
-   * @var text
-   */
-  public $pricesets;
-  /**
-   * Serialized list of memberships for which this code can be used
-   *
-   * @var text
-   */
-  public $memberships;
-  /**
-   * Some sort of autodiscounting mechanism?
-   *
-   * @var text
-   */
-  public $autodiscount;
-  /**
-   * FK to Contact ID for the organization that originated this discount
+   * FK to Item ID of the discount code
    *
    * @var int unsigned
    */
-  public $organization_id;
+  public $item_id;
   /**
-   * When is this discount active?
+   * FK to Contact ID for the contact that used this discount
+   *
+   * @var int unsigned
+   */
+  public $contact_id;
+  /**
+   * Date of discount use.
    *
    * @var datetime
    */
-  public $active_on;
+  public $used_date;
   /**
-   * When does this discount expire?
+   * FK to contribution table.
    *
-   * @var datetime
+   * @var int unsigned
    */
-  public $expire_on;
+  public $contribution_id;
   /**
-   * Is this property active?
+   * Name of table where item being referenced is stored?
    *
-   * @var boolean
+   * @var string
    */
-  public $is_active;
+  public $entity_table;
+  /**
+   * Foreign key to the referenced item?
+   *
+   * @var int unsigned
+   */
+  public $entity_id;
+  /**
+   * Discount use description.
+   *
+   * @var text
+   */
+  public $description;
   /**
    * class constructor
    *
    * @access public
-   * @return cividiscount_item
+   * @return cividiscount_track
    */
-  function __construct() {
+  function __construct()
+  {
     parent::__construct();
   }
   /**
@@ -187,7 +146,9 @@ class CDM_DAO_Item extends CRM_Core_DAO {
   function &links() {
     if (!(self::$_links)) {
       self::$_links = array(
-        'organization_id' => 'civicrm_contact:id',
+        'item_id' => 'cividiscount_item:id',
+        'contact_id' => 'civicrm_contact:id',
+        'contribution_id' => 'civicrm_contribution:id',
       );
     }
     return self::$_links;
@@ -206,89 +167,43 @@ class CDM_DAO_Item extends CRM_Core_DAO {
             'type' => CRM_Utils_Type::T_INT,
             'required' => true,
           ),
-          'code' => array(
-            'name' => 'code',
-            'type' => CRM_Utils_Type::T_STRING,
-            'title' => ts('Code'),
-            'required' => true,
-            'maxlength' => 255,
-            'size' => CRM_Utils_Type::HUGE,
-          ),
-          'description' => array(
-            'name' => 'description',
-            'type' => CRM_Utils_Type::T_STRING,
-            'title' => ts('Description'),
-            'required' => true,
-            'maxlength' => 255,
-            'size' => CRM_Utils_Type::HUGE,
-          ),
-          'amount' => array(
-            'name' => 'amount',
-            'type' => CRM_Utils_Type::T_STRING,
-            'title' => ts('Amount'),
-            'required' => true,
-            'maxlength' => 255,
-            'size' => CRM_Utils_Type::HUGE,
-          ),
-          'amount_type' => array(
-            'name' => 'amount_type',
-            'type' => CRM_Utils_Type::T_STRING,
-            'title' => ts('Amount Type'),
-            'required' => true,
-            'maxlength' => 4,
-            'size' => CRM_Utils_Type::FOUR,
-          ),
-          'count_max' => array(
-            'name' => 'count_max',
+          'item_id' => array(
+            'name' => 'item_id',
             'type' => CRM_Utils_Type::T_INT,
-            'title' => ts('Count Max'),
-            'required' => true,
+            'FKClassName' => 'CRM_CiviDiscount_DAO_Item',
           ),
-          'count_use' => array(
-            'name' => 'count_use',
-            'type' => CRM_Utils_Type::T_INT,
-            'title' => ts('Count Use'),
-            'required' => true,
-            'default' => 0,
-          ),
-          'events' => array(
-            'name' => 'events',
-            'type' => CRM_Utils_Type::T_TEXT,
-            'title' => ts('Events'),
-          ),
-          'pricesets' => array(
-            'name' => 'pricesets',
-            'type' => CRM_Utils_Type::T_TEXT,
-            'title' => ts('Pricesets'),
-          ),
-          'memberships' => array(
-            'name' => 'memberships',
-            'type' => CRM_Utils_Type::T_TEXT,
-            'title' => ts('Memberships'),
-          ),
-          'autodiscount' => array(
-            'name' => 'autodiscount',
-            'type' => CRM_Utils_Type::T_TEXT,
-            'title' => ts('Autodiscount'),
-          ),
-          'organization_id' => array(
-            'name' => 'organization_id',
+          'contact_id' => array(
+            'name' => 'contact_id',
             'type' => CRM_Utils_Type::T_INT,
             'FKClassName' => 'CRM_Contact_DAO_Contact',
           ),
-          'active_on' => array(
-            'name' => 'active_on',
+          'used_date' => array(
+            'name' => 'used_date',
             'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-            'title' => ts('Activation Date'),
+            'title' => ts('Used Date'),
           ),
-          'expire_on' => array(
-            'name' => 'expire_on',
-            'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-            'title' => ts('Expiration Date'),
+          'contribution_id' => array(
+            'name' => 'contribution_id',
+            'type' => CRM_Utils_Type::T_INT,
+            'FKClassName' => 'CRM_Contribute_DAO_Contribution',
           ),
-          'is_active' => array(
-            'name' => 'is_active',
-            'type' => CRM_Utils_Type::T_BOOLEAN,
+          'entity_table' => array(
+            'name' => 'entity_table',
+            'type' => CRM_Utils_Type::T_STRING,
+            'title' => ts('Entity Table'),
+            'required' => true,
+            'maxlength' => 64,
+            'size' => CRM_Utils_Type::BIG,
+          ),
+          'entity_id' => array(
+            'name' => 'entity_id',
+            'type' => CRM_Utils_Type::T_INT,
+            'required' => true,
+          ),
+          'description' => array(
+            'name' => 'description',
+            'type' => CRM_Utils_Type::T_TEXT,
+            'title' => ts('Description'),
           ),
        );
     }
@@ -325,7 +240,7 @@ class CDM_DAO_Item extends CRM_Core_DAO {
       foreach($fields as $name => $field) {
         if (CRM_Utils_Array::value('import', $field)) {
           if ($prefix) {
-            self::$_import['ount_item'] = & $fields[$name];
+            self::$_import['ount_track'] = & $fields[$name];
           }
           else {
             self::$_import[$name] = & $fields[$name];
@@ -348,7 +263,7 @@ class CDM_DAO_Item extends CRM_Core_DAO {
       foreach($fields as $name => $field) {
         if (CRM_Utils_Array::value('export', $field)) {
           if ($prefix) {
-            self::$_export['ount_item'] = & $fields[$name];
+            self::$_export['ount_track'] = & $fields[$name];
           }
           else {
             self::$_export[$name] = & $fields[$name];
