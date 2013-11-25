@@ -34,10 +34,10 @@
  *
  */
 
-require_once 'CDM/DAO/Track.php';
+require_once 'CRM/CiviDiscount/DAO/Track.php';
 
 
-class CDM_BAO_Track extends CDM_DAO_Track {
+class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
 
   /**
    * class constructor
@@ -56,12 +56,12 @@ class CDM_BAO_Track extends CDM_DAO_Track {
    * @param array $params   (reference) an assoc array of name/value pairs
    * @param array $defaults (reference) an assoc array to hold the flattened values
    *
-   * @return object CDM_BAO_Item object on success, null otherwise
+   * @return object CRM_CiviDiscount_BAO_Item object on success, null otherwise
    * @access public
    * @static
    */
   static function retrieve(&$params, &$defaults) {
-    $item = new CDM_DAO_Track();
+    $item = new CRM_CiviDiscount_DAO_Track();
     $item->copyValues($params);
     if ($item->find(true)) {
       CRM_Core_DAO::storeValues($item, $defaults);
@@ -71,19 +71,19 @@ class CDM_BAO_Track extends CDM_DAO_Track {
   }
 
   static function getUsageByContact($id) {
-    return CDM_BAO_Track::getUsage(NULL, $id, NULL);
+    return CRM_CiviDiscount_BAO_Track::getUsage(NULL, $id, NULL);
   }
 
   static function getUsageByOrg($id) {
-    return CDM_BAO_Track::getUsage(NULL, NULL, $id);
+    return CRM_CiviDiscount_BAO_Track::getUsage(NULL, NULL, $id);
   }
 
   static function getUsageByCode($id) {
-      return CDM_BAO_Track::getUsage($id, NULL, NULL);
+      return CRM_CiviDiscount_BAO_Track::getUsage($id, NULL, NULL);
   }
 
   static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
-    require_once 'CDM/Utils.php';
+    require_once 'CRM/CiviDiscount/Utils.php';
     require_once 'CRM/Member/BAO/Membership.php';
     require_once 'CRM/Contact/BAO/Contact.php';
 
@@ -133,7 +133,7 @@ SELECT    t.item_id as item_id,
       }
       if ($row['entity_table'] == 'civicrm_participant') {
         $event_id = self::_get_participant_event($dao->entity_id);
-        $events = CDM_Utils::getEvents();
+        $events = CRM_CiviDiscount_Utils::getEvents();
         if (array_key_exists($event_id, $events)) {
           $row['event_title'] = $events[$event_id];
         }
@@ -180,8 +180,8 @@ SELECT    t.item_id as item_id,
       return false;
     }
 
-    require_once 'CDM/DAO/Track.php';
-    $item = new CDM_DAO_Track();
+    require_once 'CRM/CiviDiscount/DAO/Track.php';
+    $item = new CRM_CiviDiscount_DAO_Track();
     $item->id = $trackID;
     $item->delete();
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
 <table>
-  <base>CDM</base>
+  <base>CRM/CiviDiscount</base>
   <class>Item</class>
   <name>cividiscount_item</name>
   <comment>A discount item</comment>
