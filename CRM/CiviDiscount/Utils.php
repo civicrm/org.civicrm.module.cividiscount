@@ -83,7 +83,8 @@ SELECT    pfv.id as item_id,
           ps.title as ps_label
 FROM      civicrm_price_field_value as pfv
 LEFT JOIN civicrm_price_field as pf on (pf.id = pfv.price_field_id)
-LEFT JOIN civicrm_price_set as ps on (ps.id = pf.price_set_id)
+LEFT JOIN civicrm_price_set as ps on (ps.id = pf.price_set_id AND ps.is_active = 1)
+INNER JOIN civicrm_price_set_entity as pse on (ps.id = pse.price_set_id)
 WHERE  {$additionalWhere}
 ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 ";

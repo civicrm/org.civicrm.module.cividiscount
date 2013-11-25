@@ -241,7 +241,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         'pricesets',
         ts('PriceSets'),
         $pricesets,
-        array('size' => 5,
+        array('size' => 7,
           'style' => 'width:auto; min-width:150px;',
           'class' => 'advmultiselect')
       );
