@@ -40,7 +40,7 @@ require_once 'CRM/Admin/Form.php';
  * This class generates form components for cividiscount administration.
  *
  */
-class CDM_Form_Discount_Admin extends CRM_Admin_Form {
+class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   protected $_multiValued = null;
   protected $_orgID = null;
   protected $_cloneID = null;
@@ -48,7 +48,8 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
   function preProcess() {
     $this->_id      = CRM_Utils_Request::retrieve('id', 'Positive', $this, false, 0);
     $this->_cloneID = CRM_Utils_Request::retrieve('cloneID', 'Positive', $this, false, 0);
-    $this->set('BAOName', 'CDM_BAO_Item');
+    require_once 'CRM/CiviDiscount/BAO/Item.php';
+    $this->set('BAOName', 'CRM_CiviDiscount_BAO_Item');
 
     parent::preProcess();
 
@@ -78,7 +79,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       'events'       => null,
       'pricesets'    => null);
 
-    require_once 'CDM/BAO/Item.php';
+    require_once 'CRM/CiviDiscount/BAO/Item.php';
   }
 
   function setDefaultValues() {
@@ -94,9 +95,10 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
 
     if ($origID) {
       $params = array('id' => $origID);
-      CDM_BAO_Item::retrieve($params, $defaults);
+      CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
     }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
+    $defaults['discount_msg_enabled'] = $origID ? CRM_Utils_Array::value('discount_msg_enabled', $defaults) : 1;
 
     foreach ($this->_multiValued as $mv => $info) {
       if (! empty($defaults[$mv])) {
@@ -123,6 +125,11 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       $this->_orgID = $defaults['organization_id'];
       $this->assign('currentOrganization', $defaults['organization_id']);
     }
+    // Convert if using html
+    if (!empty($defaults['discount_msg'])) {
+      $defaults['discount_msg'] = html_entity_decode($defaults['discount_msg']);
+    }
+
     return $defaults;
   }
 
@@ -135,7 +142,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
   public function buildQuickForm() {
     parent::buildQuickForm();
 
-    if ($this->_action & CRM_Core_Action::DELETE) {
+    if ($this->_action & (CRM_Core_Action::DELETE | CRM_Core_Action::COPY)) {
       return;
     }
 
@@ -143,12 +150,12 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
     $element =& $this->add('text',
       'code',
       ts('Code'),
-      CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'code'),
+      CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'code'),
       true);
     $this->addRule('code',
       ts('Code already exists in Database.'),
       'objectExists',
-      array('CDM_DAO_Item', $this->_id, 'code'));
+      array('CRM_CiviDiscount_DAO_Item', $this->_id, 'code'));
     $this->addRule('code',
       ts('Code can only consist of alpha-numeric characters'),
       'variable');
@@ -156,9 +163,9 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       $element->freeze();
     }
 
-    $this->add('text', 'description', ts('Description'), CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'description'));
+    $this->add('text', 'description', ts('Description'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'description'));
 
-    $this->addMoney('amount', ts('Discount'), true, CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'amount'), false);
+    $this->addMoney('amount', ts('Discount'), true, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), false);
 
     $this->add('select', 'amount_type', ts('Amount Type'),
       array(
@@ -166,7 +173,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
         2 => ts('Monetary')),
       true);
 
-    $this->add('text', 'count_max', ts('Usage'), CRM_Core_DAO::getAttribute('CDM_DAO_Item', 'count_max'), true);
+    $this->add('text', 'count_max', ts('Usage'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max'), true);
     $this->addRule('count_max', ts('Must be an integer'), 'integer');
 
     $this->addDate('active_on', ts('Activation Date'), false);
@@ -180,6 +187,9 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
 
     // is this discount active ?
     $this->addElement('checkbox', 'is_active', ts('Is this discount active?'));
+
+    $this->addElement('checkbox', 'discount_msg_enabled', ts('Display a message to users not eligible for this discount?'));
+    $this->add('text', 'discount_msg', ts('Message to users not eligible for discount'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'discount_msg'));
 
     // add memberships, events, pricesets
     require_once 'CRM/Member/BAO/MembershipType.php';
@@ -208,8 +218,8 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       );
     }
 
-    require_once 'CDM/Utils.php';
-    $events = CDM_Utils::getEvents();
+    require_once 'CRM/CiviDiscount/Utils.php';
+    $events = CRM_CiviDiscount_Utils::getEvents();
     if (! empty($events)) {
       $this->_multiValued['events'] = $events;
       $this->addElement('advmultiselect',
@@ -222,7 +232,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
       );
     }
 
-    $pricesets = CDM_Utils::getPriceSets();
+    $pricesets = CRM_CiviDiscount_Utils::getPriceSets();
     if (! empty($pricesets)) {
       $this->_multiValued['pricesets'] = $pricesets;
       $this->addElement('advmultiselect',
@@ -244,8 +254,17 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
    */
   public function postProcess() {
     if ($this->_action & CRM_Core_Action::DELETE) {
-      CDM_BAO_Item::del($this->_id);
+      CRM_CiviDiscount_BAO_Item::del($this->_id);
       CRM_Core_Session::setStatus(ts('Selected Discount has been deleted.'));
+      return;
+    }
+
+    if ($this->_action & CRM_Core_Action::COPY) {
+      $params = $this->exportValues();
+      require_once 'CRM/CiviDiscount/Utils.php';
+      $newCode = CRM_CiviDiscount_Utils::randomString('abcdefghjklmnpqrstwxyz23456789', 8);
+      CRM_CiviDiscount_BAO_Item::copy($this->_cloneID, $params, $newCode);
+      CRM_Core_Session::setStatus(ts('Selected Discount has been duplicated.'));
       return;
     }
 
@@ -256,7 +275,7 @@ class CDM_Form_Discount_Admin extends CRM_Admin_Form {
     }
     $params['multi_valued'] = $this->_multiValued;
 
-    $item = CDM_BAO_Item::add($params);
+    $item = CRM_CiviDiscount_BAO_Item::add($params);
 
     CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
       array(1 => $item->description ? $item->description : $item->code)));

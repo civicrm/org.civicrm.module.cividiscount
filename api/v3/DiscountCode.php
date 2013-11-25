@@ -35,7 +35,7 @@
  * @copyright CiviCRM LLC (c) 2004-2013
  */
 //not sure why this is required but didn't seem to autoload
-require_once 'CDM/BAO/Item.php';
+require_once 'CRM/CiviDiscount/BAO/Item.php';
 /**
  * Create or update a discount code
  *
@@ -47,7 +47,7 @@ require_once 'CDM/BAO/Item.php';
  * @access public
  */
 function civicrm_api3_discount_code_create($params) {
-  return _civicrm_api3_basic_create('CDM_BAO_Item', $params);
+  return _civicrm_api3_basic_create('CRM_CiviDiscount_BAO_Item', $params);
 }
 
 /**
@@ -73,7 +73,7 @@ function _civicrm_api3_discount_code_create_spec(&$params) {
  * @access public
  */
 function civicrm_api3_discount_code_get($params) {
-  return _civicrm_api3_basic_get('CDM_BAO_Item', $params);
+  return _civicrm_api3_basic_get('CRM_CiviDiscount_BAO_Item', $params);
 }
 
 /**
@@ -89,6 +89,6 @@ function civicrm_api3_discount_code_get($params) {
  * @access public
  */
 function civicrm_api3_discount_code_delete($params) {
-  return _civicrm_api3_basic_delete('CDM_BAO_Item', $params);
+  return _civicrm_api3_basic_delete('CRM_CiviDiscount_BAO_Item', $params);
 }
 

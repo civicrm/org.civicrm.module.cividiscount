@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 
 <table>
-  <base>CDM</base>
+  <base>CRM/CiviDiscount</base>
   <class>Track</class>
   <name>cividiscount_track</name>
   <comment>Record an instance of a discount use</comment>

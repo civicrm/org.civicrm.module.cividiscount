@@ -26,8 +26,12 @@ https://github.com/dlobo/org.civicrm.module.cividiscount/
 <compatibility>
 <ver>4.2</ver>
 <ver>4.3</ver>
+<ver>4.4</ver>
 </compatibility>
 <comments>
 For support, please contact project team on the forums. (http://forum.civicrm.org)
 </comments>
+<civix>
+  <namespace>CRM/CiviDiscount</namespace>
+</civix>
 </extension>

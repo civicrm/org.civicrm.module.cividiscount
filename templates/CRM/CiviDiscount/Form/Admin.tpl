@@ -25,12 +25,25 @@
 *}
 {* this template is used for adding/editing discounts  *}
 <h3>
-  {if $action eq 1}{ts}New Discount{/ts}{elseif $action eq 2}{ts}Edit Discount{/ts}{else}{ts}Delete Discount{/ts}{/if}
+  {if $action eq 1}{ts}New Discount{/ts}{elseif $action eq 2}{ts}Edit Discount{/ts}
+  {elseif $action eq 16384}{ts}Copy Discount{/ts}
+  {else}{ts}Delete Discount{/ts}{/if}
 </h3>
+<div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="top"}</div>
 <div class="crm-block crm-form-block crm-discount-item-form-block">
-  <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="top"}</div>
-  {if $action eq 8}
-    <div class="messages status">
+  {if $action eq 16384}
+   <div class="messages status no-popup">
+    <dl>
+      <dt>
+      <div class="icon inform-icon"></div>
+      </dt>
+      <dd>
+        {ts}Are you sure you want to copy this discount code?{/ts}
+      </dd>
+    </dl>
+  </div>
+  {elseif $action eq 8}
+    <div class="messages status no-popup">
       <dl>
         <dt>
         <div class="icon inform-icon"></div>
@@ -112,6 +125,14 @@
           </td>
         </tr>
       {/if}
+      <tr>
+        <td>&nbsp;</td>
+        <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
+      </tr>
+      <tr class="crm-discount-item-form-block-discount-message">
+        <td class="label">{$form.discount_msg.label} {help id="discount-message" title=$form.discount_msg.label}</td>
+        <td>{$form.discount_msg.html}</td>
+      </tr>
       <tr>
         <td>&nbsp;</td>
         <td>{$form.is_active.html} {$form.is_active.label}</td>

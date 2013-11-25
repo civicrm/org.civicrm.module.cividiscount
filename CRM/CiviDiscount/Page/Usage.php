@@ -35,12 +35,12 @@
  */
 
 require_once 'CRM/Core/Page.php';
-require_once 'CDM/DAO/Item.php';
+require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
  * Page for displaying discount code details
  */
-class CDM_Page_Discount_Usage extends CRM_Core_Page {
+class CRM_CiviDiscount_Page_Usage extends CRM_Core_Page {
   /**
    * The id of the discount code
    *
@@ -70,15 +70,15 @@ class CDM_Page_Discount_Usage extends CRM_Core_Page {
     $defaults = array();
     $params = array('id' => $this->_id);
 
-    require_once 'CDM/BAO/Item.php';
-    CDM_BAO_Item::retrieve($params, $defaults);
+    require_once 'CRM/CiviDiscount/BAO/Item.php';
+    CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
 
-    require_once 'CDM/BAO/Track.php';
+    require_once 'CRM/CiviDiscount/BAO/Track.php';
     if ($cid) {
-      $rows = CDM_BAO_Track::getUsageByContact($this->_id);
+      $rows = CRM_CiviDiscount_BAO_Track::getUsageByContact($this->_id);
     }
     else {
-      $rows = CDM_BAO_Track::getUsageByOrg($this->_id);
+      $rows = CRM_CiviDiscount_BAO_Track::getUsageByOrg($this->_id);
     }
 
     $this->assign('rows', $rows);
