@@ -328,22 +328,28 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $form->set('_discountInfo', NULL);
     $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
     list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($code, $contact_id);
+
+    if ($pagetype == 'event') {
+      $notify = 0;
+      // Check if a discount is available for this event
+      $allDiscounts = _cividiscount_get_discounts();
+      foreach ($allDiscounts as $code => $discount) {
+        if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
+            $discount['discount_msg_enabled']) {
+          // Display discount available message
+          $notify = 1;
+          $discountMsg = $discount['discount_msg'];
+        }
+      }
+    }
+
     if (empty($discounts)) {
       if (!empty($code)) { // the user entered a code, so lets tell them its invalid
         $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
       }
-      // Check if a discount is available
-      if ($pagetype == 'event') {
-        $discounts = _cividiscount_get_discounts();
-        foreach ($discounts as $code => $discount) {
-          if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
-                $discount['discount_msg_enabled']) {
-            // Display discount available message
-            CRM_Core_Session::setStatus(html_entity_decode($discount['discount_msg']), '', 'no-popup');
-          }
-        }
+      if ($notify) {
+        CRM_Core_Session::setStatus(html_entity_decode($discountMsg), '', 'no-popup');
       }
-
       return;
     }
 
@@ -362,6 +368,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     if (empty($discounts)) {
+      if ($notify) {
+        CRM_Core_Session::setStatus(html_entity_decode($discountMsg), '', 'no-popup');
+      }
       return;
     }
 
