@@ -333,7 +333,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $notify = 0;
       // Check if a discount is available for this event
       $allDiscounts = _cividiscount_get_discounts();
-      foreach ($allDiscounts as $code => $discount) {
+      foreach ($allDiscounts as $discountCode => $discount) {
         if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
             $discount['discount_msg_enabled']) {
           // Display discount available message
