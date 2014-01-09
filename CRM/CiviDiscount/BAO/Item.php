@@ -301,6 +301,9 @@ FROM    cividiscount_item
       unset($item->id);
       $item->count_use = 0;
       $item->code = $newCode;
+      if (isset($item->description) && $item->description != '') {
+        $item->description = 'Copy of ' . $item->description;
+      }
 
       CRM_Utils_Hook::pre('create', 'CiviDiscount', null, $params);
       $item->save();
