@@ -393,50 +393,52 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         // as $discounts[$key]['pricesets'] from _cividiscount_get_candidate_discounts(); above
       }
       else {
-        $discounts[$key]['pricesets'] = array();
-        // filter only valid membership types that have discount
-        foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
-          if ( !empty($priceFieldValues['membership_type_id']) &&
-              in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships'])) {
-            $discounts[$key]['pricesets'][$pfID] = $pfID;
+        if (empty($discounts[$key]['pricesets'])) {
+          $discounts[$key]['pricesets'] = array();
+          // filter only valid membership types that have discount
+          foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
+            if ( !empty($priceFieldValues['membership_type_id']) &&
+                in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships'])) {
+              $discounts[$key]['pricesets'][$pfID] = $pfID;
+            }
           }
         }
       }
 
 
-      $discount = array_shift($discounts);
+      //$discount = array_shift($discounts);
+			foreach ($discounts as $done_care => $discount) {
+        // we need a extra check to make sure discount is valid for additional participants
+        // check the max usage and existing usage of discount code
+        if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
+          if ($discount['count_max'] > 0) {
+            // Initially 1 for person registering.
+            $apcount = 1;
 
-      // we need a extra check to make sure discount is valid for additional participants
-      // check the max usage and existing usage of discount code
-      if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
-        if ($discount['count_max'] > 0) {
-          // Initially 1 for person registering.
-          $apcount = 1;
-
-          $sv = $form->getVar('_submitValues');
-          if (array_key_exists('additional_participants', $sv)) {
-            $apcount += $sv['additional_participants'];
-          }
-          if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-            $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
-            return;
-          }
-        }
-
-      }
-
-      foreach ($amounts as &$fee) {
-        if (!is_array($fee['options'])) {
-          continue;
-        }
-
-        foreach ($fee['options'] as &$option) {
-          if (CRM_Utils_Array::value($option['id'], $discount['pricesets'])) {
-            list($option['amount'], $option['label']) =
-              _cividiscount_calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
+            $sv = $form->getVar('_submitValues');
+            if (array_key_exists('additional_participants', $sv)) {
+              $apcount += $sv['additional_participants'];
+            }
+            if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+              $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
+              return;
+            }
           }
         }
-      }
+
+        foreach ($amounts as &$fee) {
+          if (!is_array($fee['options'])) {
+            continue;
+          }
+
+          foreach ($fee['options'] as &$option) {
+            if (CRM_Utils_Array::value($option['id'], $discount['pricesets'])) {
+              list($option['amount'], $option['label']) =
+                _cividiscount_calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
+            }
+          }
+        }
+	  	}
     }
 
     $form->set('_discountInfo', array(
