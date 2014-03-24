@@ -49,7 +49,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   function preProcess() {
     $this->_id      = CRM_Utils_Request::retrieve('id', 'Positive', $this, false, 0);
     $this->_cloneID = CRM_Utils_Request::retrieve('cloneID', 'Positive', $this, false, 0);
-    require_once 'CRM/CiviDiscount/BAO/Item.php';
     $this->set('BAOName', 'CRM_CiviDiscount_BAO_Item');
 
     parent::preProcess();
@@ -59,7 +58,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $session->pushUserContext($url);
 
     // check and ensure that update / delete have a valid id
-    require_once 'CRM/Utils/Rule.php';
     if ($this->_action & (CRM_Core_Action::UPDATE | CRM_Core_Action::DELETE)) {
       if (! CRM_Utils_Rule::positiveInteger($this->_id)) {
         CRM_Core_Error::fatal(ts('We need a valid discount ID for update and/or delete'));
@@ -194,7 +192,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->add('text', 'discount_msg', ts('Message to users not eligible for discount'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'discount_msg'));
 
     // add memberships, events, pricesets
-    require_once 'CRM/Member/BAO/MembershipType.php';
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
     $autodiscount = $mTypes = array();
     if (! empty($membershipTypes)) {
@@ -220,7 +217,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       );
     }
 
-    require_once 'CRM/CiviDiscount/Utils.php';
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (! empty($events)) {
       $this->_multiValued['events'] = $events;
@@ -263,7 +259,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     if ($this->_action & CRM_Core_Action::COPY) {
       $params = $this->exportValues();
-      require_once 'CRM/CiviDiscount/Utils.php';
       $newCode = CRM_CiviDiscount_Utils::randomString('abcdefghjklmnpqrstwxyz23456789', 8);
       CRM_CiviDiscount_BAO_Item::copy($this->_cloneID, $params, $newCode);
       CRM_Core_Session::setStatus(ts('Selected Discount has been duplicated.'));
