@@ -147,11 +147,12 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
 
     $this->applyFilter('__ALL__', 'trim');
-    $element =& $this->add('text',
+    $element = $this->add('text',
       'code',
       ts('Code'),
       CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'code'),
-      true);
+      true
+    );
     $this->addRule('code',
       ts('Code already exists in Database.'),
       'objectExists',

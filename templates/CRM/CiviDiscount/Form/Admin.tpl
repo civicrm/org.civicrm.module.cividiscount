@@ -104,9 +104,9 @@
         <tr class="crm-discount-item-form-block-events">
           <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
           <td>{$form.events.html}<br/>
-	  {if $form.pricesets}
-            <span
-              class="description"><strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
+            {if $form.pricesets}
+              <span
+                class="description"><strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
             </span>
           {/if}
           </td>
@@ -130,7 +130,7 @@
       {/if}
       <tr>
         <td>&nbsp;</td>
-	<td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
+        <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
       </tr>
       <tr class="crm-discount-item-form-block-discount-message">
         <td class="label">{$form.discount_msg.label} {help id="discount-message" title=$form.discount_msg.label}</td>

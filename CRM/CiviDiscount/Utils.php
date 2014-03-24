@@ -41,7 +41,6 @@ class CRM_CiviDiscount_Utils {
     // quite a few folks want this!
     $eventInfo =
       CRM_Event_BAO_Event::getCompleteInfo(NULL, NULL, NULL, NULL, FALSE);
-
     if (! empty($eventInfo)) {
       $events    = array();
       foreach ($eventInfo as $info) {
