@@ -111,20 +111,18 @@
           {/if}
           </td>
         </tr>
+
       {/if}
       {if $form.pricesets}
         <tr class="crm-discount-item-form-block-price-set">
           <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
-          <td>{$form.pricesets.html}<br/>
-            <span class="description">{ts}{/ts}
-          </td>
+          <td>{$form.pricesets.html}<br/></td>
         </tr>
       {/if}
       {if $form.memberships}
         <tr class="crm-discount-item-form-block-memberships">
           <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
           <td>{$form.memberships.html}<br/>
-            <span class="description">{ts}{/ts}
           </td>
         </tr>
       {/if}
