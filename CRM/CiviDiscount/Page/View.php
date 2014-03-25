@@ -83,15 +83,13 @@ class CRM_CiviDiscount_Page_View extends CRM_Core_Page {
                                                             ),
                             CRM_Core_Action::DISABLE => array(
                                                               'name'  => ts('Disable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CRM_CiviDiscount_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
-                                                              'ref'   => 'disable-action',
+                                                              'class' => 'crm-enable-disable',
                                                               'title' => ts('Disable Discount')
                                                             ),
 
                             CRM_Core_Action::ENABLE => array(
                                                               'name'  => ts('Enable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%,\''. 'CRM_CiviDiscount_BAO_Item' . '\',\'' . 'enable-disable' . '\');"',
-                                                              'ref'   => 'enable-action',
+                                                              'class' => 'crm-enable-disable',
                                                               'title' => ts('Enable Discount')
                                                             ),
 
