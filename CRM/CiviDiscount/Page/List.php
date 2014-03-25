@@ -34,7 +34,6 @@
  *
  */
 
-require_once 'CRM/Core/Page/Basic.php';
 require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
@@ -121,7 +120,7 @@ class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
    * @return string name of this page.
    */
   function editName() {
-    return 'Discount Code';
+    return ts('Discount Code');
   }
 
   /**

@@ -34,7 +34,6 @@
  *
  */
 
-
 /**
  * This class generates form components for cividiscount administration.
  *
