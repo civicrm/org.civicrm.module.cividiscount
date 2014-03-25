@@ -84,29 +84,23 @@ function cividiscount_civicrm_managed(&$entities) {
 function cividiscount_civicrm_tabs(&$tabs, $cid) {
   if (_cividiscount_is_org($cid)) {
     $count = _cividiscount_get_tracking_count_by_org($cid);
-    $a = array(
+    $tabs[] = array(
       'id' => 'discounts',
       'count' => $count,
-      'title' => 'Codes Assigned',
-      'weight' => '998',
+      'title' => ts('Codes Assigned'),
+      'weight' => '98',
+      'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&oid={$cid}", false, null, false),
     );
-    if ($count > 0) {
-      $a['url'] = CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&oid={$cid}&snippet=1", false, null, false);
-    }
-    $tabs[] = $a;
   }
 
   $count = _cividiscount_get_tracking_count($cid);
-  $a = array(
+  $tabs[] = array(
     'id' => 'discounts',
     'count' => $count,
-    'title' => 'Codes Redeemed',
-    'weight' => '999',
+    'title' => ts('Codes Redeemed'),
+    'weight' => '99',
+    'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&cid={$cid}", false, null, false),
   );
-  if ($count > 0) {
-    $a['url'] = CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&cid={$cid}&snippet=1", false, null, false);
-  }
-  $tabs[] = $a;
 }
 
 /**
