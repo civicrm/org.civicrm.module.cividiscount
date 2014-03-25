@@ -34,7 +34,6 @@
  *
  */
 
-require_once 'CRM/Core/Page/Basic.php';
 require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
@@ -86,15 +85,13 @@ class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
                             ),
                             CRM_Core_Action::DISABLE => array(
                                                               'name'  => ts('Disable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CRM_CiviDiscount_BAO_Item' . '\', \'' . 'enable-disable' . '\', 0, \'CiviDiscount_Item\');"',
-                                                              'ref'   => 'disable-action',
+                                                              'class' => 'crm-enable-disable',
                                                               'title' => ts('Disable Discount Code')
                                                             ),
 
                             CRM_Core_Action::ENABLE => array(
                                                               'name'  => ts('Enable'),
-                                                              'extra' => 'onclick = "enableDisable(%%id%%, \'' . 'CRM_CiviDiscount_BAO_Item' . '\' ,\'' . 'disable-enable' . '\', 0, \'CiviDiscount_Item\');"',
-                                                              'ref'   => 'enable-action',
+                                                              'class' => 'crm-enable-disable',
                                                               'title' => ts('Enable Discount Code')
                                                             ),
                             CRM_Core_Action::DELETE  => array(
@@ -123,7 +120,7 @@ class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
    * @return string name of this page.
    */
   function editName() {
-    return 'Discount Code';
+    return ts('Discount Code');
   }
 
   /**

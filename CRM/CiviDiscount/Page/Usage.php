@@ -34,7 +34,6 @@
  *
  */
 
-require_once 'CRM/Core/Page.php';
 require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
@@ -61,9 +60,8 @@ class CRM_CiviDiscount_Page_Usage extends CRM_Core_Page {
       $this->_id = $cid;
     }
 
-    require_once 'CRM/Utils/Rule.php';
     if (! CRM_Utils_Rule::positiveInteger($this->_id)) {
-      CRM_Core_Error::fatal(ts('We need a valid discount ID for view'));
+      CRM_Core_Error::fatal('We need a valid discount ID for view');
     }
 
     $this->assign('id', $this->_id);
@@ -83,6 +81,8 @@ class CRM_CiviDiscount_Page_Usage extends CRM_Core_Page {
 
     $this->assign('rows', $rows);
     $this->assign('code_details', $defaults);
+
+    $this->ajaxResponse['tabCount'] = count($rows);
 
     if (!empty($defaults['code'])) {
       CRM_Utils_System::setTitle($defaults['code']);

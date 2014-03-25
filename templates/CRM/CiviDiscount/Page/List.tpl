@@ -31,7 +31,7 @@
   <div id="discount-list">
     {strip}
     {* handle enable/disable actions *}
-      {include file="CRM/common/enableDisable.tpl"}
+      {include file="CRM/common/enableDisableApi.tpl"}
       {include file="CRM/common/jsortable.tpl"}
       <table id="options" class="display">
         <thead>
@@ -45,7 +45,7 @@
         </tr>
         </thead>
         {foreach from=$rows item=row}
-          <tr id="CiviDiscount_Item-{$row.id}" class="{$row.class}{if NOT $row.is_active} disabled{/if}">
+          <tr id="discount_code-{$row.id}" class="crm-entity {$row.class}{if NOT $row.is_active} disabled{/if}">
             <td class="crm-discount-code">{$row.code} <br/> {$row.description}</td>
             <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
             <td class="right"><a href='{crmURL p='civicrm/cividiscount/report' q="id=`$row.id`&reset=1"}'>{$row.count_use}</a>
@@ -57,16 +57,15 @@
         {/foreach}
       </table>
     {/strip}
-
-    <div class="action-link">
-      <a href='{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}' id="newDiscountCode"
-         class="button"><span>&raquo; {ts}New Discount Code{/ts}</span></a>
-    </div>
   </div>
 {else}
   <div class="messages status no-popup">
     <div class="icon inform-icon"></div>
-    {capture assign=crmURL}{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}{/capture}
-    {ts 1=$crmURL}There are no discount codes. You can <a href='%1'>add one</a>.{/ts}
+    {ts}There are no discount codes.{/ts}
   </div>
 {/if}
+
+<div class="action-link">
+  <a href='{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}' id="newDiscountCode"
+     class="button"><div class="icon add-icon"></div> {ts}New Discount Code{/ts}</a>
+</div>
