@@ -82,6 +82,8 @@ class CRM_CiviDiscount_Page_Usage extends CRM_Core_Page {
     $this->assign('rows', $rows);
     $this->assign('code_details', $defaults);
 
+    $this->ajaxResponse['tabCount'] = count($rows);
+
     if (!empty($defaults['code'])) {
       CRM_Utils_System::setTitle($defaults['code']);
     }
