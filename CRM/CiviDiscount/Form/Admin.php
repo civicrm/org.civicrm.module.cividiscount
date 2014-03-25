@@ -125,7 +125,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     if (! empty($defaults['organization_id'])) {
       $this->_orgID = $defaults['organization_id'];
-      $this->assign('currentOrganization', $defaults['organization_id']);
     }
     // Convert if using html
     if (!empty($defaults['discount_msg'])) {
@@ -180,11 +179,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->addDate('active_on', ts('Activation Date'), false);
     $this->addDate('expire_on', ts('Expiration Date'), false);
 
-    $this->add('text', 'organization', ts('Organization'));
-    $this->add('hidden', 'organization_id', '', array('id' => 'organization_id'));
-
-    $organizationURL = CRM_Utils_System::url('civicrm/ajax/rest', 'className=CRM_Contact_Page_AJAX&fnName=getContactList&json=1&context=contact&org=1&employee_id='.$this->_orgID, false, null, false);
-    $this->assign('organizationURL', $organizationURL);
+    $this->addEntityRef('organization_id', ts('Organization'), array('api' => array('params' => array('contact_type' => 'Organization'))));
 
     // is this discount active ?
     $this->addElement('checkbox', 'is_active', ts('Is this discount active?'));
