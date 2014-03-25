@@ -34,7 +34,6 @@
  *
  */
 
-require_once 'CRM/Core/Page.php';
 require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
