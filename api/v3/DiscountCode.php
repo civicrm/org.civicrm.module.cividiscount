@@ -47,7 +47,7 @@ require_once 'CRM/CiviDiscount/BAO/Item.php';
  * @access public
  */
 function civicrm_api3_discount_code_create($params) {
-  return _civicrm_api3_basic_create('CRM_CiviDiscount_BAO_Item', $params);
+  return _civicrm_api3_basic_create(_civicrm_api3_get_BAO(__FUNCTION__), $params);
 }
 
 /**
@@ -73,7 +73,7 @@ function _civicrm_api3_discount_code_create_spec(&$params) {
  * @access public
  */
 function civicrm_api3_discount_code_get($params) {
-  return _civicrm_api3_basic_get('CRM_CiviDiscount_BAO_Item', $params);
+  return _civicrm_api3_basic_get(_civicrm_api3_get_BAO(__FUNCTION__), $params);
 }
 
 /**
@@ -89,6 +89,13 @@ function civicrm_api3_discount_code_get($params) {
  * @access public
  */
 function civicrm_api3_discount_code_delete($params) {
-  return _civicrm_api3_basic_delete('CRM_CiviDiscount_BAO_Item', $params);
+  return _civicrm_api3_basic_delete(_civicrm_api3_get_BAO(__FUNCTION__), $params);
 }
 
+/**
+ * Because this api doesn't follow the usual naming pattern we have to explicitly declare dao name
+ * @return string
+ */
+function _civicrm_api3_discount_code_DAO() {
+  return 'CRM_CiviDiscount_DAO_Item';
+}
