@@ -175,7 +175,6 @@ SELECT    t.item_id as item_id,
    * @return true on success else false
    */
   static function del($trackID) {
-    require_once 'CRM/Utils/Rule.php';
     if (! CRM_Utils_Rule::positiveInteger($trackID)) {
       return false;
     }

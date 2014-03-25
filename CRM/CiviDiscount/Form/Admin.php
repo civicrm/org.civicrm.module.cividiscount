@@ -34,7 +34,6 @@
  *
  */
 
-require_once 'CRM/Admin/Form.php';
 require_once 'CRM/CiviDiscount/BAO/Item.php';
 
 /**
