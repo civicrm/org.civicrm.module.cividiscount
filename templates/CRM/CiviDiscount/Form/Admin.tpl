@@ -111,12 +111,11 @@
           {/if}
           </td>
         </tr>
-
       {/if}
       {if $form.pricesets}
         <tr class="crm-discount-item-form-block-price-set">
           <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
-          <td>{$form.pricesets.html}<br/></td>
+          <td>{$form.pricesets.html}</td>
         </tr>
       {/if}
       {if $form.memberships}
