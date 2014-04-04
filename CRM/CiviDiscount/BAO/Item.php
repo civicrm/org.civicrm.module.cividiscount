@@ -58,8 +58,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * @access public
    * @static
    */
-  static function &add(&$params) {
-    require_once 'CRM/Utils/Date.php';
+  static function add(&$params) {
 
     $item = new CRM_CiviDiscount_DAO_Item();
     $item->code = $params['code'];
