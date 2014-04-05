@@ -104,9 +104,9 @@
         <tr class="crm-discount-item-form-block-events">
           <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
           <td>{$form.events.html}<br/>
-	  {if $form.pricesets}
-            <span
-              class="description"><strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
+            {if $form.pricesets}
+              <span
+                class="description"><strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
             </span>
           {/if}
           </td>
@@ -115,22 +115,19 @@
       {if $form.pricesets}
         <tr class="crm-discount-item-form-block-price-set">
           <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
-          <td>{$form.pricesets.html}<br/>
-            <span class="description">{ts}{/ts}
-          </td>
+          <td>{$form.pricesets.html}</td>
         </tr>
       {/if}
       {if $form.memberships}
         <tr class="crm-discount-item-form-block-memberships">
           <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
           <td>{$form.memberships.html}<br/>
-            <span class="description">{ts}{/ts}
           </td>
         </tr>
       {/if}
       <tr>
         <td>&nbsp;</td>
-	<td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
+        <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
       </tr>
       <tr class="crm-discount-item-form-block-discount-message">
         <td class="label">{$form.discount_msg.label} {help id="discount-message" title=$form.discount_msg.label}</td>

@@ -39,10 +39,8 @@ class CRM_CiviDiscount_Utils {
   static function getEvents() {
     // lets include all events instead of only public events
     // quite a few folks want this!
-    require_once 'CRM/Event/BAO/Event.php';
     $eventInfo =
       CRM_Event_BAO_Event::getCompleteInfo(NULL, NULL, NULL, NULL, FALSE);
-
     if (! empty($eventInfo)) {
       $events    = array();
       foreach ($eventInfo as $info) {
