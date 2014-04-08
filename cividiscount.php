@@ -348,7 +348,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     if ($pagetype == 'event') {
-      $discounts = _cividiscount_filter_discounts($discounts, 'events', $eid);
+      $discounts = _cividiscount_filter_discounts($discounts, 'event', $eid);
     }
     else if ($pagetype == 'membership') {
       if (!in_array(get_class($form), array(
@@ -808,14 +808,46 @@ function _cividiscount_get_candidate_discounts($code, $contact_id) {
 }
 
 /**
- * Filter out discounts that don't offer a discount to the specified $id in the
- * category $field.
+ * Filter out discounts that are not applicable based on id or other filters
+ * @param array $discounts discount array from db
+ * @param string $entity - this should match the api entity
+ * @param integer $id entity id
  */
-function _cividiscount_filter_discounts($discounts, $field, $id) {
-  return array_filter(
-    $discounts,
-    function($discount) use($field, $id) { return CRM_Utils_Array::value($id, $discount[$field]); }
+function _cividiscount_filter_discounts($discounts, $entity, $id) {
+  foreach ($discounts as $discount_id => $discount) {
+    if(!_cividiscount_discount_applicable($discount, $entity, $id)) {
+      unset($discounts[$discount_id]);
+    }
+  }
+  return $discounts;
+}
+
+/**
+ * Check if discount is applicable - we check the 'filters' to see if
+ * 1) there are any filters for this entity type - no filter means NO
+ * 2) there is an empty filter for this entity type - means 'any'
+ * 3) the only filter is on id (in which case we will do a direct comparison
+ * 4) there is an api filter
+ *
+ * @param array $discounts discount array from db
+ * @param string $field - this should match the api entity
+ * @param integer $id entity id
+ */
+function _cividiscount_discount_applicable($discount, $entity, $id) {
+  if(!isset($discount['filters'][$entity])) {
+    return FALSE;
+  }
+  if(empty($discount['filters'][$entity])) {
+    return TRUE;
+  }
+  if(array_keys($discount['filters'][$entity]) == array('id')) {
+    return in_array($id, $discount['filters'][$entity]['id']);
+  }
+  $ids = civicrm_api3($entity, 'get', $discount['filters'][$entity] +  array(
+    'options' => array('limit' => 999999999), 'return' => 'id')
   );
+  return in_array($id, array_keys($ids['values']));
+
 }
 
 /**

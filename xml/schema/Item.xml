@@ -119,4 +119,11 @@
        <comment>Is this discount active?</comment>
        <add>4.1</add>
   </field>
+    <field>
+       <name>filters</name>
+       <type>string</type>
+       <title>Discount Filters</title>
+       <comment>What filters apply to this discount (json array)</comment>
+       <add>2.6</add>
+  </field>
 </table>

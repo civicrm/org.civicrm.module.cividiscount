@@ -17,4 +17,9 @@ class CRM_CiviDiscount_Upgrader extends CRM_CiviDiscount_Upgrader_Base {
     CRM_Core_DAO::executeQuery('ALTER TABLE cividiscount_item ADD COLUMN discount_msg VARCHAR(255) AFTER discount_msg_enabled');
     return TRUE;
   }
+  public function upgrade_2202() {
+    $this->ctx->log->info('Applying update 2202');
+    CRM_Core_DAO::executeQuery('ALTER TABLE cividiscount_item ADD COLUMN filters VARCHAR(255) AFTER discount_msg');
+    return TRUE;
+  }
 }
