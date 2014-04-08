@@ -174,7 +174,7 @@ FROM    cividiscount_item
     }
    $filters = json_decode($dao->filters, TRUE);
     // Expand set-valued fields.
-    $fields = array('events' => 'event', 'pricesets' => 'price_set', 'memberships' => 'membership', 'autodiscount' => NULL);
+    $fields = array('events' => 'event', 'pricesets' => 'price_set', 'memberships' => 'membership');
     foreach ($discounts as &$discount) {
       foreach ($fields as $field => $entity) {
         if(is_null($discount[$field])) {
