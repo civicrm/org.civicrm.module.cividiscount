@@ -265,7 +265,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       ($pagetype == 'event' || $pagetype == 'membership')) {
 
     $contact_id = _cividiscount_get_form_contact_id($form);
-
+    $autodiscount = FALSE;
 
     $eid = $form->getVar('_eventId');
     $psid = $form->get('priceSetId');
