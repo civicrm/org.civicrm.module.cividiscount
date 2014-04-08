@@ -44,10 +44,10 @@
 
 {htxt id="autodiscount"}
   <p>
-    {ts}Anyone with the selected memberships will automatically have the discount code applied.{/ts}
+    {ts}Anyone with the selected memberships or contact attributes will automatically have the discount code applied.{/ts}
   </p>
   <p>
-    {ts}Autodiscount is generally used with a randomly-generated code which is <em>not</em> given out to users. Cividiscount will apply the discount to the members with no code required.{/ts}
+    {ts}Autodiscount is generally used with a randomly-generated code which is <em>not</em> given out to users. Cividiscount will apply the discount with no code required.{/ts}
   </p>
 {/htxt}
 

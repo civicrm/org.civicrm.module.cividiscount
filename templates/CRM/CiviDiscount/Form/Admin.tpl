@@ -93,12 +93,14 @@
         <td class="label">{$form.organization.label} {help id="organization" title=$form.organization.label}</td>
         <td>{$form.organization.html|crmReplace:class:twenty}</td>
       </tr>
-      {if $form.autodiscount}
-        <tr class="crm-discount-item-form-block-auto-discount">
-          <td class="label">{$form.autodiscount.label} {help id="autodiscount" title=$form.autodiscount.label}</td>
-          <td>{$form.autodiscount.html}
-          </td>
-        </tr>
+      {if $autodiscounts}
+        {foreach from=$autodiscounts item='autodiscount}
+          <tr class="crm-discount-item-form-block-auto-discount">
+            <td class="label">{$form.$autodiscount.label} {help id="autodiscount" title=$form.$autodiscount.label}</td>
+            <td>{$form.$autodiscount.html}
+            </td>
+          </tr>
+        {/foreach}
       {/if}
       {if $form.events}
         <tr class="crm-discount-item-form-block-events">

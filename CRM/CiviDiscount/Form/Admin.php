@@ -71,7 +71,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     CRM_Utils_System::setTitle(ts('Discounts'));
 
     $this->_multiValued = array(
-      'autodiscount' => null,
       'memberships'  => null,
       'events'       => null,
       'pricesets'    => null
@@ -192,20 +191,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     // add memberships, events, pricesets
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
-    $autodiscount = $mTypes = array();
-    if (! empty($membershipTypes)) {
-      $this->_multiValued['autodiscount'] =
-      $this->_multiValued['memberships'] = $membershipTypes;
-
-      $this->addElement('advmultiselect',
-        'autodiscount',
-        ts('Automatic Discount for Members'),
-        $membershipTypes,
-        array('size' => 5,
-          'style' => 'width:auto; min-width:150px;',
-          'class' => 'advmultiselect')
-      );
-
+    $mTypes = array();
+    if (!empty($membershipTypes)) {
       $this->addElement('advmultiselect',
         'memberships',
         ts('Memberships'),
@@ -215,6 +202,25 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'class' => 'advmultiselect')
       );
     }
+    $assignedAutoFilters = array();
+    foreach ($this->getSupportedAutoDiscountFilters() as $entity => $autoFilters) {
+      foreach ($autoFilters as $filterName => $autoFilter) {
+        if(empty($autoFilter['options'])) {
+          //currently multi-select only
+          continue;
+        }
+        $this->addElement('advmultiselect',
+        $autoFilter['form_field_name'],
+        $autoFilter['title'],
+        $autoFilter['options'],
+        array('size' => 5,
+          'style' => 'width:auto; min-width:150px;',
+          'class' => 'advmultiselect')
+        );
+        $assignedAutoFilters[] = $autoFilter['form_field_name'];
+      }
+    }
+    $this->assign('autodiscounts', $assignedAutoFilters);
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (! empty($events)) {
@@ -290,6 +296,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
 
     $params['filters'] = $this->getFiltersFromParams($params);
+    $params['autodiscount'] = $this->getAutoDiscountFromParams($params);
     $item = CRM_CiviDiscount_BAO_Item::add($params);
 
     CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
@@ -301,9 +308,9 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @param array $params parameters submitted to form
    * @return array filters to be stored in DB
    */
-  function getFiltersFromParams($params) {
+  function getJsonFieldFromParams($params, $fn) {
     $filters = array();
-    foreach ($this->getSupportedFilters() as $entity => $fields) {
+    foreach ($this->$fn() as $entity => $fields) {
       foreach ($fields as $field => $spec) {
         $fieldName = $spec['form_field_name'];
         if(!empty($params[$fieldName])) {
@@ -318,12 +325,34 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     return $filters;
   }
+
+  /**
+   * Convert from params to values to be stored in the filter
+   * @param array $params parameters submitted to form
+   * @return array filters to be stored in DB
+   */
+  function getAutoDiscountFromParams($params) {
+    return $this->getJsonFieldFromParams($params, 'getSupportedAutoDiscountFilters');
+  }
+
+  /**
+   * Convert from params to values to be stored in the filter
+   * @param array $params parameters submitted to form
+   * @return array filters to be stored in DB
+   */
+  function getFiltersFromParams($params) {
+    return $this->getJsonFieldFromParams($params, 'getSupportedFilters');
+  }
+
   /**
    * Convert from params to values to be stored in the filter
    * @param array $params parameters submitted to form
    * @return array filters to be stored in DB
    */
   function applyFilterDefaults(&$defaults) {
+    if(empty($defaults['filters'])) {
+      return array();
+    }
     $filters = json_decode($defaults['filters'], TRUE);
     foreach ($this->getSupportedFilters() as $entity => $fields) {
       foreach ($fields as $field => $spec) {
@@ -359,6 +388,39 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         'form_field_name' => 'event_type_id',
         'operator' => 'IN',
       ))
+    );
+  }
+  /**
+   * Here we define filter extensions to be stored in the filters field in the DB
+   * Later we will figure out how to make this hookable so that discounts can be extended
+   * The format is
+   *   array(
+   *     'entity' => array(
+   *       'field1' => array('form_field_name' => field1),
+   *       'field2' => array('form_field_name' => field2),
+   * )
+   * where both the entity & the field names should be valid for api calls.
+   * The form field name is the name of the field on the form - we set it in case we get a conflict
+   *  - eg. multiple entities have 'status_id'
+   * @return array supported filters
+   */
+  function getSupportedAutoDiscountFilters() {
+    return array(
+      'membership' => array(
+        'membership_type_id' => array(
+          'title' => ts('Automatic discount for Membership Types'),
+          'form_field_name' => 'autodiscount_membership_type_id',
+          'operator' => 'IN',
+          'options' => CRM_Member_BAO_MembershipType::getMembershipTypes(false),
+        ),
+        'status_id' => array(
+          'title' => ts('Automatic discount for Membership Statuses'),
+          'form_field_name' => 'autodiscount_membership_status_id',
+          'operator' => 'IN',
+          'options' => CRM_Member_BAO_Membership::buildOptions('status_id'),
+        ),
+      ),
+
     );
   }
 }

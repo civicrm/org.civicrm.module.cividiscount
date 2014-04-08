@@ -68,7 +68,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     $item->count_max = $params['count_max'];
     $item->discount_msg = $params['discount_msg'];
     $item->filters = json_encode($params['filters']);
-
+    $item->autodiscount = json_encode($params['autodiscount']);
     foreach ($params['multi_valued'] as $mv => $dontCare) {
       if (!empty($params[$mv])) {
         $item->$mv =
