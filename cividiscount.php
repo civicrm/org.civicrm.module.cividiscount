@@ -160,8 +160,8 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
       'CRM_Event_Form_Registration_Register',
       //'CRM_Event_Form_Registration_AdditionalParticipant'
     ))) {
-      $ids = _cividiscount_get_discounted_event_ids();
-      if(in_array($form->getVar('_eventId'), $ids)){
+      $discounts = _cividiscount_filter_discounts(_cividiscount_get_discounts(), 'event', $form->getVar('_eventId'));
+      if(!empty($discounts)){
         $addDiscountField = TRUE;
       }
     }
@@ -733,13 +733,6 @@ function _cividiscount_get_items_from_discounts($discounts, $key, $include_autod
   }
 
   return $items;
-}
-
-/**
- * Returns an array of all discountable event ids.
- */
-function _cividiscount_get_discounted_event_ids() {
-  return _cividiscount_get_items_from_discounts(_cividiscount_get_discounts(), 'events');
 }
 
 /**
