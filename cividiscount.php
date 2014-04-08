@@ -304,7 +304,12 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
     $form->set('_discountInfo', NULL);
     $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-    list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($code, $contact_id);
+    if(!empty($code)) {
+      $discounts =  _cividiscount_get_discounts_from_code($code);
+    }
+    else {
+      list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($contact_id);
+    }
     if (empty($discounts)) {
       if (!empty($code)) { // the user entered a code, so lets tell them its invalid
         $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
@@ -493,11 +498,16 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
   $form->set('_discountInfo', NULL);
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-  list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($code, $contact_id);
-  if (empty($discounts)) {
-    if (!empty($code)) { // the user entered a code, so lets tell them its invalid
+  if(!empty($code)) {
+    $discounts =  _cividiscount_get_discounts_from_code($code);
+    if(empty($discounts)) {
       $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
     }
+  }
+  else {
+    list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($contact_id);
+  }
+  if (empty($discounts)) {
     return;
   }
 
@@ -710,6 +720,19 @@ function _cividiscount_get_discounts() {
 }
 
 /**
+ * Returns discounts from code in array format
+ * @param string $code
+ * @return array $discounts
+ */
+function _cividiscount_get_discounts_from_code($code) {
+  $discount = _cividiscount_get_discount($code);
+  if ($discount) {
+    $discounts = array($discount['code'] => $discount);
+  }
+  return $discounts;
+}
+
+/**
  * Returns all the details about a discount such as pricesets, memberships, etc.
  */
 function _cividiscount_get_discount($code) {
@@ -765,48 +788,37 @@ function _cividiscount_get_discounted_membership_ids() {
 /**
  * Get candidate discounts discounts for a user.
  */
-function _cividiscount_get_candidate_discounts($code, $contact_id) {
+function _cividiscount_get_candidate_discounts($contact_id) {
   $discounts = array();
   $autodiscount = FALSE;
-  $code = trim($code);
-
-  // If code is present, use it.
-  if ($code) {
-    $discount = _cividiscount_get_discount($code);
-    if ($discount) {
-      $discounts = array($discount['code'] => $discount);
-    }
+  // calculate automatic discount only if contact id is set.
+  if (!$contact_id) {
+    return array(FALSE, FALSE);
   }
-  else {
-    // calculate automatic discount only if contact id is set.
-    if ($contact_id) {
-      // get all contact memberships
-      $contactMemberships = CRM_Member_BAO_Membership::getAllContactMembership($contact_id);
+  // get all contact memberships
+  $contactMemberships = CRM_Member_BAO_Membership::getAllContactMembership($contact_id);
+  // get all membership types ordered by weight
+  $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(FALSE);
 
-      // get all membership types ordered by weight
-      $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(FALSE);
-
-      // if there are multiple memberships for a contact, then give preference to membership type order by weight.
-      foreach($membershipTypes as $memTypeId => $dontCare ) {
-        if (array_key_exists($memTypeId, $contactMemberships) &&
-          CRM_Core_DAO::getFieldValue(
-            'CRM_Member_DAO_MembershipStatus',
-            $contactMemberships[$memTypeId]['status_id'],
-            'is_current_member',
-            'id'
-          )
-        ) {
-          $automatic_discounts =
-            array_filter(
-              _cividiscount_get_discounts(),
-              function($discount) use($memTypeId) { return CRM_Utils_Array::value($memTypeId, $discount['autodiscount']); }
-            );
-          if (!empty($automatic_discounts)) {
-            $discounts = $automatic_discounts;
-            $autodiscount = TRUE;
-            break;
-          }
-        }
+    // if there are multiple memberships for a contact, then give preference to membership type order by weight.
+  foreach($membershipTypes as $memTypeId => $dontCare ) {
+    if (array_key_exists($memTypeId, $contactMemberships) &&
+        CRM_Core_DAO::getFieldValue(
+        'CRM_Member_DAO_MembershipStatus',
+        $contactMemberships[$memTypeId]['status_id'],
+        'is_current_member',
+        'id'
+      )
+    ) {
+      $automatic_discounts =
+        array_filter(
+        _cividiscount_get_discounts(),
+        function($discount) use($memTypeId) { return CRM_Utils_Array::value($memTypeId, $discount['autodiscount']); }
+      );
+      if (!empty($automatic_discounts)) {
+        $discounts = $automatic_discounts;
+        $autodiscount = TRUE;
+        break;
       }
     }
   }
