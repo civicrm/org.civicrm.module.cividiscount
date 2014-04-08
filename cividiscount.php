@@ -160,7 +160,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
       'CRM_Event_Form_Registration_Register',
       //'CRM_Event_Form_Registration_AdditionalParticipant'
     ))) {
-      $discounts = _cividiscount_filter_discounts(_cividiscount_get_discounts(), 'event', $form->getVar('_eventId'));
+      $discounts = _cividiscount_filter_discounts(_cividiscount_get_discounts(), 'event', $form->getVar('_eventId'), 'filters');
       if(!empty($discounts)){
         $addDiscountField = TRUE;
       }
@@ -330,7 +330,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     if ($pagetype == 'event') {
-      $discounts = _cividiscount_filter_discounts($discounts, 'event', $eid);
+      $discounts = _cividiscount_filter_discounts($discounts, 'event', $eid, 'filters');
     }
     else if ($pagetype == 'membership') {
       if (!in_array(get_class($form), array(
@@ -795,33 +795,8 @@ function _cividiscount_get_candidate_discounts($contact_id) {
   if (!$contact_id) {
     return array(FALSE, FALSE);
   }
-  // get all contact memberships
-  $contactMemberships = CRM_Member_BAO_Membership::getAllContactMembership($contact_id);
-  // get all membership types ordered by weight
-  $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(FALSE);
 
-    // if there are multiple memberships for a contact, then give preference to membership type order by weight.
-  foreach($membershipTypes as $memTypeId => $dontCare ) {
-    if (array_key_exists($memTypeId, $contactMemberships) &&
-        CRM_Core_DAO::getFieldValue(
-        'CRM_Member_DAO_MembershipStatus',
-        $contactMemberships[$memTypeId]['status_id'],
-        'is_current_member',
-        'id'
-      )
-    ) {
-      $automatic_discounts =
-        array_filter(
-        _cividiscount_get_discounts(),
-        function($discount) use($memTypeId) { return CRM_Utils_Array::value($memTypeId, $discount['autodiscount']); }
-      );
-      if (!empty($automatic_discounts)) {
-        $discounts = $automatic_discounts;
-        $autodiscount = TRUE;
-        break;
-      }
-    }
-  }
+  $discounts = _cividiscount_filter_discounts(_cividiscount_get_discounts(), 'membership', NULL, 'autodiscount', array('contact_id' => $contact_id));
   return array($discounts, $autodiscount);
 }
 
@@ -830,10 +805,12 @@ function _cividiscount_get_candidate_discounts($contact_id) {
  * @param array $discounts discount array from db
  * @param string $entity - this should match the api entity
  * @param integer $id entity id
+ * @param string $type 'filters' or autodiscount
+ * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
  */
-function _cividiscount_filter_discounts($discounts, $entity, $id) {
+function _cividiscount_filter_discounts($discounts, $entity, $id, $type, $additionalFilters = array()) {
   foreach ($discounts as $discount_id => $discount) {
-    if(!_cividiscount_discount_applicable($discount, $entity, $id)) {
+    if(!_cividiscount_discount_applicable($discount, $entity, $id, $type, $additionalFilters)) {
       unset($discounts[$discount_id]);
     }
   }
@@ -850,21 +827,33 @@ function _cividiscount_filter_discounts($discounts, $entity, $id) {
  * @param array $discounts discount array from db
  * @param string $field - this should match the api entity
  * @param integer $id entity id
+ * @param string $type 'filters' or autodiscount
+ * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
  */
-function _cividiscount_discount_applicable($discount, $entity, $id) {
-  if(!isset($discount['filters'][$entity])) {
+function _cividiscount_discount_applicable($discount, $entity, $id, $type, $additionalFilter) {
+  if(!isset($discount[$type][$entity])) {
     return FALSE;
   }
-  if(empty($discount['filters'][$entity])) {
+  if(empty($discount[$type][$entity])) {
     return TRUE;
   }
-  if(array_keys($discount['filters'][$entity]) == array('id')) {
-    return in_array($id, $discount['filters'][$entity]['id']);
+  if(array_keys($discount[$type][$entity]) == array('id')) {
+    return in_array($id, $discount[$type][$entity]['id']);
   }
-  $ids = civicrm_api3($entity, 'get', $discount['filters'][$entity] +  array(
-    'options' => array('limit' => 999999999), 'return' => 'id')
-  );
-  return in_array($id, array_keys($ids['values']));
+  $params = $discount[$type][$entity] +  array_merge(array(
+    'options' => array('limit' => 999999999), 'return' => 'id'
+  ), $additionalFilter);
+  $ids = civicrm_api3($entity, 'get', $params);
+  //since membership api is flaky when contact_id is provided lets do some extra filters
+  if($entity == 'membership') {
+
+  }
+  if($id) {
+    return in_array($id, array_keys($ids['values']));
+  }
+  else {
+    return !empty($ids['values']);
+  }
 
 }
 

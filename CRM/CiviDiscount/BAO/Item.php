@@ -169,21 +169,28 @@ FROM    cividiscount_item
     while ($dao->fetch()) {
       $a = (array) $dao;
       if (CRM_CiviDiscount_BAO_Item::isValid($a)) {
-        $discounts[$a['code']] = $a;
+        $discounts[$a['code']] = self::buildDiscountFilters($a);
+
       }
     }
-   $filters = json_decode($dao->filters, TRUE);
+    return $discounts;
+  }
+
+  /**
+   * interpret filter values for return arry
+   * @param array $discount
+   */
+  static function buildDiscountFilters($discount) {
+    $filters = json_decode($discount['filters'], TRUE);
     // Expand set-valued fields.
     $fields = array('events' => 'event', 'pricesets' => 'price_set', 'memberships' => 'membership');
-    foreach ($discounts as &$discount) {
-      foreach ($fields as $field => $entity) {
-        if(is_null($discount[$field])) {
-          $items = array();
-        }
-        else {
-          $items = explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR));
-        }
-        if(!empty($items) && $entity) {
+    foreach ($fields as $field => $entity) {
+      if(!isset($discount[$field]) || is_null($discount[$field])) {
+        $items = array();
+      }
+      else {
+        $items = explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR));
+        if(!empty($items)) {
           if(!isset($filters[$entity])) {
             $filters[$entity] = array();
           }
@@ -193,11 +200,12 @@ FROM    cividiscount_item
             $filters[$entity]['id'] = array('IN' => $items);
           }
         }
-        $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
       }
+      $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
     }
     $discount['filters'] = empty($filters) ? array() : $filters;
-    return $discounts;
+    $discount['autodiscount'] = json_decode($discount['autodiscount'], TRUE);
+    return $discount;
   }
 
   /**
