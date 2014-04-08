@@ -374,7 +374,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       // 2. Discount is configure at price field level, in this case discount should be applied only for
       //    that particular price set field.
 
-      require_once 'CRM/CiviDiscount/Utils.php';
       // here we need to check if selected price set is quick config
       $isQuickConfigPriceSet = CRM_CiviDiscount_Utils::checkForQuickConfigPriceSet($psid);
 
@@ -531,9 +530,6 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     return;
   }
 
-  require_once 'CRM/CiviDiscount/BAO/Item.php';
-  require_once 'CRM/CiviDiscount/DAO/Track.php';
-  require_once 'CRM/Utils/Time.php';
   $ts = CRM_Utils_Time::getTime();
   $discount = $discountInfo['discount'];
   $params = $form->getVar('_params');
@@ -680,9 +676,6 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
     }
 
     if (!empty($result)) {
-      require_once 'CRM/CiviDiscount/BAO/Item.php';
-      require_once 'CRM/CiviDiscount/BAO/Track.php';
-
       foreach ( $result as $value ) {
         if (!empty($value['item_id'])) {
           CRM_CiviDiscount_BAO_Item::decrementUsage($value['item_id']);
@@ -700,8 +693,6 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
  * Returns an array of all discount codes.
  */
 function _cividiscount_get_discounts() {
-  require_once 'CRM/CiviDiscount/BAO/Item.php';
-
   return CRM_CiviDiscount_BAO_Item::getValidDiscounts();
 }
 
@@ -784,7 +775,6 @@ function _cividiscount_get_candidate_discounts($code, $contact_id) {
     // calculate automatic discount only if contact id is set.
     if ($contact_id) {
       // get all contact memberships
-      require_once 'CRM/Member/BAO/Membership.php';
       $contactMemberships = CRM_Member_BAO_Membership::getAllContactMembership($contact_id);
 
       // get all membership types ordered by weight
@@ -848,12 +838,9 @@ function _cividiscount_filter_membership_discounts($discounts, $membershipTypeVa
  * Calculate either a monetary or percentage discount.
  */
 function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
-  require_once 'CRM/Utils/Money.php';
   $title = $autodiscount ? 'Member Discount' : "Discount {$discount['code']}";
 
   if ($discount['amount_type'] == '2') {
-    require_once 'CRM/Utils/Rule.php';
-
     $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
     $fmt_discount = CRM_Utils_Money::format($discount['amount'], $currency);
     $newlabel = $label . " ({$title}: {$fmt_discount} {$discount['description']})";
@@ -940,7 +927,6 @@ function _cividiscount_is_org($cid) {
 }
 
 function _cividiscount_get_membership($mid = 0) {
-  require_once 'api/api.php';
   $result = civicrm_api('Membership', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {
     return array_shift($result['values']);
@@ -950,7 +936,6 @@ function _cividiscount_get_membership($mid = 0) {
 }
 
 function _cividiscount_get_membership_payment($mid = 0) {
-  require_once 'api/api.php';
   $result = civicrm_api('MembershipPayment', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {
     return array_shift($result['values']);
@@ -960,7 +945,6 @@ function _cividiscount_get_membership_payment($mid = 0) {
 }
 
 function _cividiscount_get_participant($pid = 0) {
-  require_once 'api/api.php';
   // v3 participant API is broken at the moment.
   // @see http://issues.civicrm.org/jira/browse/CRM-11108
   $result = civicrm_api('Participant', 'get', array('version' => '3', 'participant_id' => $pid, 'participant_test' => 0));
@@ -975,7 +959,6 @@ function _cividiscount_get_participant($pid = 0) {
 }
 
 function _cividiscount_get_participant_payment($pid = 0) {
-  require_once 'api/api.php';
   $result = civicrm_api('ParticipantPayment', 'get', array('version' => '3', 'participant_id' => $pid));
   if ($result['is_error'] == 0) {
     return array_shift($result['values']);
