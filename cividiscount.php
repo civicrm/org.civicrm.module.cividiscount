@@ -264,31 +264,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     && !empty($amounts) && is_array($amounts) &&
       ($pagetype == 'event' || $pagetype == 'membership')) {
 
-    // Retrieve the contact_id depending on submission context.
-    // Javascript buildFeeBlock() participantId is mapped to _pId.
-    // @see templates/CRM/Event/Form/Participant.tpl
-    // @see CRM/Event/Form/EventFees.php
+    $contact_id = _cividiscount_get_form_contact_id($form);
 
-    if (!empty($form->_pId)) {
-      $contact_id = $form->_pId;
-    }
-    // Look for contact_id in the form.
-    else if ($form->getVar('_contactID')) {
-      $contact_id = $form->getVar('_contactID');
-    }
-    // note that contact id variable is not consistent on some forms hence we need this double check :(
-    // we need to clean up CiviCRM code sometime in future
-    else if ($form->getVar('_contactId')) {
-      $contact_id = $form->getVar('_contactId');
-    }
-    // Otherwise look for contact_id in submit values.
-    else if (!empty($form->_submitValues['contact_select_id'][1])) {
-      $contact_id = $form->_submitValues['contact_select_id'][1];
-    }
-    // Otherwise use the current logged-in user.
-    else {
-      $contact_id = CRM_Core_Session::singleton()->get('userID');
-    }
 
     $eid = $form->getVar('_eventId');
     $psid = $form->get('priceSetId');
@@ -446,6 +423,42 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       'contact_id' => $contact_id,
     ));
   }
+}
+
+
+/**
+ *  Retrieve the contact_id depending on submission context.
+ *  Javascript buildFeeBlock() participantId is mapped to _pId.
+ * @see templates/CRM/Event/Form/Participant.tpl
+ * @see CRM/Event/Form/EventFees.php
+ * @todo - this functionality should be (is??) in the form parent class
+ *  - from 4.4 it probably is & takes into account cid=0
+ * @param form
+ * @return integer $contact_id
+ */
+
+function _cividiscount_get_form_contact_id($form) {
+  if (!empty($form->_pId)) {
+    $contact_id = $form->_pId;
+  }
+  // Look for contact_id in the form.
+  else if ($form->getVar('_contactID')) {
+    $contact_id = $form->getVar('_contactID');
+  }
+  // note that contact id variable is not consistent on some forms hence we need this double check :(
+  // we need to clean up CiviCRM code sometime in future
+  else if ($form->getVar('_contactId')) {
+    $contact_id = $form->getVar('_contactId');
+  }
+  // Otherwise look for contact_id in submit values.
+  else if (!empty($form->_submitValues['contact_select_id'][1])) {
+    $contact_id = $form->_submitValues['contact_select_id'][1];
+  }
+  // Otherwise use the current logged-in user.
+  else {
+    $contact_id = CRM_Core_Session::singleton()->get('userID');
+  }
+  return $contact_id;
 }
 
 /**
