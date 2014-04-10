@@ -143,10 +143,16 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
   static function getValidDiscounts() {
-    $discounts = array();
+    static $discounts = array();
+    static $hasRun = FALSE;
+    if($hasRun) {
+      //not checking if empty discounts as could be legitimately empty
+      return $discounts;
+    }
+    $hasRun = TRUE;
 
     $sql = "
-SELECT  id,
+  SELECT  id,
     code,
     description,
     amount,
@@ -163,7 +169,9 @@ SELECT  id,
     count_use,
     count_max,
     filters
-FROM    cividiscount_item
+  FROM cividiscount_item i
+  WHERE is_active = 1
+  AND (count_max = 0 OR count_max > count_use)
 ";
     $dao = CRM_Core_DAO::executeQuery($sql, array());
     while ($dao->fetch()) {
