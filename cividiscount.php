@@ -480,28 +480,19 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
   $form->set('_discountInfo', NULL);
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
-  if(!empty($code)) {
-    $discounts =  _cividiscount_filter_discounts_by_code($code, $discounts);
-    if(empty($discounts)) {
-      $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
-    }
-  }
-  else {
-    list($discounts, $autodiscount) = _cividiscount_get_candidate_discounts($contact_id);
+  $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('membership', NULL, $contact_id, $code, FALSE);
+
+  $discounts = $discountCalculator->getDiscounts();
+  if(!empty($code) && empty($discounts)) {
+    $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
   }
   if (empty($discounts)) {
     return;
   }
-
-  $discounts = _cividiscount_filter_membership_discounts($discounts, $membershipTypeValues);
-  if (empty($discounts)) {
-    return;
-  }
-
   $discount = array_shift($discounts);
   foreach ($membershipTypeValues as &$values) {
     if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
-      list($value, $label) = _cividiscount_calc_discount($values['minimum_fee'], $values['name'], $discount, $autodiscount);
+      list($value, $label) = _cividiscount_calc_discount($values['minimum_fee'], $values['name'], $discount, $discountCalculator->isAutoDiscount());
       $values['minimum_fee'] = $value;
       $values['name'] = $label;
     }
@@ -509,7 +500,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
 
   $form->set('_discountInfo', array(
     'discount' => $discount,
-    'autodiscount' => $autodiscount,
+    'autodiscount' => $discountCalculator->isAutoDiscount(),
     'contact_id' => $contact_id,
   ));
 }

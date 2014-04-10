@@ -84,7 +84,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * filter this discounts according to entity
    */
   function filterDiscountByEntity() {
-    $this->setentity_discounts();
+    $this->setEntityDiscounts();
     $this->discounts = array_intersect_key($this->discounts, $this->entity_discounts);
   }
 
@@ -104,6 +104,9 @@ class CRM_CiviDiscount_DiscountCalculator {
       return;
     }
     foreach ($this->discounts as $discount_id => $discount) {
+      if(empty($discount['autodiscount'])) {
+        unset($this->discounts[$discount_id]);
+      }
       foreach (array_keys($discount['autodiscount']) as $entity) {
         $additionalParams = array('contact_id' => $this->contact_id);
         $id = ($entity == 'contact') ? $this->contact_id : NULL;
@@ -122,7 +125,7 @@ class CRM_CiviDiscount_DiscountCalculator {
     if(is_array($this->entity_discounts)) {
       return $this->entity_discounts;
     }
-    $this->setentity_discounts();
+    $this->setEntityDiscounts();
     return $this->entity_discounts;
   }
 
@@ -137,6 +140,13 @@ class CRM_CiviDiscount_DiscountCalculator {
   }
 
   /**
+   * getter for autodiscount
+   */
+  function isAutoDiscount() {
+    return $this->auto_discount_applies;
+  }
+
+  /**
    * Filter out discounts that are not applicable based on id or other filters
    * @param array $discounts discount array from db
    * @param string $entity - this should match the api entity
@@ -144,7 +154,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * @param string $type 'filters' or autodiscount
    * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
    */
-  function setentity_discounts() {
+  function setEntityDiscounts() {
     $this->entity_discounts = array();
     foreach ($this->discounts as $discount_id => $discount) {
       if($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
