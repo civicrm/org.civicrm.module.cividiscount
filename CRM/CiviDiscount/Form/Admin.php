@@ -93,11 +93,13 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
     }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
+    $defaults['autodiscount_active_only'] = $origID ? CRM_Utils_Array::value('autodiscount_active_only', $defaults) : 1;
     $defaults['discount_msg_enabled'] = $origID ? CRM_Utils_Array::value('discount_msg_enabled', $defaults) : 1;
 
     // assign the defaults to smarty so delete can use it
     $this->assign('discountValue', $defaults);
     $this->applyFilterDefaults($defaults);
+    $this->applyAutoDiscountDefaults($defaults);
     foreach ($this->_multiValued as $mv => $info) {
       if (! empty($defaults[$mv])) {
         $v = substr($defaults[$mv], 1, -1);
@@ -202,29 +204,11 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'class' => 'advmultiselect')
       );
     }
-    $assignedAutoFilters = array();
-    foreach ($this->getSupportedAutoDiscountFilters() as $entity => $autoFilters) {
-      foreach ($autoFilters as $filterName => $autoFilter) {
-        if(empty($autoFilter['options'])) {
-          //currently multi-select only
-          continue;
-        }
-        $this->addElement('advmultiselect',
-        $autoFilter['form_field_name'],
-        $autoFilter['title'],
-        $autoFilter['options'],
-        array('size' => 5,
-          'style' => 'width:auto; min-width:150px;',
-          'class' => 'advmultiselect')
-        );
-        $assignedAutoFilters[] = $autoFilter['form_field_name'];
-      }
-    }
-    $this->assign('autodiscounts', $assignedAutoFilters);
+    $this->assignAutoDiscountFields();
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (! empty($events)) {
-      $events['0'] = ts('any event');
+      $events['0'] = ts('--any event--');
       $this->_multiValued['events'] = $events;
       $this->addElement('advmultiselect',
         'events',
@@ -235,8 +219,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'class' => 'advmultiselect')
       );
 
-      $eventTypes = civicrm_api3('event', 'getoptions', array('field' => 'event_type_id'));
-      $eventTypes = $eventTypes['values'];
+      $eventTypes = $this->getOptions('event', 'event_type_id');
       $this->_multiValued['eventtypes'] = $eventTypes;
       $this->addElement('advmultiselect',
         'event_type_id',
@@ -260,6 +243,35 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'class' => 'advmultiselect')
       );
     }
+  }
+
+/**
+ * Add autodiscount fields to the form based on the definition in getSupportedAutoDiscountFilters
+ */
+ private function assignAutoDiscountFields() {
+    $assignedAutoFilters = array();
+    foreach ($this->getSupportedAutoDiscountFilters() as $entity => $autoFilters) {
+      foreach ($autoFilters as $filterName => $autoFilter) {
+        $optionFieldTypes = array('advmultiselect');
+        if(in_array($autoFilter['field_type'], $optionFieldTypes) && empty($autoFilter['options'])) {
+          continue;
+        }
+        $this->addElement(
+          $autoFilter['field_type'],
+          $autoFilter['form_field_name'],
+          $autoFilter['title'],
+          isset($autoFilter['options']) ? $autoFilter['options'] : array() ,
+          array('size' => 5,
+            'style' => 'width:auto; min-width:150px;',
+            'class' => 'advmultiselect')
+        );
+        $assignedAutoFilters[] = $autoFilter['form_field_name'];
+        if(!empty($autoFilter['rule_data_type'])) {
+          $this->addRule($autoFilter['form_field_name'], ts('Please re-enter ' . $autoFilter['title'] . ' you need to enter an ' . $autoFilter['rule_data_type']), $autoFilter['rule_data_type']);
+        }
+      }
+    }
+    $this->assign('autodiscounts', $assignedAutoFilters);
   }
 
   /**
@@ -294,7 +306,9 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       CRM_Core_Session::setStatus(ts('You selected `any event` and specific events, specific events have been unset'));
       $params['events'] = array(0);
     }
-
+    if(!empty($params['autodiscount_membership_type_id']) && count($params['autodiscount_membership_status_id']) == 0) {
+      $params['autodiscount_membership_status_id'] = array('');
+    }
     $params['filters'] = $this->getFiltersFromParams($params);
     $params['autodiscount'] = $this->getAutoDiscountFromParams($params);
     $item = CRM_CiviDiscount_BAO_Item::add($params);
@@ -332,7 +346,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @return array filters to be stored in DB
    */
   function getAutoDiscountFromParams($params) {
-    return $this->getJsonFieldFromParams($params, 'getSupportedAutoDiscountFilters');
+    $fields = $this->getJsonFieldFromParams($params, 'getSupportedAutoDiscountFilters');
+    $this->adjustAgeFields($fields);
+    $this->adjustMembershipStatusField($fields);
+    return $fields;
   }
 
   /**
@@ -341,7 +358,48 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @return array filters to be stored in DB
    */
   function getFiltersFromParams($params) {
-    return $this->getJsonFieldFromParams($params, 'getSupportedFilters');
+     return $this->getJsonFieldFromParams($params, 'getSupportedFilters');
+  }
+
+  /**
+   * Convert handling of age fields to api-acceptable 'birth_date_high' & birth_date_low
+   * @param unknown $fields
+   */
+  function adjustAgeFields(&$fields) {
+    if(!empty($fields['contact'])) {
+      if(!empty($fields['contact']['age_low'])) {
+        $fields['contact']['birth_date_high'] = '- ' . $fields['contact']['age_low']['='] . ' years';
+        unset($fields['contact']['age_low']);
+      }
+      if(!empty($fields['contact']['age_high'])) {
+        $fields['contact']['birth_date_low'] = '- ' . $fields['contact']['age_high']['='] . ' years';
+        unset($fields['contact']['age_high']);
+      }
+    }
+  }
+
+  /**
+   * Convert handle 'any current' -
+   * If it is set then we need to translate it to 'active_only' as
+   * we want this to move over time if the membership statuses are changed so we should interpret it to
+   * 'active_only'
+   * @param unknown $fields
+   */
+  function adjustMembershipStatusField(&$fields) {
+    if(!empty($fields['membership'])) {
+      if(isset($fields['membership']['status_id'])) {
+        foreach ($fields['membership']['status_id']['IN'] as $status) {
+          if(empty($status)) {
+            $fields['membership']['active_only'] = 1;
+            if(count($fields['membership']['status_id']['IN']) > 1) {
+              CRM_Core_Session::setStatus(ts('You set "any current status" and specific statuses, specific statuses have been discarded'));
+            }
+            unset($fields['membership']['status_id']);
+            continue;
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -350,13 +408,44 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @return array filters to be stored in DB
    */
   function applyFilterDefaults(&$defaults) {
-    if(empty($defaults['filters'])) {
+    $this->applyJsonFieldDefaults($defaults, 'filters', 'getSupportedFilters');
+  }
+
+  /**
+   * Convert from params to values to be stored in the filter
+   * @param array $params parameters submitted to form
+   * @return array filters to be stored in DB
+   */
+  function applyAutoDiscountDefaults(&$defaults) {
+    $this->applyJsonFieldDefaults($defaults, 'autodiscount', 'getSupportedAutoDiscountFilters');
+  }
+
+
+/**
+ * Apply defaults to fields stored in json fields
+ * @param defaults
+ * @param type
+ * @param string $fn function to get definition from
+ */
+ private function applyJsonFieldDefaults(&$defaults, $type, $fn) {
+    if(empty($defaults[$type])) {
       return array();
     }
-    $filters = json_decode($defaults['filters'], TRUE);
-    foreach ($this->getSupportedFilters() as $entity => $fields) {
+    $filters = json_decode($defaults[$type], TRUE);
+    foreach ($this->$fn() as $entity => $fields) {
       foreach ($fields as $field => $spec) {
+        if(!isset($filters[$entity])) {
+          continue;
+        }
         $fieldName = $spec['form_field_name'];
+        if(!empty($spec['defaults_callback'])) {
+          $callback = $spec['defaults_callback'];
+          $defaults[$fieldName] = $this->$callback($defaults, $fieldName, $filters, $spec);
+          continue;
+        }
+        if(!isset($filters[$entity][$field])) {
+          continue;
+        }
         if(empty($spec['operator'])) {
           $defaults[$fieldName] = $filters[$entity][$field];
         }
@@ -366,7 +455,35 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       }
     }
     return $filters;
-  }
+   }
+
+   /**
+    * Set default for age fields as stored as birth_date_high & birth_date_low
+    * @param unknown $defaults
+    * @param unknown $fieldName
+    * @param unknown $value
+    * @param unknown $spec
+    */
+   function setAgeDefaults(&$defaults, $fieldName, $values, $spec) {
+     $fields = array('autodiscount_age_low' => 'birth_date_high', 'autodiscount_age_high' => 'birth_date_low');
+     if(!empty($values['contact'][$fields[$fieldName]])) {
+       return abs(filter_var($values['contact'][$fields[$fieldName]], FILTER_SANITIZE_NUMBER_INT));
+     }
+   }
+
+   /**
+    * Set default for membership status based on presence of 'active_only' param
+    * @param unknown $defaults
+    * @param unknown $fieldName
+    * @param unknown $value
+    * @param unknown $spec
+    */
+   function setMembershipStatusDefaults(&$defaults, $fieldName, $values, $spec) {
+     if(!empty($values['membership']['active_only'])) {
+       return '';
+     }
+   }
+
 
   /**
    * Here we define filter extensions to be stored in the filters field in the DB
@@ -411,16 +528,57 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'title' => ts('Automatic discount for Membership Types'),
           'form_field_name' => 'autodiscount_membership_type_id',
           'operator' => 'IN',
-          'options' => CRM_Member_BAO_MembershipType::getMembershipTypes(false),
+          'field_type' => 'advmultiselect',
+          'options' => $this->getOptions('membership', 'membership_type_id'),
         ),
         'status_id' => array(
           'title' => ts('Automatic discount for Membership Statuses'),
           'form_field_name' => 'autodiscount_membership_status_id',
           'operator' => 'IN',
-          'options' => CRM_Member_BAO_Membership::buildOptions('status_id'),
+          'field_type' => 'advmultiselect',
+          'options' => array('' => ts('--any current status--')) + $this->getOptions('membership', 'status_id'),
+          'defaults_callback' => 'setMembershipStatusDefaults',
         ),
       ),
-
+      'contact' => array(
+        'age_low' => array(
+          'title' => ts('Minimum Age'),
+          'field_type' => 'Text',
+          'form_field_name' => 'autodiscount_age_low',
+          'rule_data_type' => 'integer',
+          'operator' => '=',
+          'defaults_callback' => 'setAgeDefaults',
+        ),
+        'age_high' => array(
+          'title' => ts('Maximum Age'),
+          'field_type' => 'Text',
+          'operator' => '=',// we could make this the adjustment fn name?
+          'form_field_name' => 'autodiscount_age_high',
+          'rule_data_type' => 'integer',
+          'operator' => '=',
+          'defaults_callback' => 'setAgeDefaults',
+        ),
+        'country_id' => array(
+          'title' => ts('Country'),
+          'form_field_name' => 'autodiscount_country_id',
+          'operator' => 'IN',
+          'field_type' => 'advmultiselect',
+          'options' => $this->getOptions('address', 'country_id'),
+        ),
+      )
     );
   }
+
+  /**
+   * We want to avoid calling the BAO function from an extension if we can avoid it as api is more consistent
+   * across versions - but the api requires 2 lines of code which is annoying so a wrapper to bring back to one
+   * @param string$entity
+   * @param string $field
+   * @return array Options for field
+   */
+  function getOptions($entity, $field) {
+    $result = civicrm_api3($entity, 'getoptions', array('field' => $field));
+    return $result['values'];
+  }
+
 }

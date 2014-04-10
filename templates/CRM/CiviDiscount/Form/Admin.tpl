@@ -94,13 +94,24 @@
         <td>{$form.organization.html|crmReplace:class:twenty}</td>
       </tr>
       {if $autodiscounts}
-        {foreach from=$autodiscounts item='autodiscount}
-          <tr class="crm-discount-item-form-block-auto-discount">
-            <td class="label">{$form.$autodiscount.label} {help id="autodiscount" title=$form.$autodiscount.label}</td>
-            <td>{$form.$autodiscount.html}
-            </td>
-          </tr>
-        {/foreach}
+      </table>
+        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
+          <div class="crm-accordion-header">
+            <div class="icon crm-accordion-pointer"></div>
+           {ts}Automatic Discounts{/ts}
+          </div>
+          <div class="crm-accordion-body">
+            <table class="form-layout-compressed">  {help id="autodiscount" title=Automatic discounts}
+            {foreach from=$autodiscounts item='autodiscount}
+              <tr class="crm-discount-item-form-block-auto-discount">
+                <td class="label">{$form.$autodiscount.label}</td>
+                <td>{$form.$autodiscount.html}</td>
+              </tr>
+            {/foreach}
+            </table>
+          </div><!-- /.crm-accordion-body -->
+        </div><!-- /.crm-accordion-wrapper -->
+        <table class="form-layout-compressed">
       {/if}
       {if $form.events}
         <tr class="crm-discount-item-form-block-events">
@@ -148,6 +159,9 @@
 </div>
 {literal}
 <script type="text/javascript">
+  cj(function() {
+    cj().crmAccordions();
+  });
   var dataUrl = "{/literal}{$organizationURL}{literal}";
   cj('#organization').autocomplete(dataUrl, {
     width: 250,
