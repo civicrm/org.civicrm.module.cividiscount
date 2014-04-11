@@ -525,7 +525,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     return array(
       'membership' => array(
         'membership_type_id' => array(
-          'title' => ts('Automatic discount for Membership Types'),
+          'title' => ts('Automatic discount for existing members of type'),
           'form_field_name' => 'autodiscount_membership_type_id',
           'operator' => 'IN',
           'field_type' => 'advmultiselect',
@@ -541,6 +541,14 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         ),
       ),
       'contact' => array(
+        'contact_type' => array(
+          'title' => ts('Contact Type'),
+          'field_type' => 'Text',
+          'form_field_name' => 'autodiscount_contact_type',
+          'operator' => 'IN',
+          'options' => $this->getOptions('contact', 'contact_type'),
+          'field_type' => 'advmultiselect',
+        ),
         'age_low' => array(
           'title' => ts('Minimum Age'),
           'field_type' => 'Text',
@@ -558,6 +566,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'operator' => '=',
           'defaults_callback' => 'setAgeDefaults',
         ),
+      ),
+      'address' => array(
         'country_id' => array(
           'title' => ts('Country'),
           'form_field_name' => 'autodiscount_country_id',

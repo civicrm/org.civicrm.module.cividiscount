@@ -65,6 +65,10 @@
         <td class="label">{$form.description.label}</td>
         <td>{$form.description.html}</td>
       </tr>
+      <tr>
+        <td>&nbsp;</td>
+        <td>{$form.is_active.html} {$form.is_active.label}</td>
+      </tr>
       <tr class="crm-discount-item-form-block-amount">
         <td class="label">{$form.amount.label}</td>
         <td>{$form.amount.html}<br/>
@@ -93,26 +97,15 @@
         <td class="label">{$form.organization.label} {help id="organization" title=$form.organization.label}</td>
         <td>{$form.organization.html|crmReplace:class:twenty}</td>
       </tr>
-      {if $autodiscounts}
-      </table>
-        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
-          <div class="crm-accordion-header">
-            <div class="icon crm-accordion-pointer"></div>
-           {ts}Automatic Discounts{/ts}
-          </div>
-          <div class="crm-accordion-body">
-            <table class="form-layout-compressed">  {help id="autodiscount" title=Automatic discounts}
-            {foreach from=$autodiscounts item='autodiscount}
-              <tr class="crm-discount-item-form-block-auto-discount">
-                <td class="label">{$form.$autodiscount.label}</td>
-                <td>{$form.$autodiscount.html}</td>
-              </tr>
-            {/foreach}
-            </table>
-          </div><!-- /.crm-accordion-body -->
-        </div><!-- /.crm-accordion-wrapper -->
-        <table class="form-layout-compressed">
-      {/if}
+
+      <tr>
+        <td>&nbsp;</td>
+        <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
+      </tr>
+      <tr class="crm-discount-item-form-block-discount-message">
+        <td class="label">{$form.discount_msg.label} {help id="discount-message" title=$form.discount_msg.label}</td>
+        <td>{$form.discount_msg.html}</td>
+      </tr>
       {if $form.events}
         <tr class="crm-discount-item-form-block-events">
           <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
@@ -135,24 +128,43 @@
         </tr>
       {/if}
       {if $form.memberships}
-        <tr class="crm-discount-item-form-block-memberships">
-          <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
-          <td>{$form.memberships.html}<br/>
-          </td>
-        </tr>
+        </table>
+        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
+          <div class="crm-accordion-header">
+            <div class="icon crm-accordion-pointer"></div>
+              {ts}Discounts apply to these memberships{/ts}
+            </div>
+            <div class="crm-accordion-body">
+            <table class="form-layout-compressed">  {help id="autodiscount" title=Automatic discounts}
+              <tr class="crm-discount-item-form-block-memberships">
+                <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
+                <td>{$form.memberships.html}<br/></td>
+              </tr>
+            </table>
+          </div><!-- /.crm-accordion-body -->
+        </div><!-- /.crm-accordion-wrapper -->
+        <table class="form-layout-compressed">
       {/if}
-      <tr>
-        <td>&nbsp;</td>
-        <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
-      </tr>
-      <tr class="crm-discount-item-form-block-discount-message">
-        <td class="label">{$form.discount_msg.label} {help id="discount-message" title=$form.discount_msg.label}</td>
-        <td>{$form.discount_msg.html}</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td>{$form.is_active.html} {$form.is_active.label}</td>
-      </tr>
+      {if $autodiscounts}
+      </table>
+        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
+          <div class="crm-accordion-header">
+            <div class="icon crm-accordion-pointer"></div>
+           {ts}Discounts applied automatically when these criteria are met{/ts}
+          </div>
+          <div class="crm-accordion-body">
+            <table class="form-layout-compressed">  {help id="autodiscount" title=Automatic discounts}
+            {foreach from=$autodiscounts item='autodiscount}
+              <tr class="crm-discount-item-form-block-auto-discount">
+                <td class="label">{$form.$autodiscount.label}</td>
+                <td>{$form.$autodiscount.html}</td>
+              </tr>
+            {/foreach}
+            </table>
+          </div><!-- /.crm-accordion-body -->
+        </div><!-- /.crm-accordion-wrapper -->
+        <table class="form-layout-compressed">
+      {/if}
     </table>
   {/if}
   <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
