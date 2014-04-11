@@ -189,6 +189,9 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * We are building one array out of 2 storage mechanisms - the json array in the filters field & the
    * hex(01) separated fields event, price_set & membership. Arguably these second type of fields should be dumped
    * & moved to filters as they are not easily searchable anyway
+   *
+   * We convert 'memberships' to membership_type_id as that is what the filter applies to
+   *
    * We build an array that is effectively $entity => $params for api
    * Note that if the filter is 'any' (e.g any event) then we return $entity=> array() to achieve an
    * unfiltered api call
@@ -211,12 +214,14 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
           //0 indicates 'any' so for 0 we construct an empty filter - otherwise we add a limit by id clause
           //note that this may be combined with stored filters e.g. 'event_type_id'
           if(!in_array(0, $items)) {
-            $filters[$entity]['id'] = array('IN' => $items);
+            if($field == 'memberships') {
+              $filters[$entity]['membership_type_id'] = array('IN' => $items);
+            }
+            else {
+              $filters[$entity]['id'] = array('IN' => $items);
+            }
           }
         }
-      }
-      if($field == 'memberships') {
-        $filters[$entity]['membership_type_id'] = array('IN' => $items);
       }
       $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
     }
