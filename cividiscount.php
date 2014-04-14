@@ -1001,7 +1001,8 @@ function _cividiscount_add_discount_textfield(&$form) {
   if (!$bhfe) {
     $bhfe = array();
   }
-  $bhfe = array('discountcode',$buttonName);
+  $bhfe[] = 'discountcode';
+  $bhfe[] = $buttonName;
   $form->assign('beginHookFormElements', $bhfe);
 }
 
