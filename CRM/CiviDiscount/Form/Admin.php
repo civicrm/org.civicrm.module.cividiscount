@@ -205,6 +205,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       );
     }
     $this->assignAutoDiscountFields();
+    $this->addElement('text', 'advanced_autodiscount_filter_entity', ts('Specify entity for advanced autodiscount'));
+    $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter'));
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (! empty($events)) {
@@ -302,7 +304,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $params['multi_valued'] = $this->_multiValued;
 
-    if(in_array(0, $params['events']) && count($params['events']) > 1) {
+    if(isset($params['events']) && in_array(0, $params['events']) && count($params['events']) > 1) {
       CRM_Core_Session::setStatus(ts('You selected `any event` and specific events, specific events have been unset'));
       $params['events'] = array(0);
     }
@@ -311,11 +313,51 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $params['filters'] = $this->getFiltersFromParams($params);
     $params['autodiscount'] = $this->getAutoDiscountFromParams($params);
+    if(!empty($params['advanced_autodiscount_filter_entity'])) {
+      $this->addAdvancedFilterToAutodiscount($params, $params['advanced_autodiscount_filter_entity'], CRM_Utils_Array::value('advanced_autodiscount_filter_string', $params));
+    }
     $item = CRM_CiviDiscount_BAO_Item::add($params);
 
     CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
       array(1 => $item->description ? $item->description : $item->code)));
   }
+
+/**
+ * Add advanced filters from UI. Note that setting an entity but not a filter string basically means
+ * that only the contact id will be passed in as a parameter (as id for contact or contact_id for all others)
+ *
+ * @param params
+ * @param discountString
+ */
+  private function addAdvancedFilterToAutodiscount(&$params, $discountEntity, $discountString) {
+    if($discountString) {
+      if(stristr($discountString, 'api.')|| stristr($discountString, 'api_')) {
+        throw new CRM_Core_Exception(ts('You cannot nest apis in the advanced filter'));
+      }
+      if(stristr($discountString, '{')) {
+        $discounts = json_decode($discountString, TRUE);
+      }
+      else {
+        $discounts = explode(',', $discountString);
+        foreach ($discounts as $id => $discount) {
+          if(!stristr($discount, '=')) {
+            throw new CRM_Core_Exception(ts('You have a criteria without an = sign'));
+          }
+          $parts = explode('=', $discount);
+          $discounts[$parts[0]] = $parts[1];
+          unset($discounts[$id]);
+        }
+      }
+    }
+    if(!isset($params['autodiscount'][$discountEntity])) {
+      $params['autodiscount'][$discountEntity] = array();
+    }
+
+    foreach ($discounts as $key => $filter) {
+      $params['autodiscount'][$discountEntity][$key] = $filter;
+    }
+  }
+
 
   /**
    * Convert from params to values to be stored in the filter

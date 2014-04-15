@@ -160,6 +160,14 @@
                 <td>{$form.$autodiscount.html}</td>
               </tr>
             {/foreach}
+              <tr class="crm-discount-item-form-block-advanced_autodiscount_filter_entity">
+                <td class="label">{$form.advanced_autodiscount_filter_entity.label}</td>
+                <td>{$form.advanced_autodiscount_filter_entity.html}</td>
+              </tr>
+              <tr>
+                <td class="label">{$form.advanced_autodiscount_filter_string.label}</td>
+                <td>{$form.advanced_autodiscount_filter_string.html}</td>
+              </tr>
             </table>
           </div><!-- /.crm-accordion-body -->
         </div><!-- /.crm-accordion-wrapper -->
