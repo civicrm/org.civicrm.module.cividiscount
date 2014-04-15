@@ -177,24 +177,29 @@ class CRM_CiviDiscount_DiscountCalculator {
    * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
    */
   function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
-    if(!isset($discount[$type][$entity])) {
+    try {
+      if(!isset($discount[$type][$entity])) {
+        return FALSE;
+      }
+      if(empty($discount[$type][$entity])) {
+        return TRUE;
+      }
+      if(array_keys($discount[$type][$entity]) == array('id')) {
+        return in_array($id, $discount[$type][$entity]['id']);
+      }
+      $params = $discount[$type][$entity] +  array_merge(array(
+        'options' => array('limit' => 999999999), 'return' => 'id'
+      ), $additionalFilter);
+      $ids = civicrm_api3($entity, 'get', $params);
+      if($id) {
+        return in_array($id, array_keys($ids['values']));
+      }
+      else {
+        return !empty($ids['values']);
+      }
+    }
+    catch (Exception $e) {
       return FALSE;
-    }
-    if(empty($discount[$type][$entity])) {
-      return TRUE;
-    }
-    if(array_keys($discount[$type][$entity]) == array('id')) {
-      return in_array($id, $discount[$type][$entity]['id']);
-    }
-    $params = $discount[$type][$entity] +  array_merge(array(
-      'options' => array('limit' => 999999999), 'return' => 'id'
-    ), $additionalFilter);
-    $ids = civicrm_api3($entity, 'get', $params);
-    if($id) {
-      return in_array($id, array_keys($ids['values']));
-    }
-    else {
-      return !empty($ids['values']);
     }
   }
 
