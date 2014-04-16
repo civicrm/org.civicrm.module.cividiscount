@@ -114,6 +114,7 @@ class CRM_CiviDiscount_DiscountCalculator {
           unset($this->discounts[$discount_id]);
           continue;
         }
+        $this->discounts[$discount_id]['is_auto_discount'] = TRUE;
       }
     }
   }

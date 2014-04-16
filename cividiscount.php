@@ -371,6 +371,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
       //$discount = array_shift($discounts);
       foreach ($discounts as $done_care => $discount) {
+        $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
         // we need a extra check to make sure discount is valid for additional participants
         // check the max usage and existing usage of discount code
         if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
