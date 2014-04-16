@@ -369,23 +369,12 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     //$discount = array_shift($discounts);
     foreach ($discounts as $done_care => $discount) {
       $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
-      // we need a extra check to make sure discount is valid for additional participants
-      // check the max usage and existing usage of discount code
-      if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
-        if ($discount['count_max'] > 0) {
-          // Initially 1 for person registering.
-          $apcount = 1;
-
-          $sv = $form->getVar('_submitValues');
-          if (array_key_exists('additional_participants', $sv)) {
-            $apcount += $sv['additional_participants'];
-          }
-          if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-            $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
-            return;
-          }
-        }
+      $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
+      if(empty($apcount)) {
+        //this was set to return but that doesn't make sense as there might be another discount
+        continue;
       }
+
 
       foreach ($amounts as &$fee) {
         if (!is_array($fee['options'])) {
@@ -398,14 +387,17 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
               _cividiscount_calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
           }
         }
+        $discountApplied = TRUE;
       }
     }
-
-    $form->set('_discountInfo', array(
-      'discount' => $discount,
-      'autodiscount' => $autodiscount,
-      'contact_id' => $contact_id,
-    ));
+    // this seems to incorrectly set to only the last discount but it seems not to matter in the way it is used
+    if ($discountApplied) {
+      $form->set('_discountInfo', array(
+        'discount' => $discount,
+        'autodiscount' => $autodiscount,
+        'contact_id' => $contact_id,
+      ));
+    }
   }
 }
 
@@ -420,6 +412,34 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
  * @param form
  * @return integer $contact_id
  */
+
+
+/**
+ * we need a extra check to make sure discount is valid for additional participants
+  check the max usage and existing usage of discount code
+ * @param pagetype
+ * @param form
+ * @param array $discount
+ */
+function _cividiscount_checkEventDiscountMultipleParticipants($pagetype, &$form, $discount) {
+  $apcount = 1;
+  if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
+    if ($discount['count_max'] > 0) {
+      // Initially 1 for person registering.
+      $apcount = 1;
+
+      $sv = $form->getVar('_submitValues');
+      if (array_key_exists('additional_participants', $sv)) {
+        $apcount += $sv['additional_participants'];
+      }
+      if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+        $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
+        return FALSE;
+      }
+    }
+  }
+  return $apcount;
+}
 
 function _cividiscount_get_form_contact_id($form) {
   if (!empty($form->_pId)) {
