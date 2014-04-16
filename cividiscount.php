@@ -348,33 +348,26 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     //retrieve price set field associated with this priceset
     $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
 
-    if ($pagetype == 'event') {
-      // Do nothing, we already have the list of discountable price set items for this event
-      // as $discounts[$key]['pricesets'] from _cividiscount_get_candidate_discounts(); above
-    }
-    else {
-      if (empty($discounts[$key]['pricesets'])) {
-        $discounts[$key]['pricesets'] = array();
-        // filter only valid membership types that have discount
-        foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
-          if ( !empty($priceFieldValues['membership_type_id']) &&
-              in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships'])) {
-            $discounts[$key]['pricesets'][$pfID] = $pfID;
-          }
-        }
-      }
-    }
-
-
     //$discount = array_shift($discounts);
     foreach ($discounts as $done_care => $discount) {
       $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
+      $priceFields = (array) $discount['pricesets'];
+      //@todo - check that we can still exclude building events here- the original code only did the build against
+      // the first discount which wasn't working
+      if ($pagetype != 'event' && empty($priceFields)) {
+        // filter only valid membership types that have discount
+        foreach($priceSetInfo as $pfID => $priceFieldValues) {
+          if (!empty($priceFieldValues['membership_type_id']) &&
+          in_array($priceFieldValues['membership_type_id'], $discount['memberships'])) {
+            $priceFields[$pfID] = $pfID;
+          }
+        }
+      }
       $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
       if(empty($apcount)) {
         //this was set to return but that doesn't make sense as there might be another discount
         continue;
       }
-
 
       foreach ($amounts as &$fee) {
         if (!is_array($fee['options'])) {
@@ -382,7 +375,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         }
 
         foreach ($fee['options'] as &$option) {
-          if (CRM_Utils_Array::value($option['id'], $discount['pricesets'])) {
+          if (CRM_Utils_Array::value($option['id'], $priceFields)) {
             list($option['amount'], $option['label']) =
               _cividiscount_calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
           }
