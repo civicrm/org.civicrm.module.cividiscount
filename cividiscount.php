@@ -329,77 +329,73 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       return;
     }
 
-    // note that $psid is always set since now everything is price set since CiviCRM v4.2
-    if (!empty($psid)) {
-      // here we check if discount is configured for events or for membership types.
-      // There are two scenarios:
-      // 1. Discount is configure for the event or membership type, in that case we should apply discount only
-      //    if default fee / membership type is configured. ( i.e price set with quick config true )
-      // 2. Discount is configure at price field level, in this case discount should be applied only for
-      //    that particular price set field.
+    // here we check if discount is configured for events or for membership types.
+    // There are two scenarios:
+    // 1. Discount is configure for the event or membership type, in that case we should apply discount only
+    //    if default fee / membership type is configured. ( i.e price set with quick config true )
+    // 2. Discount is configure at price field level, in this case discount should be applied only for
+    //    that particular price set field.
 
-      // here we need to check if selected price set is quick config
-      $isQuickConfigPriceSet = CRM_CiviDiscount_Utils::checkForQuickConfigPriceSet($psid);
+    // here we need to check if selected price set is quick config
 
-      $keys = array_keys($discounts);
-      $key = array_shift($keys);
+    $keys = array_keys($discounts);
+    $key = array_shift($keys);
 
-      // in this case discount is specified for event id or membership type id, so we need to get info of
-      // associated price set fields. For events discount we already have the list, but for memberships we
-      // need to filter at membership type level
+    // in this case discount is specified for event id or membership type id, so we need to get info of
+    // associated price set fields. For events discount we already have the list, but for memberships we
+    // need to filter at membership type level
 
-      //retrieve price set field associated with this priceset
-      $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
+    //retrieve price set field associated with this priceset
+    $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
 
-      if ($pagetype == 'event') {
-        // Do nothing, we already have the list of discountable price set items for this event
-        // as $discounts[$key]['pricesets'] from _cividiscount_get_candidate_discounts(); above
+    if ($pagetype == 'event') {
+      // Do nothing, we already have the list of discountable price set items for this event
+      // as $discounts[$key]['pricesets'] from _cividiscount_get_candidate_discounts(); above
+    }
+    else {
+      if (empty($discounts[$key]['pricesets'])) {
+        $discounts[$key]['pricesets'] = array();
+        // filter only valid membership types that have discount
+        foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
+          if ( !empty($priceFieldValues['membership_type_id']) &&
+              in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships'])) {
+            $discounts[$key]['pricesets'][$pfID] = $pfID;
+          }
+        }
       }
-      else {
-        if (empty($discounts[$key]['pricesets'])) {
-          $discounts[$key]['pricesets'] = array();
-          // filter only valid membership types that have discount
-          foreach( $priceSetInfo as $pfID => $priceFieldValues ) {
-            if ( !empty($priceFieldValues['membership_type_id']) &&
-                in_array($priceFieldValues['membership_type_id'], $discounts[$key]['memberships'])) {
-              $discounts[$key]['pricesets'][$pfID] = $pfID;
-            }
+    }
+
+
+    //$discount = array_shift($discounts);
+    foreach ($discounts as $done_care => $discount) {
+      $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
+      // we need a extra check to make sure discount is valid for additional participants
+      // check the max usage and existing usage of discount code
+      if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
+        if ($discount['count_max'] > 0) {
+          // Initially 1 for person registering.
+          $apcount = 1;
+
+          $sv = $form->getVar('_submitValues');
+          if (array_key_exists('additional_participants', $sv)) {
+            $apcount += $sv['additional_participants'];
+          }
+          if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+            $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
+            return;
           }
         }
       }
 
-
-      //$discount = array_shift($discounts);
-      foreach ($discounts as $done_care => $discount) {
-        $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
-        // we need a extra check to make sure discount is valid for additional participants
-        // check the max usage and existing usage of discount code
-        if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
-          if ($discount['count_max'] > 0) {
-            // Initially 1 for person registering.
-            $apcount = 1;
-
-            $sv = $form->getVar('_submitValues');
-            if (array_key_exists('additional_participants', $sv)) {
-              $apcount += $sv['additional_participants'];
-            }
-            if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-              $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
-              return;
-            }
-          }
+      foreach ($amounts as &$fee) {
+        if (!is_array($fee['options'])) {
+          continue;
         }
 
-        foreach ($amounts as &$fee) {
-          if (!is_array($fee['options'])) {
-            continue;
-          }
-
-          foreach ($fee['options'] as &$option) {
-            if (CRM_Utils_Array::value($option['id'], $discount['pricesets'])) {
-              list($option['amount'], $option['label']) =
-                _cividiscount_calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
-            }
+        foreach ($fee['options'] as &$option) {
+          if (CRM_Utils_Array::value($option['id'], $discount['pricesets'])) {
+            list($option['amount'], $option['label']) =
+              _cividiscount_calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
           }
         }
       }
