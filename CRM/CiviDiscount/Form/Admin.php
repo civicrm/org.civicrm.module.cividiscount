@@ -206,7 +206,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $this->assignAutoDiscountFields();
     $this->addElement('text', 'advanced_autodiscount_filter_entity', ts('Specify entity for advanced autodiscount'));
-    $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter'));
+    $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter', array('size' => 50,)));
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (! empty($events)) {
@@ -474,7 +474,26 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       return array();
     }
     $filters = json_decode($defaults[$type], TRUE);
-    foreach ($this->$fn() as $entity => $fields) {
+    $specs = $this->$fn();
+    foreach ($filters as $entity => $entityFilters) {
+      if (!isset($specs[$entity])) {
+        $defaults['advanced_' . $type . '_filter_entity'] = $entity;
+        $defaults['advanced_' . $type . '_filter_string'] = $entityFilters;
+      }
+      else {
+        foreach ($entityFilters as $key => $filter) {
+          if(!isset($specs[$entity][$key])) {
+            $defaults['advanced_' . $type . '_filter_entity'] = $entity;
+            $defaults['advanced_' . $type . '_filter_string'][$key] = $filter;
+          }
+        }
+      }
+    }
+    if(!empty($defaults['advanced_' . $type . '_filter_string'])) {
+      $defaults['advanced_' . $type . '_filter_string'] = json_encode($defaults['advanced_' . $type . '_filter_string'], TRUE);
+    }
+
+    foreach ($specs as $entity => $fields) {
       foreach ($fields as $field => $spec) {
         if(!isset($filters[$entity])) {
           continue;
