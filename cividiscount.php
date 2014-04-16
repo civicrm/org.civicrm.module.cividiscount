@@ -347,7 +347,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
     //retrieve price set field associated with this priceset
     $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
-
+    $originalAmounts = $amounts;
     //$discount = array_shift($discounts);
     foreach ($discounts as $done_care => $discount) {
       $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
@@ -369,15 +369,23 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         continue;
       }
 
-      foreach ($amounts as &$fee) {
+      foreach ($amounts as $fee_id => &$fee) {
         if (!is_array($fee['options'])) {
           continue;
         }
 
-        foreach ($fee['options'] as &$option) {
+        foreach ($fee['options'] as $option_id => &$option) {
           if (CRM_Utils_Array::value($option['id'], $priceFields)) {
-            list($option['amount'], $option['label']) =
-              _cividiscount_calc_discount($option['amount'], $option['label'], $discount, $autodiscount, $currency);
+            $originalLabel = $originalAmounts[$fee_id]['options'][$option_id]['label'];
+            $originalAmount = (integer) $originalAmounts[$fee_id]['options'][$option_id]['amount'];
+            list($amount, $label) =
+              _cividiscount_calc_discount($originalAmount, $originalLabel, $discount, $autodiscount, $currency);
+            $discountAmount = $originalAmounts[$fee_id]['options'][$option_id]['amount'] - $amount;
+            if($discountAmount > CRM_Utils_Array::value('discount_applied', $option)) {
+              $option['amount'] = $amount;
+              $option['label'] = $label;
+              $option['discount_applied'] = $discountAmount;
+            }
           }
         }
         $discountApplied = TRUE;
@@ -753,7 +761,6 @@ function _cividiscount_filter_membership_discounts($discounts, $membershipTypeVa
  */
 function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
   $title = $autodiscount ? 'Member Discount' : "Discount {$discount['code']}";
-
   if ($discount['amount_type'] == '2') {
     $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
     $fmt_discount = CRM_Utils_Money::format($discount['amount'], $currency);
@@ -761,7 +768,6 @@ function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, 
 
   }
   else {
-
     $newamount = $amount - ($amount * ($discount['amount'] / 100));
     $newlabel = $label ." ({$title}: {$discount['amount']}% {$discount['description']})";
   }
