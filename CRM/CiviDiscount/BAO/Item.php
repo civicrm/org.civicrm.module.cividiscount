@@ -67,6 +67,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     $item->amount_type = $params['amount_type'];
     $item->count_max = $params['count_max'];
     $item->discount_msg = $params['discount_msg'];
+    $item->filters = json_encode($params['filters']);
 
     foreach ($params['multi_valued'] as $mv => $dontCare) {
       if (!empty($params[$mv])) {
@@ -160,26 +161,42 @@ SELECT  id,
     discount_msg_enabled,
     discount_msg,
     count_use,
-    count_max
+    count_max,
+    filters
 FROM    cividiscount_item
 ";
-    $dao =& CRM_Core_DAO::executeQuery($sql, array());
+    $dao = CRM_Core_DAO::executeQuery($sql, array());
     while ($dao->fetch()) {
       $a = (array) $dao;
       if (CRM_CiviDiscount_BAO_Item::isValid($a)) {
         $discounts[$a['code']] = $a;
       }
     }
-
+   $filters = json_decode($dao->filters, TRUE);
     // Expand set-valued fields.
-    $fields = array('events', 'pricesets', 'memberships', 'autodiscount');
+    $fields = array('events' => 'event', 'pricesets' => 'price_set', 'memberships' => 'membership', 'autodiscount' => NULL);
     foreach ($discounts as &$discount) {
-      foreach ($fields as $field) {
-        $items = array_filter(explode(CRM_Core_DAO::VALUE_SEPARATOR, $discount[$field]));
+      foreach ($fields as $field => $entity) {
+        if(is_null($discount[$field])) {
+          $items = array();
+        }
+        else {
+          $items = explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR));
+        }
+        if(!empty($items) && $entity) {
+          if(!isset($filters[$entity])) {
+            $filters[$entity] = array();
+          }
+          //0 indicates 'any' so for 0 we construct an empty filter - otherwise we add a limit by id clause
+          //note that this may be combined with stored filters e.g. 'event_type_id'
+          if(!in_array(0, $items)) {
+            $filters[$entity]['id'] = array('IN' => $items);
+          }
+        }
         $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
       }
     }
-
+    $discount['filters'] = empty($filters) ? array() : $filters;
     return $discounts;
   }
 
