@@ -815,7 +815,6 @@ function _cividiscount_get_candidate_discounts($code, $contact_id) {
  */
 function _cividiscount_filter_discounts($discounts, $entity, $id) {
   foreach ($discounts as $discount) {
-  	/* Discounts were being unset below unless I changed this */ 
     if(!_cividiscount_discount_applicable($discount, $entity, $id)) {
       unset($discounts[$discount_id]);
     }
@@ -839,7 +838,6 @@ function _cividiscount_discount_applicable($discount, $entity, $id) {
     return FALSE;
   }
   if(empty($discount['filters'][$entity]) || $discount['filters']=='[]') {
-  	/* I was getting 'Fatal error: Unsupported operand types' on lines below here on certain discount codes only */
     return TRUE;
   }
   if(array_keys($discount['filters'][$entity]) == array('id')) {
