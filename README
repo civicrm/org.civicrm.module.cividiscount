@@ -1,5 +1,18 @@
 CiviDiscount Extension
 
+ADVANCED FILTERS
+
+CiviDiscount now allows you to specify you own criteria for who should get automatic discounts. This is a powerful feature
+but does require some technical skill and thorough testing is recommended. Use the api explorer (on your site
+at the url civicrm/api/explorer to help you discover the api options you could pass.
+
+You need to specify an API Entity that you want to query and a query string. If you specify contact then the logged in contact id
+will be passed in as 'id'. For all other api it will be passed in as 'contact_id'
+
+In this image you can see that contacts with a value of 1 in custom id field 65 (which happens to be 'are you retired' in this case)
+will get an automatic discount if they meet other criteria above  - ie a minimum age of 65)
+<img src='https://github.com/eileenmcnaughton/org.civicrm.module.cividiscount/blob/extended_filters/docs/images/advancedFilters.jpg'>
+
 NEEDED
 
 * Enhance UI with an "apply discount" button that updates displayed prices on any forms
