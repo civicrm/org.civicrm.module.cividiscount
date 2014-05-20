@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension key="org.civicrm.module.cividiscount" type="module">
 <downloadUrl>
-https://github.com/dlobo/org.civicrm.module.cividiscount/archive/v2.5.zip
+https://github.com/dlobo/org.civicrm.module.cividiscount/archive/v2.6.zip
 </downloadUrl>
 <file>cividiscount</file>
 <name>CiviDiscount Module Extension</name>
-<description>This module requires PHP v5.3+ and Civi v4.3+</description>
+<description>This module requires PHP v5.3+ and CiviCRM v4.5+</description>
 <urls>
 <url desc="Main Extension Page">
 http://civicrm.org/extension/cividiscount-extension
