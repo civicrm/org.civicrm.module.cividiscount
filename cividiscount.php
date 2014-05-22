@@ -358,7 +358,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         // filter only valid membership types that have discount
         foreach($priceSetInfo as $pfID => $priceFieldValues) {
           if (!empty($priceFieldValues['membership_type_id']) &&
-          in_array($priceFieldValues['membership_type_id'], $discount['memberships'])) {
+          in_array($priceFieldValues['membership_type_id'], CRM_Utils_Array::value('memberships', $discount, array()))) {
             $priceFields[$pfID] = $pfID;
           }
         }
