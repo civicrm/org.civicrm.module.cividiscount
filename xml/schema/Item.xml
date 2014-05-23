@@ -85,7 +85,7 @@
   <field>
        <name>autodiscount</name>
        <type>text</type>
-       <comment>Serialized list of memberships. A user with one of them has the discount automatically applied</comment>
+       <comment>Serialized list of entity-based attributes. A user with one of them has the discount automatically applied</comment>
        <add>4.1</add>
   </field>
   <field>

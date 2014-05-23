@@ -68,7 +68,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     $item->count_max = $params['count_max'];
     $item->discount_msg = $params['discount_msg'];
     $item->filters = json_encode($params['filters']);
-
+    $item->autodiscount = json_encode($params['autodiscount']);
     foreach ($params['multi_valued'] as $mv => $dontCare) {
       if (!empty($params[$mv])) {
         $item->$mv =
@@ -143,10 +143,16 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
   static function getValidDiscounts() {
-    $discounts = array();
+    static $discounts = array();
+    static $hasRun = FALSE;
+    if($hasRun) {
+      //not checking if empty discounts as could be legitimately empty
+      return $discounts;
+    }
+    $hasRun = TRUE;
 
     $sql = "
-SELECT  id,
+  SELECT  id,
     code,
     description,
     amount,
@@ -163,41 +169,65 @@ SELECT  id,
     count_use,
     count_max,
     filters
-FROM    cividiscount_item
+  FROM cividiscount_item i
+  WHERE is_active = 1
+  AND (count_max = 0 OR count_max > count_use)
 ";
     $dao = CRM_Core_DAO::executeQuery($sql, array());
     while ($dao->fetch()) {
       $a = (array) $dao;
       if (CRM_CiviDiscount_BAO_Item::isValid($a)) {
-        $discounts[$a['code']] = $a;
+        $discounts[$a['code']] = self::buildDiscountFilters($a);
+
       }
     }
-   $filters = json_decode($dao->filters, TRUE);
+    return $discounts;
+  }
+
+  /**
+   * interpret filter values for return array
+   * We are building one array out of 2 storage mechanisms - the json array in the filters field & the
+   * hex(01) separated fields event, price_set & membership. Arguably these second type of fields should be dumped
+   * & moved to filters as they are not easily searchable anyway
+   *
+   * We convert 'memberships' to membership_type_id as that is what the filter applies to
+   *
+   * We build an array that is effectively $entity => $params for api
+   * Note that if the filter is 'any' (e.g any event) then we return $entity=> array() to achieve an
+   * unfiltered api call
+   * @param array $discount
+   */
+  static function buildDiscountFilters($discount) {
+    $filters = json_decode($discount['filters'], TRUE);
     // Expand set-valued fields.
-    $fields = array('events' => 'event', 'pricesets' => 'price_set', 'memberships' => 'membership', 'autodiscount' => NULL);
-    foreach ($discounts as &$discount) {
-      foreach ($fields as $field => $entity) {
-        if(is_null($discount[$field])) {
-          $items = array();
-        }
-        else {
-          $items = explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR));
-        }
-        if(!empty($items) && $entity) {
+    $fields = array('events' => 'event', 'pricesets' => 'price_set', 'memberships' => 'membership');
+    foreach ($fields as $field => $entity) {
+      if(!isset($discount[$field]) || is_null($discount[$field])) {
+        $items = array();
+      }
+      else {
+        $items = explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR));
+        if(!empty($items)) {
           if(!isset($filters[$entity])) {
             $filters[$entity] = array();
           }
           //0 indicates 'any' so for 0 we construct an empty filter - otherwise we add a limit by id clause
           //note that this may be combined with stored filters e.g. 'event_type_id'
           if(!in_array(0, $items)) {
-            $filters[$entity]['id'] = array('IN' => $items);
+            if($field == 'memberships') {
+              $filters[$entity]['membership_type_id'] = array('IN' => $items);
+            }
+            else {
+              $filters[$entity]['id'] = array('IN' => $items);
+            }
           }
         }
-        $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
       }
+      $discount[$field] = !empty($items) ? array_combine($items, $items) : array();
     }
     $discount['filters'] = empty($filters) ? array() : $filters;
-    return $discounts;
+    $discount['autodiscount'] = json_decode($discount['autodiscount'], TRUE);
+    return $discount;
   }
 
   /**
