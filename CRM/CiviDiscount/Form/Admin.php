@@ -209,7 +209,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter', array('size' => 50,)));
 
     $events = CRM_CiviDiscount_Utils::getEvents();
-    if (! empty($events)) {
+    if (!empty($events)) {
       $events['0'] = ts('--any event--');
       $this->_multiValued['events'] = $events;
       $this->addElement('advmultiselect',
