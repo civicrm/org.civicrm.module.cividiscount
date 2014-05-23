@@ -161,7 +161,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
       //'CRM_Event_Form_Registration_AdditionalParticipant'
     ))) {
       $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('event', $form->getVar('_eventId'), NULL, NULL, TRUE);
-      $addDiscountField = $discountCalculator->getEntityHasDiscounts();
+      $addDiscountField = $discountCalculator->isShowDiscountCodeField();
     }
     elseif ($fname == 'CRM_Contribute_Form_Contribution_Main') {
       $ids = _cividiscount_get_discounted_membership_ids();

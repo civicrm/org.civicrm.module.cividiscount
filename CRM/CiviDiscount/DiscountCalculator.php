@@ -95,7 +95,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * We can assume that the no-contact id situation is dealt with in that
    * our scenarios are
    * - no contact id but code - in which case we will already be filtered down to code
-   * - no contact id, no code & 'is_display_field_mode' - ie. anonymouse mode so we don't need to filter by contact
+   * - no contact id, no code & 'is_display_field_mode' - ie. anonymous mode so we don't need to filter by contact
    * - no contact id, no code & is not is_display_field_mode' - ie we won't have populated discounts in construct
    * (saves a query)
    */
@@ -136,6 +136,18 @@ class CRM_CiviDiscount_DiscountCalculator {
   function getEntityHasDiscounts() {
     $this->getDiscounts();
     if(!empty($this->entity_discounts)) {
+      return TRUE;
+    }
+  }
+
+  /**
+   * get discounts relative to the entity
+   */
+  function isShowDiscountCodeField() {
+    if (!$this->getEntityHasDiscounts()) {
+      return FALSE;
+    }
+    if(!empty($this->entity_discounts) && $this->entity_discounts != $this->discounts) {
       return TRUE;
     }
   }
