@@ -509,7 +509,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   }
   $discount = array_shift($discounts);
   foreach ($membershipTypeValues as &$values) {
-    if (CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
+    if (!empty($discount['memberships']) && CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
       list($value, $label) = _cividiscount_calc_discount($values['minimum_fee'], $values['name'], $discount, $discountCalculator->isAutoDiscount());
       $values['minimum_fee'] = $value;
       $values['name'] = $label;
