@@ -37,18 +37,24 @@
 class CRM_CiviDiscount_Utils {
 
   static function getEvents() {
-    // lets include all events instead of only public events
-    // quite a few folks want this!
-    $eventInfo =
-      CRM_Event_BAO_Event::getCompleteInfo(NULL, NULL, NULL, NULL, FALSE);
-    if (! empty($eventInfo)) {
-      $events    = array();
-      foreach ($eventInfo as $info) {
-        $events[$info['event_id']] = $info['title'];
-      }
-      return $events;
+    $events    = array();
+    //whether we only want this date range is arguable but it is broader than the one in the core function
+    // which excluded events with no end date & events in progress
+    // and did a lot of extra 'work' for no benefit
+    // the one thing we've lost is a permission check - which potentially we could
+    // add back - but preferably only on the admin flow
+    // I didn't use the api as I'm working to support 4.4 at the moment & the api would need
+    // to support sql based queries (& would be the right place to add back the permission check
+    $query = "SELECT id, title
+      FROM civicrm_event
+      WHERE (is_template = 0 OR is_template IS NULL)
+      AND (start_date > NOW() OR end_date > NOW() OR end_date IS NULL)
+    ";
+    $eventsResult = CRM_Core_DAO::executeQuery($query);
+    while ($eventsResult->fetch()) {
+      $events[$eventsResult->id] = $eventsResult->title;
     }
-    return null;
+    return $events;
   }
 
   static function getPriceSets() {

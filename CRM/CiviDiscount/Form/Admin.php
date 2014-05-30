@@ -203,7 +203,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter', array('size' => 50,)));
 
     $events = CRM_CiviDiscount_Utils::getEvents();
-    if (! empty($events)) {
+    if (!empty($events)) {
       $events['0'] = ts('--any event--');
       $this->_multiValued['events'] = $events;
       $this->addElement('advmultiselect',
@@ -467,9 +467,30 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     if(empty($defaults[$type])) {
       return array();
     }
+    $fieldsDisplayedElsewhereOnForm = array(
+      'contact' => array(
+        'birth_date_high',
+        'birth_date_low',
+      ),
+      'membership' => array(
+        'active_only',
+      ),
+      'address' => array(
+        'country_id',
+      )
+    );
+
     $filters = json_decode($defaults[$type], TRUE);
     $specs = $this->$fn();
     foreach ($filters as $entity => $entityFilters) {
+      if(isset($fieldsDisplayedElsewhereOnForm[$entity])) {
+        // probably could do next 3 lines with an array_diff
+        foreach ($fieldsDisplayedElsewhereOnForm[$entity] as $fieldSetElsewhere) {
+          if (isset($entityFilters[$fieldSetElsewhere])) {
+            unset($entityFilters[$fieldSetElsewhere]);
+          }
+        }
+      }
       if (!isset($specs[$entity])) {
         $defaults['advanced_' . $type . '_filter_entity'] = $entity;
         $defaults['advanced_' . $type . '_filter_string'] = $entityFilters;

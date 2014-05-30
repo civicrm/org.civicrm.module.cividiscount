@@ -135,7 +135,7 @@
               {ts}Discounts apply to these memberships{/ts}
             </div>
             <div class="crm-accordion-body">
-            <table class="form-layout-compressed">  {help id="autodiscount" title=Automatic discounts}
+            <table class="form-layout-compressed">  {help id="autodiscount" title="Automatic discounts"}
               <tr class="crm-discount-item-form-block-memberships">
                 <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
                 <td>{$form.memberships.html}<br/></td>
@@ -153,7 +153,7 @@
            {ts}Discounts applied automatically when these criteria are met{/ts}
           </div>
           <div class="crm-accordion-body">
-            <table class="form-layout-compressed">  {help id="autodiscount" title=Automatic discounts}
+            <table class="form-layout-compressed">  {help id="autodiscount" title="Automatic discounts"}
             {foreach from=$autodiscounts item='autodiscount}
               <tr class="crm-discount-item-form-block-auto-discount">
                 <td class="label">{$form.$autodiscount.label}</td>
