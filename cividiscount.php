@@ -932,3 +932,13 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
   }
 }
 
+/**
+ * Implementation of hook_civicrm_entityTypes
+ */
+function cividiscount_civicrm_entityTypes(&$entityTypes) {
+  $entityTypes['CRM_CiviDiscount_DAO_Item'] = array(
+    'name' => 'DiscountCode',
+    'class' => 'CRM_CiviDiscount_DAO_Item',
+    'table' => 'cividiscount_item'
+  );
+}
