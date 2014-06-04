@@ -115,7 +115,9 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
   static function getIdsTitles($ids = array(), $titles = array()) {
     $a = array();
     foreach ($ids as $k => $v) {
-      $a[$v] = $titles[$v];
+      if (!empty($titles[$v])) {
+        $a[$v] = $titles[$v];
+      }
     }
 
     return $a;
