@@ -920,7 +920,7 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
       'attributes' => array (
         'label'      => 'CiviDiscount',
         'name'       => 'CiviDiscount',
-        'url'        => 'civicrm/cividiscount&reset=1',
+        'url'        => 'civicrm/cividiscount?reset=1',
         'permission' => 'administer CiviCRM',
         'operator'   => NULL,
         'separator'  => TRUE,
