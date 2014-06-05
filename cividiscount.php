@@ -26,7 +26,6 @@ function cividiscount_civicrm_config(&$config) {
 /**
  * Implementation of hook_civicrm_perm()
  *
- * Module extensions dont implement this hook as yet, will need to add for 4.2
  */
 function cividiscount_civicrm_perm() {
   return array('view CiviDiscount', 'administer CiviDiscount');
@@ -322,8 +321,8 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
     }
 
     $form->set('_discountInfo', NULL);
-    $dicountCalculater = new CRM_CiviDiscount_DiscountCalculator($pageType, $eid, $contact_id, $code, FALSE);
-    $discounts = $dicountCalculater->getDiscounts();
+    $discountCalculator = new CRM_CiviDiscount_DiscountCalculator($pageType, $eid, $contact_id, $code, FALSE);
+    $discounts = $discountCalculator->getDiscounts();
      if(!empty($code) && empty($discounts)) {
       $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
     }
