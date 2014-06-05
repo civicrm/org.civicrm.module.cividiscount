@@ -208,7 +208,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
  * Used in the initial event registration screen.
  *
  * @param string $name
- * @param array $fields
+ * @param array $fields reference
  * @param array $files
  * @param CRM_Core_Form $form
  * @param $errors
@@ -342,6 +342,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
       return;
     }
 
+    // @todo - this comment block may no longer apply
     // here we check if discount is configured for events or for membership types.
     // There are two scenarios:
     // 1. Discount is configure for the event or membership type, in that case we should apply discount only
@@ -358,8 +359,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
     //retrieve price set field associated with this priceset
     $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
     $originalAmounts = $amounts;
-    //$discount = array_shift($discounts);
-    foreach ($discounts as $done_care => $discount) {
+    foreach ($discounts as $discount) {
       $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       //@todo - check that we can still exclude building events here- the original code only did the build against
@@ -373,8 +373,8 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
           }
         }
       }
-      $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pageType, $form, $discount);
-      if(empty($apcount)) {
+      $additionalParticipantCount = _cividiscount_checkEventDiscountMultipleParticipants($pageType, $form, $discount);
+      if(empty($additionalParticipantCount)) {
         //this was set to return but that doesn't make sense as there might be another discount
         continue;
       }
@@ -715,7 +715,7 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
       }
     }
     else {
-      return false;
+      return;
     }
 
     if (!empty($result)) {
@@ -795,10 +795,10 @@ function _cividiscount_filter_membership_discounts($discounts, $membershipTypeVa
 
 /**
  * Calculate either a monetary or percentage discount.
- * @param $amount
- * @param $label
- * @param $discount
- * @param $autodiscount
+ * @param float $amount
+ * @param string $label
+ * @param array $discount
+ * @param bool $autodiscount
  * @param string $currency
  *
  * @return array
@@ -984,13 +984,10 @@ function _cividiscount_add_discount_textfield(&$form) {
   $buttonName = $form->getButtonName('reload');
   $form->addElement('submit', $buttonName, ts('Apply'));
   $template = CRM_Core_Smarty::singleton();
-  $bhfe = $template->get_template_vars('beginHookFormElements');
-  if (!$bhfe) {
-    $bhfe = array();
-  }
-  $bhfe[] = 'discountcode';
-  $bhfe[] = $buttonName;
-  $form->assign('beginHookFormElements', $bhfe);
+  $beginHookFormElements = (array) $template->get_template_vars('beginHookFormElements');
+  $beginHookFormElements[] = 'discountcode';
+  $beginHookFormElements[] = $buttonName;
+  $form->assign('beginHookFormElements', $beginHookFormElements);
 }
 
 /**
