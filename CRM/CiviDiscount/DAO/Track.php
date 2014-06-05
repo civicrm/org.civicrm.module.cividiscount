@@ -127,11 +127,12 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var text
    */
   public $description;
+
   /**
    * class constructor
    *
    * @access public
-   * @return cividiscount_track
+   * @return \CRM_CiviDiscount_DAO_Track
    */
   function __construct()
   {
