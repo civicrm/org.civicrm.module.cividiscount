@@ -100,9 +100,6 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
    * @return array
    */
   static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
-    require_once 'CRM/CiviDiscount/Utils.php';
-    require_once 'CRM/Member/BAO/Membership.php';
-    require_once 'CRM/Contact/BAO/Contact.php';
 
     $where = '';
 
@@ -192,12 +189,10 @@ SELECT    t.item_id as item_id,
    * @return true on success else false
    */
   static function del($trackID) {
-    require_once 'CRM/Utils/Rule.php';
     if (! CRM_Utils_Rule::positiveInteger($trackID)) {
       return false;
     }
 
-    require_once 'CRM/CiviDiscount/DAO/Track.php';
     $item = new CRM_CiviDiscount_DAO_Track();
     $item->id = $trackID;
     $item->delete();

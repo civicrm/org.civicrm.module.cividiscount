@@ -264,19 +264,19 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
  *
  * Check all priceset items and only apply the discount to the discounted items.
  *
- * @param $pagetype
- * @param $form
+ * @param string $pageType
+ * @param CRM_Core_Form $form
  * @param $amounts
  */
-function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
+function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
   if (( !$form->getVar('_action')
         || ($form->getVar('_action') & CRM_Core_Action::PREVIEW)
         || ($form->getVar('_action') & CRM_Core_Action::ADD)
       )
     && !empty($amounts) && is_array($amounts) &&
-      ($pagetype == 'event' || $pagetype == 'membership')) {
+      ($pageType == 'event' || $pageType == 'membership')) {
 
-    if (!$pagetype == 'membership' && in_array(get_class($form), array(
+    if (!$pageType == 'membership' && in_array(get_class($form), array(
       'CRM_Contribute_Form_Contribution',
       'CRM_Contribute_Form_Contribution_Main',
     ))) {
@@ -322,7 +322,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     $form->set('_discountInfo', NULL);
-    $dicountCalculater = new CRM_CiviDiscount_DiscountCalculator($pagetype, $eid, $contact_id, $code, FALSE);
+    $dicountCalculater = new CRM_CiviDiscount_DiscountCalculator($pageType, $eid, $contact_id, $code, FALSE);
     $discounts = $dicountCalculater->getDiscounts();
      if(!empty($code) && empty($discounts)) {
       $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
@@ -330,7 +330,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
     if (empty($discounts)) {
       // Check if a discount is available
-      if ($pagetype == 'event') {
+      if ($pageType == 'event') {
         $discounts = _cividiscount_get_discounts();
         foreach ($discounts as $code => $discount) {
           if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
@@ -352,9 +352,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
     // here we need to check if selected price set is quick config
 
-    $keys = array_keys($discounts);
-    $key = array_shift($keys);
-
     // in this case discount is specified for event id or membership type id, so we need to get info of
     // associated price set fields. For events discount we already have the list, but for memberships we
     // need to filter at membership type level
@@ -368,7 +365,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       //@todo - check that we can still exclude building events here- the original code only did the build against
       // the first discount which wasn't working
-      if ($pagetype != 'event' && empty($priceFields)) {
+      if ($pageType != 'event' && empty($priceFields)) {
         // filter only valid membership types that have discount
         foreach($priceSetInfo as $pfID => $priceFieldValues) {
           if (!empty($priceFieldValues['membership_type_id']) &&
@@ -377,7 +374,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
           }
         }
       }
-      $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
+      $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pageType, $form, $discount);
       if(empty($apcount)) {
         //this was set to return but that doesn't make sense as there might be another discount
         continue;
@@ -433,30 +430,30 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
  * we need a extra check to make sure discount is valid for additional participants
  * check the max usage and existing usage of discount code
  *
- * @param pagetype
- * @param form
+ * @param string $pageType
+ * @param CRM_Core_Form $form
  * @param array $discount
  *
  * @return bool|int
  */
-function _cividiscount_checkEventDiscountMultipleParticipants($pagetype, &$form, $discount) {
-  $apcount = 1;
-  if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
+function _cividiscount_checkEventDiscountMultipleParticipants($pageType, &$form, $discount) {
+  $additionalParticipantCount = 1;
+  if ($pageType == 'event' && _cividiscount_allow_multiple()) {
     if ($discount['count_max'] > 0) {
       // Initially 1 for person registering.
-      $apcount = 1;
+      $additionalParticipantCount = 1;
 
       $sv = $form->getVar('_submitValues');
       if (array_key_exists('additional_participants', $sv)) {
-        $apcount += $sv['additional_participants'];
+        $additionalParticipantCount += $sv['additional_participants'];
       }
-      if (($discount['count_use'] + $apcount) > $discount['count_max']) {
+      if (($discount['count_use'] + $additionalParticipantCount) > $discount['count_max']) {
         $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
         return FALSE;
       }
     }
   }
-  return $apcount;
+  return $additionalParticipantCount;
 }
 
 /**
@@ -493,8 +490,8 @@ function _cividiscount_get_form_contact_id($form) {
  *
  * Allow discounts to be applied to renewing memberships.
  *
- * @param $form
- * @param $membershipTypeValues
+ * @param CRM_Core_Form $form
+ * @param array $membershipTypeValues
  */
 function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
   // Ignore the thank you page.
@@ -553,8 +550,8 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
  *
  * Record information about a discount use.
  *
- * @param $class
- * @param $form
+ * @param string $class
+ * @param CRM_Core_Form $form
  */
 function cividiscount_civicrm_postProcess($class, &$form) {
   if (!in_array($class, array(
@@ -859,6 +856,11 @@ function _cividiscount_get_tracking_count($cid) {
   return $count;
 }
 
+/**
+ * @param $cid
+ *
+ * @return string
+ */
 function _cividiscount_get_tracking_count_by_org($cid) {
   $sql = "SELECT count(id) as count FROM cividiscount_item WHERE organization_id = $cid";
   $count = CRM_Core_DAO::singleValueQuery($sql, array());
@@ -866,6 +868,13 @@ function _cividiscount_get_tracking_count_by_org($cid) {
   return $count;
 }
 
+/**
+ * @param $table
+ * @param $eid
+ * @param $cid
+ *
+ * @return array
+ */
 function _cividiscount_get_item_id_by_track($table, $eid, $cid) {
   if (!$table) {
     $entityTableClause = "entity_table IN ('civicrm_membership','civicrm_participant')";
@@ -963,9 +972,11 @@ function _cividiscount_get_participant_payment($pid = 0) {
 
 /**
  * Add the discount textfield to a form
+ *
+ * @param CRM_Core_Form $form
  */
 function _cividiscount_add_discount_textfield(&$form) {
-  $element = $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
+  $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
   $errorMessage = $form->get('discountCodeErrorMsg');
   if ($errorMessage) {
     $form->setElementError('discountcode', $errorMessage);
@@ -973,7 +984,7 @@ function _cividiscount_add_discount_textfield(&$form) {
   $form->set('discountCodeErrorMsg', null);
   $buttonName = $form->getButtonName('reload');
   $form->addElement('submit', $buttonName, ts('Apply'));
-  $template =& CRM_Core_Smarty::singleton();
+  $template = CRM_Core_Smarty::singleton();
   $bhfe = $template->get_template_vars('beginHookFormElements');
   if (!$bhfe) {
     $bhfe = array();
@@ -986,7 +997,7 @@ function _cividiscount_add_discount_textfield(&$form) {
 /**
  * Add navigation for CiviDiscount under "Administer" menu
  *
- * @param $params associated array of navigation menus
+ * @param array $params associated array of navigation menus
  */
 function cividiscount_civicrm_navigationMenu( &$params ) {
   // get the id of Administer Menu
@@ -994,7 +1005,7 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
 
   // skip adding menu if there is no administer menu
   if ($administerMenuId) {
-    // get the maximum key under adminster menu
+    // get the maximum key under administer menu
     $maxKey = max( array_keys($params[$administerMenuId]['child']));
     $params[$administerMenuId]['child'][$maxKey+1] =  array (
       'attributes' => array (

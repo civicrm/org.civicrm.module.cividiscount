@@ -192,7 +192,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     // add memberships, events, pricesets
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
-    $mTypes = array();
+
     if (!empty($membershipTypes)) {
       $this->addElement('advmultiselect',
         'memberships',
@@ -279,7 +279,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * Function to process the form
    *
    * @access public
-   * @return None
+   *
    */
   public function postProcess() {
     if ($this->_action & CRM_Core_Action::DELETE) {
@@ -639,7 +639,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       'contact' => array(
         'contact_type' => array(
           'title' => ts('Contact Type'),
-          'field_type' => 'Text',
           'form_field_name' => 'autodiscount_contact_type',
           'operator' => 'IN',
           'options' => $this->getOptions('contact', 'contact_type'),
@@ -656,7 +655,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         'age_high' => array(
           'title' => ts('Maximum Age'),
           'field_type' => 'Text',
-          'operator' => '=',// we could make this the adjustment fn name?
           'form_field_name' => 'autodiscount_age_high',
           'rule_data_type' => 'integer',
           'operator' => '=',
