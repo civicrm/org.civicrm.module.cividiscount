@@ -245,16 +245,15 @@ class CRM_CiviDiscount_DiscountCalculator {
 
   /**
    * If a code is passed in we are going to unset any filters that don't match the code
-   * @todo cividiscount ignore case is always true - it's obviously preparatory to allowing
+   *
    * case sensitive
-   * @return array
+   *
+   * @return array discounts that match the code
    */
-  function filterDiscountByCode() {
-    if (_cividiscount_ignore_case()) {
-      foreach ($this->discounts as $id => $discount) {
-        if (strcasecmp($this->code, $discount['code']) != 0) {
-          unset($this->discounts[$id]);
-        }
+  private function filterDiscountByCode() {
+    foreach ($this->discounts as $id => $discount) {
+      if (strcasecmp($this->code, $discount['code']) != 0) {
+        unset($this->discounts[$id]);
       }
     }
     return $this->discounts;

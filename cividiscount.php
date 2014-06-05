@@ -229,9 +229,9 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
   $discountInfo = $form->get('_discountInfo');
 
-  $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+  $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
 
-  if ((!$discountInfo || !$discountInfo['autodiscount']) && trim($code) != '') {
+  if ((!$discountInfo || !$discountInfo['autodiscount']) && $code != '') {
 
     if (!$discountInfo) {
       $errors['discountcode'] = ts('The discount code you entered is invalid.');
@@ -285,9 +285,9 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
     $contact_id = _cividiscount_get_form_contact_id($form);
     $autodiscount = FALSE;
     $eid = $form->getVar('_eventId');
-    $psid = $form->get('priceSetId');
+    $priceSetID = $form->get('priceSetId');
     $v = $form->getVar('_values');
-    $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+    $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
 
     if (!empty($v['currency'])) {
       $currency = $v['currency'];
@@ -357,7 +357,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
     // need to filter at membership type level
 
     //retrieve price set field associated with this priceset
-    $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
+    $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($priceSetID);
     $originalAmounts = $amounts;
     foreach ($discounts as $discount) {
       $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
@@ -806,32 +806,24 @@ function _cividiscount_filter_membership_discounts($discounts, $membershipTypeVa
 function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
   $title = $autodiscount ? 'Member Discount' : "Discount {$discount['code']}";
   if ($discount['amount_type'] == '2') {
-    $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
+    $newAmount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
     $fmt_discount = CRM_Utils_Money::format($discount['amount'], $currency);
-    $newlabel = $label . " ({$title}: {$fmt_discount} {$discount['description']})";
+    $newLabel = $label . " ({$title}: {$fmt_discount} {$discount['description']})";
 
   }
   else {
-    $newamount = $amount - ($amount * ($discount['amount'] / 100));
-    $newlabel = $label ." ({$title}: {$discount['amount']}% {$discount['description']})";
+    $newAmount = $amount - ($amount * ($discount['amount'] / 100));
+    $newLabel = $label ." ({$title}: {$discount['amount']}% {$discount['description']})";
   }
 
-  $newamount = round($newamount, 2);
+  $newAmount = round($newAmount, 2);
   // Return a formatted string for zero amount.
   // @see http://issues.civicrm.org/jira/browse/CRM-12278
-  if ($newamount <= 0) {
-    $newamount = '0.00';
+  if ($newAmount <= 0) {
+    $newAmount = '0.00';
   }
 
-  return array($newamount, $newlabel);
-}
-
-/**
- * TODO: Add settings for admin to set this.
- * @return bool TRUE if the code is not case sensitive.
- */
-function _cividiscount_ignore_case() {
-  return TRUE;
+  return array($newAmount, $newLabel);
 }
 
 /**
