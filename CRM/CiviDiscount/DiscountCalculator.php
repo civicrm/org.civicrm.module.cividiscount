@@ -84,6 +84,8 @@ class CRM_CiviDiscount_DiscountCalculator {
 
   /**
    * Get discounts that apply in this instance
+   *
+   * @return array
    */
   function getDiscounts() {
     if(!empty($this->code)) {
@@ -99,7 +101,7 @@ class CRM_CiviDiscount_DiscountCalculator {
   /**
    * filter this discounts according to entity
    */
-  function filterDiscountByEntity() {
+  private function filterDiscountByEntity() {
     $this->setEntityDiscounts();
     $this->discounts = array_intersect_key($this->discounts, $this->entity_discounts);
   }
@@ -138,7 +140,7 @@ class CRM_CiviDiscount_DiscountCalculator {
   /**
    * get discounts relative to the entity
    */
-  function getEntityDiscounts() {
+  public function getEntityDiscounts() {
     if(is_array($this->entity_discounts)) {
       return $this->entity_discounts;
     }
@@ -160,7 +162,7 @@ class CRM_CiviDiscount_DiscountCalculator {
   /**
    * get discounts relative to the entity
    */
-  function isShowDiscountCodeField() {
+  public function isShowDiscountCodeField() {
     if (!$this->getEntityHasDiscounts()) {
       return FALSE;
     }
@@ -172,7 +174,7 @@ class CRM_CiviDiscount_DiscountCalculator {
   /**
    * getter for autodiscount
    */
-  function isAutoDiscount() {
+  public function isAutoDiscount() {
     return $this->auto_discount_applies;
   }
 
@@ -184,7 +186,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * @internal param string $type 'filters' or autodiscount
    * @internal param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
    */
-  function setEntityDiscounts() {
+  private function setEntityDiscounts() {
     $this->entity_discounts = array();
     foreach ($this->discounts as $discount_id => $discount) {
       if($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
@@ -210,7 +212,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * @internal param array $discounts discount array from db
    * @internal param string $field - this should match the api entity
    */
-  function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
+  private function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
     try {
       if(!isset($discount[$type][$entity])) {
         return FALSE;
