@@ -322,13 +322,18 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       array(1 => $item->description ? $item->description : $item->code)));
   }
 
-/**
- * Add advanced filters from UI. Note that setting an entity but not a filter string basically means
- * that only the contact id will be passed in as a parameter (as id for contact or contact_id for all others)
- *
- * @param params
- * @param discountString
- */
+  /**
+   * Add advanced filters from UI. Note that setting an entity but not a filter string basically means
+   * that only the contact id will be passed in as a parameter (as id for contact or contact_id for all others)
+   *
+   * @param $params
+   * @param $discountEntity
+   * @param $discountString
+   *
+   * @throws CRM_Core_Exception
+   * @internal param $params
+   * @internal param $discountString
+   */
   private function addAdvancedFilterToAutodiscount(&$params, $discountEntity, $discountString) {
     if($discountString) {
       if(stristr($discountString, 'api.')|| stristr($discountString, 'api_')) {
@@ -362,6 +367,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   /**
    * Convert from params to values to be stored in the filter
    * @param array $params parameters submitted to form
+   * @param $fn
    * @return array filters to be stored in DB
    */
   function getJsonFieldFromParams($params, $fn) {
@@ -446,7 +452,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
+   * @param $defaults
+   * @internal param array $params parameters submitted to form
    * @return array filters to be stored in DB
    */
   function applyFilterDefaults(&$defaults) {
@@ -455,7 +462,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
+   * @param $defaults
+   * @internal param array $params parameters submitted to form
    * @return array filters to be stored in DB
    */
   function applyAutoDiscountDefaults(&$defaults) {
@@ -537,15 +545,17 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       }
     }
     return $filters;
-   }
+ }
 
-   /**
-    * Set default for age fields as stored as birth_date_high & birth_date_low
-    * @param unknown $defaults
-    * @param unknown $fieldName
-    * @param unknown $value
-    * @param unknown $spec
-    */
+  /**
+   * Set default for age fields as stored as birth_date_high & birth_date_low
+   * @param unknown $defaults
+   * @param unknown $fieldName
+   * @param $values
+   * @param unknown $spec
+   * @return number
+   * @internal param \unknown $value
+   */
    function setAgeDefaults(&$defaults, $fieldName, $values, $spec) {
      $fields = array('autodiscount_age_low' => 'birth_date_high', 'autodiscount_age_high' => 'birth_date_low');
      if(!empty($values['contact'][$fields[$fieldName]])) {
@@ -553,13 +563,15 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
      }
    }
 
-   /**
-    * Set default for membership status based on presence of 'active_only' param
-    * @param unknown $defaults
-    * @param unknown $fieldName
-    * @param unknown $value
-    * @param unknown $spec
-    */
+  /**
+   * Set default for membership status based on presence of 'active_only' param
+   * @param unknown $defaults
+   * @param unknown $fieldName
+   * @param $values
+   * @param unknown $spec
+   * @return string
+   * @internal param \unknown $value
+   */
    function setMembershipStatusDefaults(&$defaults, $fieldName, $values, $spec) {
      if(!empty($values['membership']['active_only'])) {
        return '';

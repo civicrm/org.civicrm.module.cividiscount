@@ -186,11 +186,12 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @var string
    */
   public $discount_msg;
+
   /**
    * class constructor
    *
    * @access public
-   * @return cividiscount_item
+   * @return \CRM_CiviDiscount_DAO_Item
    */
   function __construct() {
     parent::__construct();

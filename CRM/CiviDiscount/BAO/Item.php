@@ -333,7 +333,10 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * Function to copy discount codes
    *
-   * @param  int  $itemID     ID of the discount code to be copied.
+   * @param  int $itemID ID of the discount code to be copied.
+   *
+   * @param $params
+   * @param $newCode
    *
    * @access public
    * @static

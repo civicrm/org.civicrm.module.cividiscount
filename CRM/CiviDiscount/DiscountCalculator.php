@@ -43,14 +43,18 @@ class CRM_CiviDiscount_DiscountCalculator {
   protected $entity_discounts;
   protected $is_display_field_mode;
   protected $auto_discount_applies;
+  protected $autoDiscounts = array();
 
   /**
    * Constructor
+   *
    * @param string $entity
    * @param integer $entity_id
    * @param integer $contact_id
    * @param string $code
-   * @param boolean $is_anonymous - ie are we trying to calculate whether it would be possible to find a discount cod
+   * @param $is_display_field_mode
+   *
+   * @internal param bool $is_anonymous - ie are we trying to calculate whether it would be possible to find a discount cod
    */
   function __construct($entity, $entity_id, $contact_id, $code, $is_display_field_mode) {
     if(empty($code) && empty($contact_id) && !$is_display_field_mode) {
@@ -138,6 +142,7 @@ class CRM_CiviDiscount_DiscountCalculator {
     if(!empty($this->entity_discounts)) {
       return TRUE;
     }
+    return FALSE;
   }
 
   /**
@@ -161,11 +166,11 @@ class CRM_CiviDiscount_DiscountCalculator {
 
   /**
    * Filter out discounts that are not applicable based on id or other filters
-   * @param array $discounts discount array from db
-   * @param string $entity - this should match the api entity
-   * @param integer $id entity id
-   * @param string $type 'filters' or autodiscount
-   * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
+   * @internal param array $discounts discount array from db
+   * @internal param string $entity - this should match the api entity
+   * @internal param int $id entity id
+   * @internal param string $type 'filters' or autodiscount
+   * @internal param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
    */
   function setEntityDiscounts() {
     $this->entity_discounts = array();
@@ -183,11 +188,15 @@ class CRM_CiviDiscount_DiscountCalculator {
    * 3) the only filter is on id (in which case we will do a direct comparison
    * 4) there is an api filter
    *
-   * @param array $discounts discount array from db
-   * @param string $field - this should match the api entity
+   * @param $discount
+   * @param $entity
    * @param integer $id entity id
    * @param string $type 'filters' or autodiscount
    * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
+   *
+   * @return bool
+   * @internal param array $discounts discount array from db
+   * @internal param string $field - this should match the api entity
    */
   function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
     try {
@@ -220,7 +229,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * If a code is passed in we are going to unset any filters that don't match the code
    * @todo cividiscount ignore case is always true - it's obviously preparatory to allowing
    * case sensitive
-   * @return unknown|boolean|Ambigous <mixed, array>
+   * @return unknown|boolean|Ambiguous <mixed, array>
    */
   function filterDiscountByCode() {
     if (_cividiscount_ignore_case()) {
