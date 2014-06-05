@@ -41,8 +41,20 @@ class CRM_CiviDiscount_DiscountCalculator {
   protected $contact_id;
   protected $code;
   protected $entity_discounts;
+
+  /**
+   * @var bool Are we Just checking whether we should display a field for a discount code
+   */
   protected $is_display_field_mode;
+
+  /**
+   * @var bool
+   */
   protected $auto_discount_applies;
+
+  /**
+   * @var array automatic discounts - ie because contact meets a criteria
+   */
   protected $autoDiscounts = array();
 
   /**
