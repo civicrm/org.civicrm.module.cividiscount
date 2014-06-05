@@ -87,15 +87,17 @@ class CRM_CiviDiscount_DiscountCalculator {
    *
    * @return array
    */
-  function getDiscounts() {
+  public function getDiscounts() {
+    $this->filterDiscountByEntity();
     if(!empty($this->code)) {
       $this->filterDiscountByCode();
+      return $this->discounts;
     }
-    $this->filterDiscountByEntity();
-    if(!$this->is_display_field_mode) {
-      $this->filterDiscountsByContact();
+    if($this->is_display_field_mode) {
+      return $this->discounts;
     }
-    return $this->discounts;
+    $this->filterDiscountsByContact();
+    return $this->autoDiscounts;
   }
 
   /**
@@ -112,13 +114,13 @@ class CRM_CiviDiscount_DiscountCalculator {
    *
    * We can assume that the no-contact id situation is dealt with in that
    * our scenarios are
-   * - no contact id but code - in which case we will already be filtered down to code
-   * - no contact id, no code & 'is_display_field_mode' - ie. anonymous mode so we don't need to filter by contact
+   * - no contact id, no code & 'is_display_field_mode' - ie. anonymous mode so no discounts apply
    * - no contact id, no code & is not is_display_field_mode' - ie we won't have populated discounts in construct
    * (saves a query)
    */
-  function filterDiscountsByContact() {
+  private function filterDiscountsByContact() {
     if(empty($this->contact_id)) {
+      $this->discounts = array();
       return;
     }
     foreach ($this->discounts as $discount_id => $discount) {
@@ -135,6 +137,7 @@ class CRM_CiviDiscount_DiscountCalculator {
         $this->discounts[$discount_id]['is_auto_discount'] = TRUE;
       }
     }
+    $this->autoDiscounts = $this->discounts;
   }
 
   /**
@@ -166,9 +169,10 @@ class CRM_CiviDiscount_DiscountCalculator {
     if (!$this->getEntityHasDiscounts()) {
       return FALSE;
     }
-    if(!empty($this->entity_discounts) && $this->entity_discounts != $this->discounts) {
+    if(!empty($this->entity_discounts) && $this->entity_discounts != $this->autoDiscounts) {
       return TRUE;
     }
+    return FALSE;
   }
 
   /**
