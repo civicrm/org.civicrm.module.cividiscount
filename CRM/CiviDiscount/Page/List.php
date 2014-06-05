@@ -126,6 +126,8 @@ class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
   /**
    * Get user context.
    *
+   * @param null $mode
+   *
    * @return string user context.
    */
   function userContext($mode = null) {

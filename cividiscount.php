@@ -57,7 +57,7 @@ function cividiscount_civicrm_disable() {
  * Implementation of hook_civicrm_upgrade
  *
  * @param $op string, the type of operation being performed; 'check' or 'enqueue'
- * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
+ * @param CRM_Queue_Queue $queue  (for 'enqueue') the modifiable list of pending up upgrade tasks
  *
  * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
  *                for 'enqueue', returns void
@@ -411,10 +411,13 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
 /**
  * we need a extra check to make sure discount is valid for additional participants
-  check the max usage and existing usage of discount code
+ * check the max usage and existing usage of discount code
+ *
  * @param pagetype
  * @param form
  * @param array $discount
+ *
+ * @return bool|int
  */
 function _cividiscount_checkEventDiscountMultipleParticipants($pagetype, &$form, $discount) {
   $apcount = 1;
