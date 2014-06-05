@@ -229,7 +229,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * If a code is passed in we are going to unset any filters that don't match the code
    * @todo cividiscount ignore case is always true - it's obviously preparatory to allowing
    * case sensitive
-   * @return unknown|boolean|Ambiguous <mixed, array>
+   * @return array
    */
   function filterDiscountByCode() {
     if (_cividiscount_ignore_case()) {

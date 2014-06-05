@@ -71,6 +71,7 @@ function cividiscount_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  *
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
+ * @param array $entities
  */
 function cividiscount_civicrm_managed(&$entities) {
   return _cividiscount_civix_civicrm_managed($entities);
@@ -117,6 +118,9 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
  * initial registration screen.
  *
  * Works for events and membership.
+ *
+ * @param string $fname
+ * @param CRM_Core_Form $form
  */
 function cividiscount_civicrm_buildForm($fname, &$form) {
   // skip for delete action
@@ -203,6 +207,12 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
  * Implementation of hook_civicrm_validateForm()
  *
  * Used in the initial event registration screen.
+ *
+ * @param string $name
+ * @param array $fields
+ * @param array $files
+ * @param CRM_Core_Form $form
+ * @param $errors
  */
 function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
   if (!in_array($name, array(
@@ -253,6 +263,10 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
  * based on a users membership.
  *
  * Check all priceset items and only apply the discount to the discounted items.
+ *
+ * @param $pagetype
+ * @param $form
+ * @param $amounts
  */
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
   if (( !$form->getVar('_action')
@@ -445,6 +459,11 @@ function _cividiscount_checkEventDiscountMultipleParticipants($pagetype, &$form,
   return $apcount;
 }
 
+/**
+ * @param CRM_Core_Form $form
+ *
+ * @return mixed
+ */
 function _cividiscount_get_form_contact_id($form) {
   if (!empty($form->_pId)) {
     $contact_id = $form->_pId;
@@ -473,6 +492,9 @@ function _cividiscount_get_form_contact_id($form) {
  * Implementation of hook_civicrm_membershipTypeValues()
  *
  * Allow discounts to be applied to renewing memberships.
+ *
+ * @param $form
+ * @param $membershipTypeValues
  */
 function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
   // Ignore the thank you page.
@@ -530,6 +552,9 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
  * Implementation of hook_civicrm_postProcess()
  *
  * Record information about a discount use.
+ *
+ * @param $class
+ * @param $form
  */
 function cividiscount_civicrm_postProcess($class, &$form) {
   if (!in_array($class, array(
@@ -672,6 +697,11 @@ function cividiscount_civicrm_postProcess($class, &$form) {
  * they are no longer using the code.
  * When a contact is deleted, we should also delete their tracking info/usage.
  * When removing participant (and additional) from events, also delete their tracking info/usage.
+ *
+ * @param $op
+ * @param $name
+ * @param $id
+ * @param $obj
  */
 function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
   if ($op == 'delete') {
@@ -707,14 +737,18 @@ function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
 }
 
 /**
- * Returns an array of all discount codes.
+ * @return array of all discount codes.
  */
 function _cividiscount_get_discounts() {
   return CRM_CiviDiscount_BAO_Item::getValidDiscounts();
 }
 
 /**
- * Returns all items within the field specified by 'key' for all discounts.
+ * @param $discounts
+ * @param $key
+ * @param bool $include_autodiscount
+ *
+ * @return array all items within the field specified by 'key' for all discounts.
  */
 function _cividiscount_get_items_from_discounts($discounts, $key, $include_autodiscount = FALSE) {
   $items = array();
@@ -730,14 +764,14 @@ function _cividiscount_get_items_from_discounts($discounts, $key, $include_autod
 }
 
 /**
- * Returns an array of all discountable priceset ids.
+ * @return array of all discountable priceset ids.
  */
 function _cividiscount_get_discounted_priceset_ids() {
   return _cividiscount_get_items_from_discounts(_cividiscount_get_discounts(), 'pricesets');
 }
 
 /**
- * Returns an array of all discountable membership ids.
+ * @return array of all discountable membership ids.
  */
 function _cividiscount_get_discounted_membership_ids() {
   return _cividiscount_get_items_from_discounts(_cividiscount_get_discounts(), 'memberships');
@@ -745,6 +779,10 @@ function _cividiscount_get_discounted_membership_ids() {
 
 /**
  * Get discounts that apply to at least one of the specified memberships.
+ * @param array $discounts
+ * @param array $membershipTypeValues
+ *
+ * @return array
  */
 function _cividiscount_filter_membership_discounts($discounts, $membershipTypeValues) {
   $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
@@ -761,6 +799,13 @@ function _cividiscount_filter_membership_discounts($discounts, $membershipTypeVa
 
 /**
  * Calculate either a monetary or percentage discount.
+ * @param $amount
+ * @param $label
+ * @param $discount
+ * @param $autodiscount
+ * @param string $currency
+ *
+ * @return array
  */
 function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
   $title = $autodiscount ? 'Member Discount' : "Discount {$discount['code']}";
@@ -786,9 +831,8 @@ function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, 
 }
 
 /**
- * Returns TRUE if the code is not case sensitive.
- *
  * TODO: Add settings for admin to set this.
+ * @return bool TRUE if the code is not case sensitive.
  */
 function _cividiscount_ignore_case() {
   return TRUE;
@@ -803,6 +847,11 @@ function _cividiscount_allow_multiple() {
   return TRUE;
 }
 
+/**
+ * @param integer $cid
+ *
+ * @return string
+ */
 function _cividiscount_get_tracking_count($cid) {
   $sql = "SELECT count(id) as count FROM cividiscount_track WHERE contact_id = $cid";
   $count = CRM_Core_DAO::singleValueQuery($sql, array());
@@ -835,7 +884,9 @@ function _cividiscount_get_item_id_by_track($table, $eid, $cid) {
 }
 
 /**
- * Returns TRUE if contact type is an organization
+ * @param $cid
+ *
+ * @return bool TRUE if contact type is an organization
  */
 function _cividiscount_is_org($cid) {
   $sql = "SELECT contact_type FROM civicrm_contact WHERE id = $cid";
@@ -849,6 +900,11 @@ function _cividiscount_is_org($cid) {
   return FALSE;
 }
 
+/**
+ * @param int $mid
+ *
+ * @return bool|mixed
+ */
 function _cividiscount_get_membership($mid = 0) {
   $result = civicrm_api('Membership', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {
@@ -858,6 +914,11 @@ function _cividiscount_get_membership($mid = 0) {
   return FALSE;
 }
 
+/**
+ * @param int $mid
+ *
+ * @return bool|mixed
+ */
 function _cividiscount_get_membership_payment($mid = 0) {
   $result = civicrm_api('MembershipPayment', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {
@@ -867,6 +928,11 @@ function _cividiscount_get_membership_payment($mid = 0) {
   return FALSE;
 }
 
+/**
+ * @param int $pid
+ *
+ * @return bool|mixed
+ */
 function _cividiscount_get_participant($pid = 0) {
   // v3 participant API is broken at the moment.
   // @see http://issues.civicrm.org/jira/browse/CRM-11108
@@ -881,6 +947,11 @@ function _cividiscount_get_participant($pid = 0) {
   return FALSE;
 }
 
+/**
+ * @param int $pid
+ *
+ * @return bool|mixed
+ */
 function _cividiscount_get_participant_payment($pid = 0) {
   $result = civicrm_api('ParticipantPayment', 'get', array('version' => '3', 'participant_id' => $pid));
   if ($result['is_error'] == 0) {

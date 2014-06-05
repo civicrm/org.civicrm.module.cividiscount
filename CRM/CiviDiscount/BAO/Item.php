@@ -195,7 +195,10 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * We build an array that is effectively $entity => $params for api
    * Note that if the filter is 'any' (e.g any event) then we return $entity=> array() to achieve an
    * unfiltered api call
+   *
    * @param array $discount
+   *
+   * @return array
    */
   static function buildDiscountFilters($discount) {
     $filters = json_decode($discount['filters'], TRUE);

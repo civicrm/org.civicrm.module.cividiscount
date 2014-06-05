@@ -70,10 +70,20 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
     return null;
   }
 
+  /**
+   * @param $id
+   *
+   * @return array
+   */
   static function getUsageByContact($id) {
     return CRM_CiviDiscount_BAO_Track::getUsage(NULL, $id, NULL);
   }
 
+  /**
+   * @param $id
+   *
+   * @return array
+   */
   static function getUsageByOrg($id) {
     return CRM_CiviDiscount_BAO_Track::getUsage(NULL, NULL, $id);
   }
@@ -82,6 +92,13 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
       return CRM_CiviDiscount_BAO_Track::getUsage($id, NULL, NULL);
   }
 
+  /**
+   * @param null $id
+   * @param null $cid
+   * @param null $orgid
+   *
+   * @return array
+   */
   static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
     require_once 'CRM/CiviDiscount/Utils.php';
     require_once 'CRM/Member/BAO/Membership.php';

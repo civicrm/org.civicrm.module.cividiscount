@@ -135,7 +135,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   /**
    * Function to build the form
    *
-   * @return None
    * @access public
    */
   public function buildQuickForm() {
@@ -411,7 +410,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert handling of age fields to api-acceptable 'birth_date_high' & birth_date_low
-   * @param unknown $fields
+   * @param array $fields
    */
   function adjustAgeFields(&$fields) {
     if(!empty($fields['contact'])) {
@@ -431,7 +430,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * If it is set then we need to translate it to 'active_only' as
    * we want this to move over time if the membership statuses are changed so we should interpret it to
    * 'active_only'
-   * @param unknown $fields
+   * @param array $fields
    */
   function adjustMembershipStatusField(&$fields) {
     if(!empty($fields['membership'])) {
@@ -471,12 +470,15 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   }
 
 
-/**
- * Apply defaults to fields stored in json fields
- * @param defaults
- * @param type
- * @param string $fn function to get definition from
- */
+  /**
+   * Apply defaults to fields stored in json fields
+   *
+   * @param defaults
+   * @param type
+   * @param string $fn function to get definition from
+   *
+   * @return mixed
+   */
  private function applyJsonFieldDefaults(&$defaults, $type, $fn) {
     if(empty($defaults[$type])) {
       return array();
@@ -549,10 +551,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Set default for age fields as stored as birth_date_high & birth_date_low
-   * @param unknown $defaults
-   * @param unknown $fieldName
+   * @param array $defaults
+   * @param string $fieldName
    * @param $values
-   * @param unknown $spec
+   * @param array $spec
    * @return number
    * @internal param \unknown $value
    */
@@ -565,10 +567,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Set default for membership status based on presence of 'active_only' param
-   * @param unknown $defaults
-   * @param unknown $fieldName
-   * @param $values
-   * @param unknown $spec
+   * @param array $defaults
+   * @param string $fieldName
+   * @param array $values
+   * @param array $spec
    * @return string
    * @internal param \unknown $value
    */
