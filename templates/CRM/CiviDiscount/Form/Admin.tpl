@@ -115,13 +115,13 @@
           <td class="label">{$form.event_type_id.label} {help id="eventtypes" title=$form.eventstypes.label}</td>
           <td>{$form.event_type_id.html}</td>
         </tr>
-        <tr>
-          <td colspan=2>
-            <strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
-          </td>
-        </tr>
       {/if}
       {if $form.pricesets}
+	      <tr>
+	        <td colspan=2>
+	          <strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
+	        </td>
+	      </tr>
         <tr class="crm-discount-item-form-block-price-set">
           <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
           <td>{$form.pricesets.html}</td>
@@ -129,31 +129,29 @@
       {/if}
       {if $form.memberships}
         </table>
-        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
+				<div class="crm-accordion-wrapper collapsed crm-discount-form-block-memberships"> 
           <div class="crm-accordion-header">
-            <div class="icon crm-accordion-pointer"></div>
-              {ts}Discounts apply to these memberships{/ts}
-            </div>
-            <div class="crm-accordion-body">
-            <table class="form-layout-compressed">  {help id="autodiscount" title="Automatic discounts"}
-              <tr class="crm-discount-item-form-block-memberships">
-                <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
-                <td>{$form.memberships.html}<br/></td>
-              </tr>
+          	{ts}Discounts apply to these memberships{/ts} {help id="memberships" title=$form.memberships.label}
+          </div>
+          <div class="crm-accordion-body">
+          	<table class="form-layout-compressed">
+							<tr class="crm-discount-item-form-block-memberships">
+             		<td class="label">{$form.memberships.label}</td>
+              	<td>{$form.memberships.html}<br/></td>
+             </tr>
             </table>
-          </div><!-- /.crm-accordion-body -->
+        	</div><!-- /.crm-accordion-body -->
         </div><!-- /.crm-accordion-wrapper -->
         <table class="form-layout-compressed">
       {/if}
       {if $autodiscounts}
       </table>
-        <div class="crm-accordion-wrapper crm-accordion_title-accordion crm-accordion-closed">
+				<div class="crm-accordion-wrapper collapsed crm-discount-form-block-other-criteria"> 
           <div class="crm-accordion-header">
-            <div class="icon crm-accordion-pointer"></div>
-           {ts}Discounts applied automatically when these criteria are met{/ts}
+           {ts}Discounts applied automatically when these criteria are met{/ts} {help id="autodiscount" title="Automatic discounts"}
           </div>
           <div class="crm-accordion-body">
-            <table class="form-layout-compressed">  {help id="autodiscount" title="Automatic discounts"}
+            <table class="form-layout-compressed">
             {foreach from=$autodiscounts item='autodiscount}
               <tr class="crm-discount-item-form-block-auto-discount">
                 <td class="label">{$form.$autodiscount.label}</td>
