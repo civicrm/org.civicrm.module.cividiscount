@@ -227,14 +227,14 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
 
   // _discountInfo is assigned in cividiscount_civicrm_buildAmount() or
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
-  $discountInfo = $form->get('_discountInfo');
+  $discounts = $form->get('_discountInfo');
 
   $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
-
+  foreach ($discountInfo as $discountInfo) {
   if ((!$discountInfo || !$discountInfo['autodiscount']) && $code != '') {
 
     if (!$discountInfo) {
-      $errors['discountcode'] = ts('The discount code you entered is invalid.');
+      $newerrors['discountcode'] = ts('The discount code you entered is invalid.');
       return;
     }
 
@@ -251,6 +251,11 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
         $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
       }
     }
+    $ok = TRUE;
+  }
+  }
+  if(!$ok) {
+    $errors = array_merge($errors, $newerrors);
   }
 }
 
@@ -404,7 +409,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
     // this seems to incorrectly set to only the last discount but it seems not to matter in the way it is used
     if ($discountApplied) {
       $form->set('_discountInfo', array(
-        'discount' => $discount,
+        'discount' => $discounts,
         'autodiscount' => $autodiscount,
         'contact_id' => $contact_id,
       ));
@@ -563,15 +568,16 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     return;
   }
 
+  $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
   $discountInfo = $form->get('_discountInfo');
-  if (!$discountInfo) {
+  if (!$discountInfo || (!empty($code) && empty($discountInfo['discount'][$code]))) {
     return;
   }
 
+  $discount = $discountInfo['discount'][$code];
+
   $ts = CRM_Utils_Time::getTime();
-  $discount = $discountInfo['discount'];
   $params = $form->getVar('_params');
-  $description = CRM_Utils_Array::value('amount_level', $params);
 
   $trackingItem = array(
     'item_id' => $discount['id'],
