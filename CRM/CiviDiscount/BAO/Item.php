@@ -254,11 +254,21 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     return CRM_Core_DAO::executeQuery($sql);
   }
 
+  /**
+   *
+   * @param unknown $id
+   * @return Ambigous <object, unknown, CRM_Core_DAO, void, mixed, boolean, error, int>
+   */
   static function decrementUsage($id) {
     $sql = "UPDATE cividiscount_item SET count_use = count_use-1 WHERE id = {$id}";
     return CRM_Core_DAO::executeQuery($sql);
   }
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isValid($code) {
     if (!CRM_CiviDiscount_BAO_Item::isExpired($code) &&
       CRM_CiviDiscount_BAO_Item::isActive($code) &&
@@ -271,6 +281,11 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     return FALSE;
   }
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isExpired($code) {
     if (empty($code['expire_on'])) {
       return FALSE;
@@ -286,6 +301,11 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isActive($code) {
     if (empty($code['active_on'])) {
       return TRUE;
@@ -301,6 +321,11 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isEnabled($code) {
     if ($code['is_active'] == 1) {
       return TRUE;

@@ -34,9 +34,6 @@
  *
  */
 
-require_once 'CRM/CiviDiscount/DAO/Track.php';
-
-
 class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
 
   /**
