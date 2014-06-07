@@ -6,7 +6,7 @@
 class CRM_CiviDiscount_Upgrader_Base {
 
   /**
-   * @var varies, subclass of htis
+   * @var varies, subclass of this
    */
   static $instance;
 
@@ -31,7 +31,7 @@ class CRM_CiviDiscount_Upgrader_Base {
   private $revisions;
 
   /**
-   * Obtain a refernece to the active upgrade handler
+   * Obtain a reference to the active upgrade handler
    */
   static public function instance() {
     if (! self::$instance) {

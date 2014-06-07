@@ -195,7 +195,10 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * We build an array that is effectively $entity => $params for api
    * Note that if the filter is 'any' (e.g any event) then we return $entity=> array() to achieve an
    * unfiltered api call
+   *
    * @param array $discount
+   *
+   * @return array
    */
   static function buildDiscountFilters($discount) {
     $filters = json_decode($discount['filters'], TRUE);
@@ -246,16 +249,33 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
 
-  static function incrementUsage($id) {
+  /**
+   *
+   * @param unknown $id
+   * @param unknown $trackingParams
+   * @return Ambigous <object, unknown, CRM_Core_DAO, void, mixed, boolean, error, int>
+   */
+  static function incrementUsage($id, array $trackingParams) {
     $sql = "UPDATE cividiscount_item SET count_use = count_use+1 WHERE id = {$id}";
+    CRM_CiviDiscount_BAO_Track::create($trackingParams);
     return CRM_Core_DAO::executeQuery($sql);
   }
 
+  /**
+   *
+   * @param unknown $id
+   * @return Ambigous <object, unknown, CRM_Core_DAO, void, mixed, boolean, error, int>
+   */
   static function decrementUsage($id) {
     $sql = "UPDATE cividiscount_item SET count_use = count_use-1 WHERE id = {$id}";
     return CRM_Core_DAO::executeQuery($sql);
   }
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isValid($code) {
     if (!CRM_CiviDiscount_BAO_Item::isExpired($code) &&
       CRM_CiviDiscount_BAO_Item::isActive($code) &&
@@ -268,6 +288,11 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     return FALSE;
   }
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isExpired($code) {
     if (empty($code['expire_on'])) {
       return FALSE;
@@ -283,6 +308,11 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isActive($code) {
     if (empty($code['active_on'])) {
       return TRUE;
@@ -298,6 +328,11 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
 
+  /**
+   *
+   * @param unknown $code
+   * @return boolean
+   */
   static function isEnabled($code) {
     if ($code['is_active'] == 1) {
       return TRUE;
@@ -333,7 +368,10 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * Function to copy discount codes
    *
-   * @param  int  $itemID     ID of the discount code to be copied.
+   * @param  int $itemID ID of the discount code to be copied.
+   *
+   * @param $params
+   * @param $newCode
    *
    * @access public
    * @static

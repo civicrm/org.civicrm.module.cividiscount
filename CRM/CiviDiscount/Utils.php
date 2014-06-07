@@ -36,6 +36,9 @@
 
 class CRM_CiviDiscount_Utils {
 
+  /**
+   * @return array
+   */
   static function getEvents() {
     $events    = array();
     //whether we only want this date range is arguable but it is broader than the one in the core function
@@ -69,6 +72,11 @@ class CRM_CiviDiscount_Utils {
     return $priceSets;
   }
 
+  /**
+   * @param int|null $priceSetId
+   *
+   * @return array
+   */
   static function getPriceSetsInfo($priceSetId = null) {
     $params = array();
     if ($priceSetId) {
@@ -111,6 +119,11 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
   /**
    * Sort of acts like array_intersect(). We want to match value of one array
    * with key of another to return the id and title for things like events, membership, etc.
+   *
+   * @param array $ids
+   * @param array $titles
+   *
+   * @return array
    */
   static function getIdsTitles($ids = array(), $titles = array()) {
     $a = array();
@@ -125,7 +138,7 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 
   /**
    * check if price set is quick config price set, i.e for eg, if event is configured with default fee or
-   * usiing price sets
+   * using price sets
    *
    * @param int $priceSetId price set id
    *

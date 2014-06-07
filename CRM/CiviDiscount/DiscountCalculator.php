@@ -41,16 +41,32 @@ class CRM_CiviDiscount_DiscountCalculator {
   protected $contact_id;
   protected $code;
   protected $entity_discounts;
+
+  /**
+   * @var bool Are we Just checking whether we should display a field for a discount code
+   */
   protected $is_display_field_mode;
+
+  /**
+   * @var bool
+   */
   protected $auto_discount_applies;
 
   /**
+   * @var array automatic discounts - ie because contact meets a criteria
+   */
+  protected $autoDiscounts = array();
+
+  /**
    * Constructor
+   *
    * @param string $entity
    * @param integer $entity_id
    * @param integer $contact_id
    * @param string $code
-   * @param boolean $is_anonymous - ie are we trying to calculate whether it would be possible to find a discount cod
+   * @param $is_display_field_mode
+   *
+   * @internal param bool $is_anonymous - ie are we trying to calculate whether it would be possible to find a discount cod
    */
   function __construct($entity, $entity_id, $contact_id, $code, $is_display_field_mode) {
     if(empty($code) && empty($contact_id) && !$is_display_field_mode) {
@@ -68,22 +84,26 @@ class CRM_CiviDiscount_DiscountCalculator {
 
   /**
    * Get discounts that apply in this instance
+   *
+   * @return array
    */
-  function getDiscounts() {
+  public function getDiscounts() {
+    $this->filterDiscountByEntity();
     if(!empty($this->code)) {
       $this->filterDiscountByCode();
+      return $this->discounts;
     }
-    $this->filterDiscountByEntity();
-    if(!$this->is_display_field_mode) {
-      $this->filterDiscountsByContact();
+    if($this->is_display_field_mode) {
+      return $this->discounts;
     }
-    return $this->discounts;
+    $this->filterDiscountsByContact();
+    return $this->autoDiscounts;
   }
 
   /**
    * filter this discounts according to entity
    */
-  function filterDiscountByEntity() {
+  private function filterDiscountByEntity() {
     $this->setEntityDiscounts();
     $this->discounts = array_intersect_key($this->discounts, $this->entity_discounts);
   }
@@ -94,13 +114,13 @@ class CRM_CiviDiscount_DiscountCalculator {
    *
    * We can assume that the no-contact id situation is dealt with in that
    * our scenarios are
-   * - no contact id but code - in which case we will already be filtered down to code
-   * - no contact id, no code & 'is_display_field_mode' - ie. anonymous mode so we don't need to filter by contact
+   * - no contact id, no code & 'is_display_field_mode' - ie. anonymous mode so no discounts apply
    * - no contact id, no code & is not is_display_field_mode' - ie we won't have populated discounts in construct
    * (saves a query)
    */
-  function filterDiscountsByContact() {
+  private function filterDiscountsByContact() {
     if(empty($this->contact_id)) {
+      $this->discounts = array();
       return;
     }
     foreach ($this->discounts as $discount_id => $discount) {
@@ -117,12 +137,13 @@ class CRM_CiviDiscount_DiscountCalculator {
         $this->discounts[$discount_id]['is_auto_discount'] = TRUE;
       }
     }
+    $this->autoDiscounts = $this->discounts;
   }
 
   /**
    * get discounts relative to the entity
    */
-  function getEntityDiscounts() {
+  public function getEntityDiscounts() {
     if(is_array($this->entity_discounts)) {
       return $this->entity_discounts;
     }
@@ -138,36 +159,38 @@ class CRM_CiviDiscount_DiscountCalculator {
     if(!empty($this->entity_discounts)) {
       return TRUE;
     }
+    return FALSE;
   }
 
   /**
    * get discounts relative to the entity
    */
-  function isShowDiscountCodeField() {
+  public function isShowDiscountCodeField() {
     if (!$this->getEntityHasDiscounts()) {
       return FALSE;
     }
-    if(!empty($this->entity_discounts) && $this->entity_discounts != $this->discounts) {
+    if(!empty($this->entity_discounts) && $this->entity_discounts != $this->autoDiscounts) {
       return TRUE;
     }
+    return FALSE;
   }
 
   /**
    * getter for autodiscount
    */
-  function isAutoDiscount() {
+  public function isAutoDiscount() {
     return $this->auto_discount_applies;
   }
 
   /**
    * Filter out discounts that are not applicable based on id or other filters
-   * @param array $discounts discount array from db
-   * @param string $entity - this should match the api entity
-   * @param integer $id entity id
-   * @param string $type 'filters' or autodiscount
-   * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
+   * @internal param array $discounts discount array from db
+   * @internal param string $entity - this should match the api entity
+   * @internal param int $id entity id
+   * @internal param string $type 'filters' or autodiscount
+   * @internal param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
    */
-  function setEntityDiscounts() {
+  private function setEntityDiscounts() {
     $this->entity_discounts = array();
     foreach ($this->discounts as $discount_id => $discount) {
       if($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
@@ -183,13 +206,17 @@ class CRM_CiviDiscount_DiscountCalculator {
    * 3) the only filter is on id (in which case we will do a direct comparison
    * 4) there is an api filter
    *
-   * @param array $discounts discount array from db
-   * @param string $field - this should match the api entity
+   * @param $discount
+   * @param $entity
    * @param integer $id entity id
    * @param string $type 'filters' or autodiscount
    * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
+   *
+   * @return bool
+   * @internal param array $discounts discount array from db
+   * @internal param string $field - this should match the api entity
    */
-  function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
+  private function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
     try {
       if(!isset($discount[$type][$entity])) {
         return FALSE;
@@ -218,16 +245,15 @@ class CRM_CiviDiscount_DiscountCalculator {
 
   /**
    * If a code is passed in we are going to unset any filters that don't match the code
-   * @todo cividiscount ignore case is always true - it's obviously preparatory to allowing
+   *
    * case sensitive
-   * @return unknown|boolean|Ambigous <mixed, array>
+   *
+   * @return array discounts that match the code
    */
-  function filterDiscountByCode() {
-    if (_cividiscount_ignore_case()) {
-      foreach ($this->discounts as $id => $discount) {
-        if (strcasecmp($this->code, $discount['code']) != 0) {
-          unset($this->discounts[$id]);
-        }
+  private function filterDiscountByCode() {
+    foreach ($this->discounts as $id => $discount) {
+      if (strcasecmp($this->code, $discount['code']) != 0) {
+        unset($this->discounts[$id]);
       }
     }
     return $this->discounts;
