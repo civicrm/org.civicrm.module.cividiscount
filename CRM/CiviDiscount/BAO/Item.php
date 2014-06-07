@@ -249,8 +249,15 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   }
 
 
-  static function incrementUsage($id) {
+  /**
+   *
+   * @param unknown $id
+   * @param unknown $trackingParams
+   * @return Ambigous <object, unknown, CRM_Core_DAO, void, mixed, boolean, error, int>
+   */
+  static function incrementUsage($id, array $trackingParams) {
     $sql = "UPDATE cividiscount_item SET count_use = count_use+1 WHERE id = {$id}";
+    CRM_CiviDiscount_BAO_Track::create($trackingParams);
     return CRM_Core_DAO::executeQuery($sql);
   }
 

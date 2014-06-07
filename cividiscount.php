@@ -141,7 +141,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 
     if ($form->getVar('_single') == 1 || in_array($form->getVar('_context'), array('membership', 'standalone'))) {
       _cividiscount_add_discount_textfield($form);
-      $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+      $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
       if ($code) {
         $defaults = array('discountcode' => $code);
         $form->setDefaults($defaults);
@@ -573,6 +573,11 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   $params = $form->getVar('_params');
   $description = CRM_Utils_Array::value('amount_level', $params);
 
+  $trackingItem = array(
+    'item_id' => $discount['id'],
+    'contribution_id' => $contribution_id,
+    'description' => CRM_Utils_Array::value('amount_level', $params),
+  );
   // Online event registration.
   // Note that CRM_Event_Form_Registration_Register is an intermediate form.
   // CRM_Event_Form_Registration_Confirm completes the transaction.
@@ -591,16 +596,10 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $participant_payment = _cividiscount_get_participant_payment($pid);
       $contribution_id = $participant_payment['contribution_id'];
 
-      CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
-      $track = new CRM_CiviDiscount_DAO_Track();
-      $track->item_id = $discount['id'];
-      $track->contact_id = $contact_id;
-      $track->contribution_id = $contribution_id;
-      $track->entity_table = 'civicrm_participant';
-      $track->entity_id = $pid;
-      $track->used_date = $ts;
-      $track->description = $description;
-      $track->save();
+      $trackingItem['entity_id'] = $pid;
+      $trackingItem['entity_table'] = 'civicrm_participant';
+      $trackingItem['contact_id'] = $participant['contact_id'];
+      CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id'], $trackingItem);
     }
 
   // Online membership.
@@ -616,23 +615,14 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       return;
     }
 
-    $description = CRM_Utils_Array::value('description', $params);
-
     $membership = _cividiscount_get_membership($membershipId);
-    $contact_id = $membership['contact_id'];
+    $trackingItem['contact_id'] = $membership['contact_id'];
     $membership_payment = _cividiscount_get_membership_payment($membershipId);
-    $contribution_id = $membership_payment['contribution_id'];
+    $trackingItem['contribution_id'] = $membership_payment['contribution_id'];
+    $trackingItem['entity_id'] = $membershipId;
+    $trackingItem['entity_table'] = 'civicrm_membership';
 
-    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
-    $track = new CRM_CiviDiscount_DAO_Track();
-    $track->item_id = $discount['id'];
-    $track->contact_id = $contact_id;
-    $track->contribution_id = $contribution_id;
-    $track->entity_table = 'civicrm_membership';
-    $track->entity_id = $membershipId;
-    $track->used_date = $ts;
-    $track->description = $description;
-    $track->save();
+    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id'], $trackingItem);
   }
   else {
     $contribution_id = NULL;
@@ -660,31 +650,22 @@ function cividiscount_civicrm_postProcess($class, &$form) {
         return;
       }
 
-      $entity_table = 'civicrm_membership';
-      $entity_id = $form->getVar('_id');
+      $trackingItem['entity_table'] = 'civicrm_membership';
+      $trackingItem['entity_id'] = $form->getVar('_id');
 
       $membership_payment = _cividiscount_get_membership_payment($entity_id);
-      $contribution_id = $membership_payment['contribution_id'];
-      $description = CRM_Utils_Array::value('description', $params);
+      $trackingItem['contribution_id'] = $membership_payment['contribution_id'];
+      $trackingItem['description'] = CRM_Utils_Array::value('description', $params);
 
       $membership = _cividiscount_get_membership($entity_id);
-      $contact_id = $membership['contact_id'];
+      $trackingItem['contact_id'] = $membership['contact_id'];
     }
     else {
-      $entity_table = 'civicrm_contribution';
-      $entity_id = $contribution_id;
+      $trackingItem['entity_table'] = 'civicrm_contribution';
+      $trackingItem['entity_id'] = $contribution_id;
     }
 
-    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
-    $track = new CRM_CiviDiscount_DAO_Track();
-    $track->item_id = $discount['id'];
-    $track->contact_id = $contact_id;
-    $track->contribution_id = $contribution_id;
-    $track->entity_table = $entity_table;
-    $track->entity_id = $entity_id;
-    $track->used_date = $ts;
-    $track->description = $description;
-    $track->save();
+    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id'], $trackingItem);
   }
 }
 

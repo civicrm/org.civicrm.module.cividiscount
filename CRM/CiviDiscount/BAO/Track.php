@@ -68,6 +68,28 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
   }
 
   /**
+   * function to add the membership Blocks
+   *
+   * @param array $params reference array contains the values submitted by the form
+   *
+   * @access public
+   * @static
+   *
+   * @return object
+   */
+  static function create(&$params) {
+    $hook = empty($params['id']) ? 'create' : 'edit';
+    CRM_Utils_Hook::pre($hook, 'Track', CRM_Utils_Array::value('id', $params), $params);
+    $dao = new CRM_CiviDiscount_DAO_Track();
+    $dao->copyValues($params);
+    if(empty($dao->used_date)) {
+      $dao->used_date = CRM_Utils_Time::getTime();
+    }
+    $dao->id = CRM_Utils_Array::value('id', $params);
+    CRM_Utils_Hook::post($hook, 'Track', $dao->id, $dao);
+    return $dao;
+  }
+  /**
    * @param $id
    *
    * @return array
