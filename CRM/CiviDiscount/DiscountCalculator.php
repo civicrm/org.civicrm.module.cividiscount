@@ -42,6 +42,8 @@ class CRM_CiviDiscount_DiscountCalculator {
   protected $code;
   protected $entity_discounts;
 
+  protected $code_discounts;
+
   /**
    * configured message for when discount does not apply
    * @var string
@@ -94,16 +96,21 @@ class CRM_CiviDiscount_DiscountCalculator {
    * @return array
    */
   public function getDiscounts() {
+    //@todo now this has been simplified down I'd like to move the calc
+    // into a separate function (possibly into construct so that after construct only 'getting' happens
+    //just need to check nothing is changed. Would set an
     $this->filterDiscountByEntity();
     if(!empty($this->code)) {
       $this->filterDiscountByCode();
       return $this->discounts;
     }
+    $this->filterDiscountsByContact();
     if($this->is_display_field_mode) {
       return $this->discounts;
     }
-    $this->filterDiscountsByContact();
-    return $this->autoDiscounts;
+    else {
+      return $this->autoDiscounts;
+    }
   }
 
   /**
@@ -130,27 +137,28 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   private function filterDiscountsByContact() {
     if(empty($this->contact_id)) {
-      $this->discounts = array();
+      $this->autoDiscounts = array();
       return;
     }
+    $this->autoDiscounts = $this->discounts;
     foreach ($this->discounts as $discount_id => $discount) {
       if(empty($discount['autodiscount'])) {
-        unset($this->discounts[$discount_id]);
+        unset($this->autoDiscounts[$discount_id]);
         continue;
       }
-      $this->discounts[$discount_id]['is_auto_discount'] = TRUE;
+      $this->auto_discount_applies = TRUE;
+      $this->autoDiscounts[$discount_id]['is_auto_discount'] = TRUE;
       foreach (array_keys($discount['autodiscount']) as $entity) {
         $additionalParams = array('contact_id' => $this->contact_id);
         $id = ($entity == 'contact') ? $this->contact_id : NULL;
 
         if(!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
           $this->discount_unavailable_message[] = $discount['discount_msg'];
-          unset($this->discounts[$discount_id]);
+          unset($this->autoDiscounts[$discount_id]);
           continue;
         }
       }
     }
-    $this->autoDiscounts = $this->discounts;
   }
 
   /**
@@ -176,13 +184,18 @@ class CRM_CiviDiscount_DiscountCalculator {
   }
 
   /**
-   * get discounts relative to the entity
+   * should we show a field for a discount code?
+   * If there is no code for this entity or the only discount for this entity is already applied
+   * then no. If more than one discount could auto-apply going with 'Yes' at this stage in
+   * case they have the option to enter a key for the other one
+   *
+   * @return boolean
    */
   public function isShowDiscountCodeField() {
     if (!$this->getEntityHasDiscounts()) {
       return FALSE;
     }
-    if(!empty($this->entity_discounts) && $this->entity_discounts != $this->autoDiscounts) {
+    if(!empty($this->entity_discounts) && count($this->entity_discounts ==1) && array_keys($this->entity_discounts) != array_keys($this->autoDiscounts)) {
       return TRUE;
     }
     return FALSE;
