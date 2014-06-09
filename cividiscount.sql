@@ -26,6 +26,7 @@ CREATE TABLE `cividiscount_item` (
      `is_active` tinyint    COMMENT 'Is this discount active?',
      `discount_msg_enabled` tinyint DEFAULT 0 COMMENT 'Is discount message is available for promotion?',
      `discount_msg` VARCHAR(255) COMMENT 'Discount message',
+     `filters` varchar(255) COMMENT 'Discount Filters.',
 
     PRIMARY KEY ( `id` ),
      CONSTRAINT FK_cividiscount_item_organization_id FOREIGN KEY (`organization_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL

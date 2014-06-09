@@ -34,9 +34,6 @@
  *
  */
 
-require_once 'CRM/CiviDiscount/DAO/Track.php';
-
-
 class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
 
   /**
@@ -70,10 +67,43 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
     return null;
   }
 
+  /**
+   * function to add the membership Blocks
+   *
+   * @param array $params reference array contains the values submitted by the form
+   *
+   * @access public
+   * @static
+   *
+   * @return object
+   */
+  static function create(&$params) {
+    $hook = empty($params['id']) ? 'create' : 'edit';
+    CRM_Utils_Hook::pre($hook, 'Track', CRM_Utils_Array::value('id', $params), $params);
+    $dao = new CRM_CiviDiscount_DAO_Track();
+    $dao->copyValues($params);
+    if(empty($dao->used_date)) {
+      $dao->used_date = CRM_Utils_Time::getTime();
+    }
+    $dao->id = CRM_Utils_Array::value('id', $params);
+    CRM_Utils_Hook::post($hook, 'Track', $dao->id, $dao);
+    $dao->save();
+    return $dao;
+  }
+  /**
+   * @param $id
+   *
+   * @return array
+   */
   static function getUsageByContact($id) {
     return CRM_CiviDiscount_BAO_Track::getUsage(NULL, $id, NULL);
   }
 
+  /**
+   * @param $id
+   *
+   * @return array
+   */
   static function getUsageByOrg($id) {
     return CRM_CiviDiscount_BAO_Track::getUsage(NULL, NULL, $id);
   }
@@ -82,10 +112,14 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
       return CRM_CiviDiscount_BAO_Track::getUsage($id, NULL, NULL);
   }
 
+  /**
+   * @param null $id
+   * @param null $cid
+   * @param null $orgid
+   *
+   * @return array
+   */
   static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
-    require_once 'CRM/CiviDiscount/Utils.php';
-    require_once 'CRM/Member/BAO/Membership.php';
-    require_once 'CRM/Contact/BAO/Contact.php';
 
     $where = '';
 
@@ -175,12 +209,10 @@ SELECT    t.item_id as item_id,
    * @return true on success else false
    */
   static function del($trackID) {
-    require_once 'CRM/Utils/Rule.php';
     if (! CRM_Utils_Rule::positiveInteger($trackID)) {
       return false;
     }
 
-    require_once 'CRM/CiviDiscount/DAO/Track.php';
     $item = new CRM_CiviDiscount_DAO_Track();
     $item->id = $trackID;
     $item->delete();
