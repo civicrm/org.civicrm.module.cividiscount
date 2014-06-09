@@ -347,40 +347,39 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
       return;
     }
 
-    // @todo - this comment block may no longer apply
-    // here we check if discount is configured for events or for membership types.
-    // There are two scenarios:
-    // 1. Discount is configure for the event or membership type, in that case we should apply discount only
-    //    if default fee / membership type is configured. ( i.e price set with quick config true )
+    /* @todo refactor into separate function fo clarity (along with the long comment block as a function
+     * level comment block
+     * here we apply discount to line items
+    // There are three scenarios:
+    // 1. Discount is configured membership type so we apply based on the type
     // 2. Discount is configure at price field level, in this case discount should be applied only for
     //    that particular price set field.
-
-    // here we need to check if selected price set is quick config
-
-    // in this case discount is specified for event id or membership type id, so we need to get info of
-    // associated price set fields. For events discount we already have the list, but for memberships we
-    // need to filter at membership type level
-
+     * 3. Discount is applied to an event but line items have not been specified - in that case apply to all
     //retrieve price set field associated with this priceset
+     *
+     */
     $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($priceSetID);
     $originalAmounts = $amounts;
     foreach ($discounts as $discount) {
       $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
-      //@todo - check that we can still exclude building events here- the original code only did the build against
-      // the first discount which wasn't working
-      if ($pageType != 'event' && empty($priceFields)) {
-        // filter only valid membership types that have discount
-        foreach($priceSetInfo as $pfID => $priceFieldValues) {
-          if (!empty($priceFieldValues['membership_type_id']) &&
-          in_array($priceFieldValues['membership_type_id'], CRM_Utils_Array::value('memberships', $discount, array()))) {
-            $priceFields[$pfID] = $pfID;
+      if(empty($priceFields)) {
+        if($pageType == 'event') {
+          $applyToAllLineItems = TRUE;;
+        }
+        else {
+          // filter only valid membership types that have discount
+          foreach($priceSetInfo as $pfID => $priceFieldValues) {
+            if (!empty($priceFieldValues['membership_type_id']) &&
+            in_array($priceFieldValues['membership_type_id'], CRM_Utils_Array::value('memberships', $discount, array()))) {
+              $priceFields[$pfID] = $pfID;
+            }
           }
         }
       }
+
       $additionalParticipantCount = _cividiscount_checkEventDiscountMultipleParticipants($pageType, $form, $discount);
       if(empty($additionalParticipantCount)) {
-        //this was set to return but that doesn't make sense as there might be another discount
         continue;
       }
 
@@ -390,7 +389,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
         }
 
         foreach ($fee['options'] as $option_id => &$option) {
-          if (CRM_Utils_Array::value($option['id'], $priceFields)) {
+          if ($applyToAllLineItems || CRM_Utils_Array::value($option['id'], $priceFields)) {
             $originalLabel = $originalAmounts[$fee_id]['options'][$option_id]['label'];
             $originalAmount = (integer) $originalAmounts[$fee_id]['options'][$option_id]['amount'];
             list($amount, $label) =
