@@ -231,28 +231,28 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
 
   $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
   foreach ($discountInfo as $discountInfo) {
-  if ((!$discountInfo || !$discountInfo['autodiscount']) && $code != '') {
+    if ((!$discountInfo || !$discountInfo['autodiscount']) && $code != '') {
 
-    if (!$discountInfo) {
-      $newerrors['discountcode'] = ts('The discount code you entered is invalid.');
-      return;
-    }
-
-    $discount = $discountInfo['discount'];
-
-    if ($discount['count_max'] > 0) {
-      // Initially 1 for person registering.
-      $additionalParticipantCount = 1;
-      $sv = $form->getVar('_submitValues');
-      if (array_key_exists('additional_participants', $sv)) {
-        $additionalParticipantCount += $sv['additional_participants'];
+      if (!$discountInfo) {
+        $newerrors['discountcode'] = ts('The discount code you entered is invalid.');
+        return;
       }
-      if (($discount['count_use'] + $additionalParticipantCount) > $discount['count_max']) {
-        $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
+
+      $discount = $discountInfo['discount'];
+
+      if ($discount['count_max'] > 0) {
+        // Initially 1 for person registering.
+        $additionalParticipantCount = 1;
+        $sv = $form->getVar('_submitValues');
+        if (array_key_exists('additional_participants', $sv)) {
+          $additionalParticipantCount += $sv['additional_participants'];
+        }
+        if (($discount['count_use'] + $additionalParticipantCount) > $discount['count_max']) {
+          $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
+        }
       }
+      $ok = TRUE;
     }
-    $ok = TRUE;
-  }
   }
   if(!$ok) {
     $errors = array_merge($errors, $newerrors);
