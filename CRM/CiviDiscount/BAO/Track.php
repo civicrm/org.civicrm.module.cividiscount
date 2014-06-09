@@ -87,6 +87,7 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
     }
     $dao->id = CRM_Utils_Array::value('id', $params);
     CRM_Utils_Hook::post($hook, 'Track', $dao->id, $dao);
+    $dao->save();
     return $dao;
   }
   /**

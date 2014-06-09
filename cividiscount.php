@@ -230,7 +230,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   $discounts = $form->get('_discountInfo');
 
   $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
-  foreach ($discountInfo as $discountInfo) {
+  foreach ($discounts as $discountInfo) {
     if ((!$discountInfo || !$discountInfo['autodiscount']) && $code != '') {
 
       if (!$discountInfo) {
@@ -570,20 +570,27 @@ function cividiscount_civicrm_postProcess($class, &$form) {
 
   $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
   $discountInfo = $form->get('_discountInfo');
-  if (!$discountInfo || (!empty($code) && empty($discountInfo['discount'][$code]))) {
+  $discounts = $discountInfo['discount'];
+  if($code) {
+    if(empty($discounts[$code])) {
+      return;
+    }
+    $discount = $discounts[$code];
+  }
+  elseif (empty($discountInfo['autodiscount'])) {
     return;
   }
+  else {
+    $discount = reset($discounts);
+  }
 
-  $discount = $discountInfo['discount'][$code];
-
-  $ts = CRM_Utils_Time::getTime();
   $params = $form->getVar('_params');
 
   $trackingItem = array(
     'item_id' => $discount['id'],
-    'contribution_id' => $contribution_id,
     'description' => CRM_Utils_Array::value('amount_level', $params),
   );
+
   // Online event registration.
   // Note that CRM_Event_Form_Registration_Register is an intermediate form.
   // CRM_Event_Form_Registration_Confirm completes the transaction.
@@ -600,7 +607,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       $participant = _cividiscount_get_participant($pid);
       $contact_id = $participant['contact_id'];
       $participant_payment = _cividiscount_get_participant_payment($pid);
-      $contribution_id = $participant_payment['contribution_id'];
+      $$trackingItem['contribution_id'] = $participant_payment['contribution_id'];
 
       $trackingItem['entity_id'] = $pid;
       $trackingItem['entity_table'] = 'civicrm_participant';
