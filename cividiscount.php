@@ -230,12 +230,13 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   $discounts = $form->get('_discountInfo');
 
   $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
+  $ok = FALSE;
+  $newerrors = array();
   foreach ($discounts['discount'] as $discountInfo) {
     if ((!$discountInfo || empty($discounts['autodiscount'])) && $code != '') {
-
       if (!$discountInfo) {
         $newerrors['discountcode'] = ts('The discount code you entered is invalid.');
-        return;
+        continue;
       }
 
       $discount = $discountInfo['discount'];
@@ -248,9 +249,10 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
           $additionalParticipantCount += $sv['additional_participants'];
         }
         if (($discount['count_use'] + $additionalParticipantCount) > $discount['count_max']) {
-          $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
+          $newerrors['discountcode'] = ts('There are not enough uses remaining for this code.');
         }
       }
+      // it's all OK - there is a code that is fine - even if there are some that aren't
       $ok = TRUE;
     }
   }
