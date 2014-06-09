@@ -230,8 +230,8 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   $discounts = $form->get('_discountInfo');
 
   $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
-  foreach ($discounts as $discountInfo) {
-    if ((!$discountInfo || !$discountInfo['autodiscount']) && $code != '') {
+  foreach ($discounts['discount'] as $discountInfo) {
+    if ((!$discountInfo || empty($discounts['autodiscount'])) && $code != '') {
 
       if (!$discountInfo) {
         $newerrors['discountcode'] = ts('The discount code you entered is invalid.');
