@@ -43,6 +43,12 @@ class CRM_CiviDiscount_DiscountCalculator {
   protected $entity_discounts;
 
   /**
+   * configured message for when discount does not apply
+   * @var string
+   */
+  protected $discount_unavailable_message = array();
+
+  /**
    * @var bool Are we Just checking whether we should display a field for a discount code
    */
   protected $is_display_field_mode;
@@ -108,6 +114,10 @@ class CRM_CiviDiscount_DiscountCalculator {
     $this->discounts = array_intersect_key($this->discounts, $this->entity_discounts);
   }
 
+  public function getDiscountUnavailableMessage() {
+    return implode(' ', $this->discount_unavailable_message);
+  }
+
   /**
    * Filter discounts by autodiscount criteria. If any one of the criteria is not met for this contact then the discount
    * does not apply
@@ -126,15 +136,18 @@ class CRM_CiviDiscount_DiscountCalculator {
     foreach ($this->discounts as $discount_id => $discount) {
       if(empty($discount['autodiscount'])) {
         unset($this->discounts[$discount_id]);
+        continue;
       }
+      $this->discounts[$discount_id]['is_auto_discount'] = TRUE;
       foreach (array_keys($discount['autodiscount']) as $entity) {
         $additionalParams = array('contact_id' => $this->contact_id);
         $id = ($entity == 'contact') ? $this->contact_id : NULL;
+
         if(!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
+          $this->discount_unavailable_message[] = $discount['discount_msg'];
           unset($this->discounts[$discount_id]);
           continue;
         }
-        $this->discounts[$discount_id]['is_auto_discount'] = TRUE;
       }
     }
     $this->autoDiscounts = $this->discounts;

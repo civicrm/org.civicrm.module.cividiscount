@@ -329,20 +329,13 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
     $discountCalculator = new CRM_CiviDiscount_DiscountCalculator($pageType, $eid, $contact_id, $code, FALSE);
     $discounts = $discountCalculator->getDiscounts();
      if(!empty($code) && empty($discounts)) {
-      $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
+      $form->set('discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
     }
 
     if (empty($discounts)) {
-      // Check if a discount is available
-      if ($pageType == 'event') {
-        $discounts = _cividiscount_get_discounts();
-        foreach ($discounts as $code => $discount) {
-          if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
-                $discount['discount_msg_enabled']) {
-            // Display discount available message
-            CRM_Core_Session::setStatus(html_entity_decode($discount['discount_msg']), '', 'no-popup');
-          }
-        }
+      $statusMessage = $discountCalculator->getDiscountUnavailableMessage();
+      if($statusMessage) {
+        CRM_Core_Session::setStatus(html_entity_decode($statusMessage), '', 'no-popup');
       }
       return;
     }
