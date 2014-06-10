@@ -154,8 +154,10 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
       'CRM_Event_Form_Registration_Register',
       //'CRM_Event_Form_Registration_AdditionalParticipant'
     ))) {
-      $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('event', $form->getVar('_eventId'), NULL, NULL, TRUE);
+      $contact_id = _cividiscount_get_form_contact_id($form);
+      $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('event', $form->getVar('_eventId'), $contact_id, NULL, TRUE);
       $addDiscountField = $discountCalculator->isShowDiscountCodeField();
+
     }
     elseif ($fname == 'CRM_Contribute_Form_Contribution_Main') {
       $ids = _cividiscount_get_discounted_membership_ids();
@@ -304,8 +306,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $form->set('_discountInfo', NULL);
     $dicountCalculater = new CRM_CiviDiscount_DiscountCalculator($pagetype, $eid, $contact_id, $code, FALSE);
     $discounts = $dicountCalculater->getDiscounts();
-     if(!empty($code) && empty($discounts)) {
-      $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
+     if (!empty($code) && empty($discounts)) {
+       $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
     }
 
     if (empty($discounts)) {
@@ -348,12 +350,18 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       //@todo - check that we can still exclude building events here- the original code only did the build against
       // the first discount which wasn't working
-      if ($pagetype != 'event' && empty($priceFields)) {
-        // filter only valid membership types that have discount
-        foreach($priceSetInfo as $pfID => $priceFieldValues) {
-          if (!empty($priceFieldValues['membership_type_id']) &&
-          in_array($priceFieldValues['membership_type_id'], CRM_Utils_Array::value('memberships', $discount, array()))) {
-            $priceFields[$pfID] = $pfID;
+      if (empty($priceFields) && !empty($code)) {
+        if ($pagetype == 'event') {
+          $applyToAllLineItems = TRUE;
+          $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
+        }
+        else {
+          // filter only valid membership types that have discount
+          foreach($priceSetInfo as $pfID => $priceFieldValues) {
+            if (!empty($priceFieldValues['membership_type_id']) &&
+              in_array($priceFieldValues['membership_type_id'], CRM_Utils_Array::value('memberships', $discount, array()))) {
+              $priceFields[$pfID] = $pfID;
+            }
           }
         }
       }
@@ -369,7 +377,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         }
 
         foreach ($fee['options'] as $option_id => &$option) {
-          if (CRM_Utils_Array::value($option['id'], $priceFields)) {
+          if (!empty($applyToAllLineItems) || CRM_Utils_Array::value($option['id'], $priceFields)) {
             $originalLabel = $originalAmounts[$fee_id]['options'][$option_id]['label'];
             $originalAmount = (integer) $originalAmounts[$fee_id]['options'][$option_id]['amount'];
             list($amount, $label) =
