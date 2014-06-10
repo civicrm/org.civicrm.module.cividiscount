@@ -237,7 +237,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       $this->_multiValued['pricesets'] = $pricesets;
       $this->addElement('advmultiselect',
         'pricesets',
-        ts('PriceSets'),
+        ts('Price Field Options'),
         $pricesets,
         array('size' => 7,
           'style' => 'width:auto; min-width:150px;',

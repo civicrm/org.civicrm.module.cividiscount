@@ -53,13 +53,19 @@
 
 {htxt id="events"}
   <p>
-    {ts}Allow discounts to be used on the selected events. Only active, public and current/future events are listed.{/ts}
+    {ts}This discount can be used on the selected event(s). Only active, public and current/future events are listed.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="eventtypes"}
+  <p>
+    {ts}This discount can be used on any event of the select type(s).{/ts}
   </p>
 {/htxt}
 
 {htxt id="pricesets"}
   <p>
-    {ts}You can apply this discount to one or more fields in a price set. The discount will be applied to each selected field that the user selects.{/ts}
+    {ts}If your event uses a Price Set, the discount will be applied to ALL fields / option in the price set by default. However, if you want the discount to be applied ONLY to specific price option(s) - select those options here. NOTE: You must ALSO select the Event(s) or Event Type(s) above.{/ts}
   </p>
 {/htxt}
 
