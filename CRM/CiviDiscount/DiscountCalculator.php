@@ -77,7 +77,7 @@ class CRM_CiviDiscount_DiscountCalculator {
     if(!$this->is_display_field_mode) {
       $this->filterDiscountsByContact();
     }
-    return $this->discounts;
+    return $this->entity_discounts;
   }
 
   /**
@@ -85,7 +85,6 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   function filterDiscountByEntity() {
     $this->setEntityDiscounts();
-    $this->discounts = array_intersect_key($this->discounts, $this->entity_discounts);
   }
 
   /**
@@ -147,7 +146,7 @@ class CRM_CiviDiscount_DiscountCalculator {
     if (!$this->getEntityHasDiscounts()) {
       return FALSE;
     }
-    if(!empty($this->entity_discounts) && $this->entity_discounts != $this->discounts) {
+    if(!empty($this->entity_discounts)) {
       return TRUE;
     }
   }
@@ -170,7 +169,7 @@ class CRM_CiviDiscount_DiscountCalculator {
   function setEntityDiscounts() {
     $this->entity_discounts = array();
     foreach ($this->discounts as $discount_id => $discount) {
-      if($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
+      if ($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
         $this->entity_discounts[$discount_id] = $discount;
       }
     }
@@ -197,9 +196,7 @@ class CRM_CiviDiscount_DiscountCalculator {
       if(empty($discount[$type][$entity])) {
         return TRUE;
       }
-      if(array_keys($discount[$type][$entity]) == array('id')) {
-        return in_array($id, $discount[$type][$entity]['id']);
-      }
+
       $params = $discount[$type][$entity] +  array_merge(array(
         'options' => array('limit' => 999999999), 'return' => 'id'
       ), $additionalFilter);
