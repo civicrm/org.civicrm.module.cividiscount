@@ -117,11 +117,6 @@
         </tr>
       {/if}
       {if $form.pricesets}
-	      <tr>
-	        <td colspan=2>
-	          <strong><em>{ts}If you use price sets for your events, you also need to select any discountable price sets below.{/ts}</em></strong>
-	        </td>
-	      </tr>
         <tr class="crm-discount-item-form-block-price-set">
           <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
           <td>{$form.pricesets.html}</td>
