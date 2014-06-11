@@ -117,7 +117,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
   // also skip when content is loaded via ajax, like payment processor, custom data etc
   $snippet = CRM_Utils_Request::retrieve('snippet', 'String', CRM_Core_DAO::$_nullObject, false, null, 'REQUEST');
 
-  if ( $snippet || ( $form->getVar('_action') && ($form->getVar('_action') & CRM_Core_Action::DELETE ) ) ) {
+  if ( $snippet == 4 || ( $form->getVar('_action') && ($form->getVar('_action') & CRM_Core_Action::DELETE ) ) ) {
     return false;
   }
 
