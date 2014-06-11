@@ -40,13 +40,6 @@ function _cividiscount_civix_civicrm_xmlMenu(&$files) {
  * Implementation of hook_civicrm_install
  */
 function _cividiscount_civix_civicrm_install() {
-  $cividiscountRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-  $cividiscountSQL = $cividiscountRoot . DIRECTORY_SEPARATOR . 'cividiscount.sql';
-
-  CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $cividiscountSQL);
-
-  // rebuild the menu so our path is picked up
-  CRM_Core_Invoke::rebuildMenuAndCaches();
   _cividiscount_civix_civicrm_config();
   if ($upgrader = _cividiscount_civix_upgrader()) {
     return $upgrader->onInstall();
@@ -57,15 +50,6 @@ function _cividiscount_civix_civicrm_install() {
  * Implementation of hook_civicrm_uninstall
  */
 function _cividiscount_civix_civicrm_uninstall() {
-  $cividiscountRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
-
-  $cividiscountSQL = $cividiscountRoot . DIRECTORY_SEPARATOR . 'cividiscount.uninstall.sql';
-
-  CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $cividiscountSQL);
-
-  // rebuild the menu so our path is picked up
-  CRM_Core_Invoke::rebuildMenuAndCaches();
-
   _cividiscount_civix_civicrm_config();
   if ($upgrader = _cividiscount_civix_upgrader()) {
     return $upgrader->onUninstall();
