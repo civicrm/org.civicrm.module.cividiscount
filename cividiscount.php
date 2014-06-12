@@ -658,7 +658,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
       }
 
       $trackingItem['entity_table'] = 'civicrm_membership';
-      $trackingItem['entity_id'] = $form->getVar('_id');
+      $trackingItem['entity_id'] = $entity_id = $form->getVar('_id');
 
       $membership_payment = _cividiscount_get_membership_payment($entity_id);
       $trackingItem['contribution_id'] = $membership_payment['contribution_id'];
