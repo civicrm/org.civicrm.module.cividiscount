@@ -346,7 +346,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $originalAmounts = $amounts;
     //$discount = array_shift($discounts);
     foreach ($discounts as $done_care => $discount) {
-      $autodiscount = CRM_Utils_Array::value('is_auto_discount', $discount);
+      if (!empty($dicountCalculater->autoDiscounts) && array_key_exists($done_care, $dicountCalculater->autoDiscounts)) {
+        $autodiscount = $applyToAllLineItems = TRUE;
+      }
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       //@todo - check that we can still exclude building events here- the original code only did the build against
       // the first discount which wasn't working
