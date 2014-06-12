@@ -186,7 +186,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
     // but preserve the value for later processing.
     if ($addDiscountField) {
         _cividiscount_add_discount_textfield($form);
-        $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+        $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
         if ($code) {
           $defaults = array('discountcode' => $code);
           $form->setDefaults($defaults);
@@ -216,7 +216,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
   $discountInfo = $form->get('_discountInfo');
 
-  $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+  $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
 
   if ((!$discountInfo || !$discountInfo['autodiscount']) && trim($code) != '') {
 
@@ -270,7 +270,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $eid = $form->getVar('_eventId');
     $psid = $form->get('priceSetId');
     $v = $form->getVar('_values');
-    $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+    $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
 
     if (!empty($v['currency'])) {
       $currency = $v['currency'];
@@ -347,7 +347,10 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     //$discount = array_shift($discounts);
     foreach ($discounts as $done_care => $discount) {
       if (!empty($dicountCalculater->autoDiscounts) && array_key_exists($done_care, $dicountCalculater->autoDiscounts)) {
-        $autodiscount = $applyToAllLineItems = TRUE;
+        $autodiscount = TRUE;
+      }
+      else {
+        $autodiscount = FALSE;
       }
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       //@todo - check that we can still exclude building events here- the original code only did the build against
@@ -379,7 +382,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         }
 
         foreach ($fee['options'] as $option_id => &$option) {
-          if (!empty($applyToAllLineItems) || CRM_Utils_Array::value($option['id'], $priceFields)) {
+          if (!empty($applyToAllLineItems) || !empty($autodiscount) || CRM_Utils_Array::value($option['id'], $priceFields)) {
             $originalLabel = $originalAmounts[$fee_id]['options'][$option_id]['label'];
             $originalAmount = (integer) $originalAmounts[$fee_id]['options'][$option_id]['amount'];
             list($amount, $label) =
