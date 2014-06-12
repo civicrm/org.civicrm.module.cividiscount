@@ -119,7 +119,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
  * Works for events and membership.
  *
  * @param string $fname
- * @param CRM_Core_Form $form
+ * @param CRM_Contribute_Form_Contribution_Main|CRM_Core_Form $form
  */
 function cividiscount_civicrm_buildForm($fname, &$form) {
   // skip for delete action
