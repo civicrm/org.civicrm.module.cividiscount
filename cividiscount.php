@@ -358,7 +358,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       if (empty($priceFields) && !empty($code)) {
         if ($pagetype == 'event') {
           $applyToAllLineItems = TRUE;
-          $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
+          if (!empty($key)) {
+            $discounts[$key]['pricesets'] = array_keys($priceSetInfo);
+          }
         }
         else {
           // filter only valid membership types that have discount
