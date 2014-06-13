@@ -900,7 +900,7 @@ function _cividiscount_add_discount_textfield(&$form) {
   }
   $form->set('discountCodeErrorMsg', null);
   $buttonName = $form->getButtonName('reload');
-  $form->addElement('submit', $buttonName, ts('Apply'));
+  $form->addElement('submit', $buttonName, ts('Apply'), array('class' => 'novalidate'));
   $template =& CRM_Core_Smarty::singleton();
   $bhfe = $template->get_template_vars('beginHookFormElements');
   if (!$bhfe) {
