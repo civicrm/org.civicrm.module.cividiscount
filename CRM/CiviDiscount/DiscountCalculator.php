@@ -102,20 +102,27 @@ class CRM_CiviDiscount_DiscountCalculator {
     if(empty($this->contact_id)) {
       return;
     }
-    foreach ($this->discounts as $discount_id => $discount) {
+
+    foreach ($this->entity_discounts as $discount_id => $discount) {
       if(empty($discount['autodiscount'])) {
-        unset($this->discounts[$discount_id]);
+        if (!empty($discount['memberships'])) {
+          $applyForMembershipOnly = TRUE;
+          continue;
+        }
+        unset($this->entity_discounts[$discount_id]);
       }
       foreach (array_keys($discount['autodiscount']) as $entity) {
         $additionalParams = array('contact_id' => $this->contact_id);
         $id = ($entity == 'contact') ? $this->contact_id : NULL;
         if(!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
-          unset($this->discounts[$discount_id]);
+          unset($this->entity_discounts[$discount_id]);
           continue;
         }
       }
     }
-    $this->autoDiscounts = $this->discounts;
+    if (empty($applyForMembershipOnly) && $this->entity != 'membership') {
+      $this->autoDiscounts = $this->entity_discounts;
+    }
   }
 
   /**
@@ -168,7 +175,15 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   function setEntityDiscounts() {
     $this->entity_discounts = array();
+    //since we cannot choose online contribution page as criteria for creating discount code so
+    //we need to bypass the check for entity=membership
+    if ($this->entity == 'membership') {
+      $this->entity_discounts = $this->discounts;
+    }
     foreach ($this->discounts as $discount_id => $discount) {
+      if ($this->entity == 'membership' && !empty($discount['autodiscount'])) {
+        unset($this->entity_discounts[$discount_id]);
+      }
       if ($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
         $this->entity_discounts[$discount_id] = $discount;
       }
