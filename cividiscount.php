@@ -999,3 +999,16 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
   }
 }
 
+/**
+ * is version of at least the version provided
+ *
+ * @param number $version
+ * @return boolean
+ */
+function cividiscount_versionAtLeast($version) {
+  $codeVersion = explode('.', CRM_Utils_System::version());
+  if (version_compare($codeVersion[0] . '.' . $codeVersion[1], $version) >= 0) {
+    return TRUE;
+  }
+  return FALSE;
+}

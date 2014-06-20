@@ -102,6 +102,11 @@ class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
                                                             )
                            );
     }
+    $this->assign('disableEnabled', TRUE);
+    if (!cividiscount_versionAtLeast(4.5)) {
+      $this->assign('disableEnabled', FALSE);
+      unset(self::$_links[CRM_Core_Action::DISABLE], self::$_links[CRM_Core_Action::ENABLE]);
+    }
     return self::$_links;
   }
 

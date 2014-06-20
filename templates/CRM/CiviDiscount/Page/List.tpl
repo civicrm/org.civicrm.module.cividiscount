@@ -31,7 +31,9 @@
   <div id="discount-list">
     {strip}
     {* handle enable/disable actions *}
-      {include file="CRM/common/enableDisableApi.tpl"}
+      {if $disableEnabled}
+        {include file="CRM/common/enableDisableApi.tpl"}
+      {/if}
       {include file="CRM/common/jsortable.tpl"}
       <table id="options" class="display">
         <thead>
