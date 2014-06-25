@@ -472,6 +472,24 @@ function _cividiscount_get_form_contact_id($form) {
   else {
     $contact_id = CRM_Core_Session::singleton()->get('userID');
   }
+
+  //For anonymous user fetch contact ID on basis of checksum
+  if (empty($contact_id)) {
+    $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $form);
+
+    if (!empty($cid)) {
+      //check if this is a checksum authentication
+      $userChecksum = CRM_Utils_Request::retrieve('cs', 'String', $form);
+      if ($userChecksum) {
+        //check for anonymous user.
+        $validUser = CRM_Contact_BAO_Contact_Utils::validChecksum($cid, $userChecksum);
+        if ($validUser) {
+          return $cid;
+        }
+      }
+    }
+  }
+
   return $contact_id;
 }
 
