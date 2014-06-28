@@ -389,8 +389,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
 
       if ($pagetype == 'event') {
-        // Do nothing, we already have the list of discountable price set items for this event
-        // as $discounts[$key]['pricesets'] from _cividiscount_get_candidate_discounts(); above
+        $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
       }
       else {
         if (empty($discounts[$key]['pricesets'])) {
