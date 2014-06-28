@@ -34,6 +34,8 @@
  *
  */
 
+require_once 'CRM/Admin/Form.php';
+require_once 'CRM/CiviDiscount/BAO/Item.php';
 
 /**
  * This class generates form components for cividiscount administration.
@@ -98,7 +100,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     // assign the defaults to smarty so delete can use it
     $this->assign('discountValue', $defaults);
-    $this->applyFilterDefaults($defaults);
+
     foreach ($this->_multiValued as $mv => $info) {
       if (! empty($defaults[$mv])) {
         $v = substr($defaults[$mv], 1, -1);
@@ -218,24 +220,11 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (! empty($events)) {
-      $events['0'] = ts('any event');
       $this->_multiValued['events'] = $events;
       $this->addElement('advmultiselect',
         'events',
         ts('Events'),
         $events,
-        array('size' => 5,
-          'style' => 'width:auto; min-width:150px;',
-          'class' => 'advmultiselect')
-      );
-
-      $eventTypes = civicrm_api3('event', 'getoptions', array('field' => 'event_type_id'));
-      $eventTypes = $eventTypes['values'];
-      $this->_multiValued['eventtypes'] = $eventTypes;
-      $this->addElement('advmultiselect',
-        'event_type_id',
-        ts('Event Types'),
-        $eventTypes,
         array('size' => 5,
           'style' => 'width:auto; min-width:150px;',
           'class' => 'advmultiselect')
@@ -284,81 +273,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $params['multi_valued'] = $this->_multiValued;
 
-    if(in_array(0, $params['events']) && count($params['events']) > 1) {
-      CRM_Core_Session::setStatus(ts('You selected `any event` and specific events, specific events have been unset'));
-      $params['events'] = array(0);
-    }
-
-    $params['filters'] = $this->getFiltersFromParams($params);
     $item = CRM_CiviDiscount_BAO_Item::add($params);
 
     CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
       array(1 => $item->description ? $item->description : $item->code)));
   }
 
-  /**
-   * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
-   * @return array filters to be stored in DB
-   */
-  function getFiltersFromParams($params) {
-    $filters = array();
-    foreach ($this->getSupportedFilters() as $entity => $fields) {
-      foreach ($fields as $field => $spec) {
-        $fieldName = $spec['form_field_name'];
-        if(!empty($params[$fieldName])) {
-          if(empty($spec['operator'])) {
-            $filters[$entity][$field] = $params[$fieldName];
-          }
-          else {
-            $filters[$entity][$field] = array($spec['operator'] => $params[$fieldName]);
-          }
-        }
-      }
-    }
-    return $filters;
-  }
-  /**
-   * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
-   * @return array filters to be stored in DB
-   */
-  function applyFilterDefaults(&$defaults) {
-    $filters = json_decode($defaults['filters'], TRUE);
-    foreach ($this->getSupportedFilters() as $entity => $fields) {
-      foreach ($fields as $field => $spec) {
-        $fieldName = $spec['form_field_name'];
-        if(empty($spec['operator'])) {
-          $defaults[$fieldName] = $filters[$entity][$field];
-        }
-        else {
-          $defaults[$fieldName] = $filters[$entity][$field][$spec['operator']];
-        }
-      }
-    }
-    return $filters;
-  }
-
-  /**
-   * Here we define filter extensions to be stored in the filters field in the DB
-   * Later we will figure out how to make this hookable so that discounts can be extended
-   * The format is
-   *   array(
-   *     'entity' => array(
-   *       'field1' => array('form_field_name' => field1),
-   *       'field2' => array('form_field_name' => field2),
-   * )
-   * where both the entity & the field names should be valid for api calls.
-   * The form field name is the name of the field on the form - we set it in case we get a conflict
-   *  - eg. multiple entities have 'status_id'
-   * @return array supported filters
-   */
-  function getSupportedFilters() {
-    return array('event' => array(
-      'event_type_id' => array(
-        'form_field_name' => 'event_type_id',
-        'operator' => 'IN',
-      ))
-    );
-  }
 }

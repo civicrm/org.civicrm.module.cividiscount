@@ -31,7 +31,8 @@
  * $Id$
  *
  */
-
+require_once 'CRM/Core/DAO.php';
+require_once 'CRM/Utils/Type.php';
 class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
   /**
    * static instance to hold the table name
@@ -96,12 +97,6 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @var string
    */
   public $description;
-  /**
-   * Discount Filters.
-   *
-   * @var string
-   */
-  public $filters;
   /**
    * Amount of discount either actual or percentage?
    *
@@ -238,14 +233,6 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
             'required' => true,
             'maxlength' => 255,
             'size' => CRM_Utils_Type::HUGE,
-          ),
-         'filters' => array(
-           'name' => 'filters',
-           'type' => CRM_Utils_Type::T_STRING,
-           'title' => ts('Discount Filters'),
-           'required' => false,
-           'maxlength' => 255,
-           'size' => CRM_Utils_Type::HUGE,
           ),
           'amount' => array(
             'name' => 'amount',
