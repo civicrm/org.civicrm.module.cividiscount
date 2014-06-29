@@ -333,6 +333,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     //    that particular price set field.
 
     // here we need to check if selected price set is quick config
+    $isQuickConfigPriceSet = CRM_CiviDiscount_Utils::checkForQuickConfigPriceSet($psid);
 
     $keys = array_keys($discounts);
     $key = array_shift($keys);
@@ -353,10 +354,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         $autodiscount = FALSE;
       }
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
-      //@todo - check that we can still exclude building events here- the original code only did the build against
-      // the first discount which wasn't working
       if (empty($priceFields) && !empty($code)) {
-        if ($pagetype == 'event') {
+        // apply discount to all the price fields for quickconfig pricesets
+        if ($pagetype == 'event' && $isQuickConfigPriceSet) {
           $applyToAllLineItems = TRUE;
           if (!empty($key)) {
             $discounts[$key]['pricesets'] = array_keys($priceSetInfo);
@@ -373,33 +373,37 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         }
       }
       $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
-      if(empty($apcount)) {
+      if (empty($apcount)) {
         //this was set to return but that doesn't make sense as there might be another discount
         continue;
       }
 
-      foreach ($amounts as $fee_id => &$fee) {
-        if (!is_array($fee['options'])) {
-          continue;
-        }
+      $discountApplied = FALSE;
+      if (!empty($autodiscount) || !empty($code)) {
+        foreach ($amounts as $fee_id => &$fee) {
+          if (!is_array($fee['options'])) {
+            continue;
+          }
 
-        foreach ($fee['options'] as $option_id => &$option) {
-          if (!empty($applyToAllLineItems) || !empty($autodiscount) || CRM_Utils_Array::value($option['id'], $priceFields)) {
-            $originalLabel = $originalAmounts[$fee_id]['options'][$option_id]['label'];
-            $originalAmount = (integer) $originalAmounts[$fee_id]['options'][$option_id]['amount'];
-            list($amount, $label) =
-              _cividiscount_calc_discount($originalAmount, $originalLabel, $discount, $autodiscount, $currency);
-            $discountAmount = $originalAmounts[$fee_id]['options'][$option_id]['amount'] - $amount;
-            if($discountAmount > CRM_Utils_Array::value('discount_applied', $option)) {
-              $option['amount'] = $amount;
-              $option['label'] = $label;
-              $option['discount_applied'] = $discountAmount;
+          foreach ($fee['options'] as $option_id => &$option) {
+            if (!empty($applyToAllLineItems) || CRM_Utils_Array::value($option['id'], $priceFields)) {
+              $originalLabel = $originalAmounts[$fee_id]['options'][$option_id]['label'];
+              $originalAmount = (integer) $originalAmounts[$fee_id]['options'][$option_id]['amount'];
+              list($amount, $label) =
+                _cividiscount_calc_discount($originalAmount, $originalLabel, $discount, $autodiscount, $currency);
+              $discountAmount = $originalAmounts[$fee_id]['options'][$option_id]['amount'] - $amount;
+              if($discountAmount > CRM_Utils_Array::value('discount_applied', $option)) {
+                $option['amount'] = $amount;
+                $option['label'] = $label;
+                $option['discount_applied'] = $discountAmount;
+              }
+              $discountApplied = TRUE;
             }
           }
         }
-        $discountApplied = TRUE;
       }
     }
+
     // this seems to incorrectly set to only the last discount but it seems not to matter in the way it is used
     if ($discountApplied) {
       $form->set('_discountInfo', array(
