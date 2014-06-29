@@ -388,7 +388,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       //retrieve price set field associated with this priceset
       $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
 
-      if ($pagetype == 'event') {
+      if ($pagetype == 'event' && $isQuickConfigPriceSet) {
         $discounts[$key]['pricesets'] = array_combine(array_keys($priceSetInfo), array_keys($priceSetInfo));
       }
       else {
