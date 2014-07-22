@@ -90,9 +90,13 @@ class CRM_CiviDiscount_Utils {
 
   static function getPriceSetsInfo($priceSetId = null) {
     $params = array();
+    $psTableName = 'civicrm_price_set_entity';
     if ($priceSetId) {
       $additionalWhere = 'ps.id = %1';
       $params = array(1 => array($priceSetId, 'Positive'));
+      if (CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Discount', $priceSetId, 'id', 'price_set_id')) {
+        $psTableName = 'civicrm_discount';
+      }
     }
     else {
       $additionalWhere = 'ps.is_quick_config = 0';
@@ -107,7 +111,7 @@ SELECT    pfv.id as item_id,
 FROM      civicrm_price_field_value as pfv
 LEFT JOIN civicrm_price_field as pf on (pf.id = pfv.price_field_id)
 LEFT JOIN civicrm_price_set as ps on (ps.id = pf.price_set_id AND ps.is_active = 1)
-INNER JOIN civicrm_price_set_entity as pse on (ps.id = pse.price_set_id)
+INNER JOIN {$psTableName} as pse on (ps.id = pse.price_set_id)
 WHERE  {$additionalWhere}
 ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 ";
