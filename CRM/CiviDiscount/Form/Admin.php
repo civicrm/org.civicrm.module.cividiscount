@@ -42,6 +42,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   protected $_multiValued = null;
   protected $_orgID = null;
   protected $_cloneID = null;
+  
+  protected $select2style = array();
 
   function preProcess() {
     $this->_id      = CRM_Utils_Request::retrieve('id', 'Positive', $this, false, 0);
@@ -73,6 +75,12 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       'memberships'  => null,
       'events'       => null,
       'pricesets'    => null
+    );
+    
+    $this->select2style = array(
+      'placeholder' => ts('- none -'),
+      'multiple' => TRUE,
+      'class' => 'crm-select2 huge',
     );
   }
 
@@ -187,15 +195,13 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     // add memberships, events, pricesets
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
-    $mTypes = array();
     if (!empty($membershipTypes)) {
-      $this->addElement('advmultiselect',
+      $this->add('select',
         'memberships',
         ts('Memberships'),
         $membershipTypes,
-        array('size' => 5,
-          'style' => 'width:auto; min-width:150px;',
-          'class' => 'advmultiselect')
+        FALSE,
+        $this->select2style
       );
     }
     $this->assignAutoDiscountFields();
@@ -204,39 +210,36 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (!empty($events)) {
-      $events['0'] = ts('--any event--');
+      $events = array(ts('--any event--')) + $events;
       $this->_multiValued['events'] = $events;
-      $this->addElement('advmultiselect',
+      $this->add('select',
         'events',
         ts('Events'),
         $events,
-        array('size' => 5,
-          'style' => 'width:auto; min-width:150px;',
-          'class' => 'advmultiselect')
+        FALSE,
+        $this->select2style
       );
 
       $eventTypes = $this->getOptions('event', 'event_type_id');
       $this->_multiValued['eventtypes'] = $eventTypes;
-      $this->addElement('advmultiselect',
+      $this->add('select',
         'event_type_id',
         ts('Event Types'),
         $eventTypes,
-        array('size' => 5,
-          'style' => 'width:auto; min-width:150px;',
-          'class' => 'advmultiselect')
+        FALSE,
+        $this->select2style
       );
     }
 
-    $pricesets = CRM_CiviDiscount_Utils::getPriceSets();
-    if (! empty($pricesets)) {
+    $pricesets = CRM_CiviDiscount_Utils::getNestedPriceSets();
+    if (!empty($pricesets)) {
       $this->_multiValued['pricesets'] = $pricesets;
-      $this->addElement('advmultiselect',
+      $this->add('select',
         'pricesets',
         ts('Price Field Options'),
         $pricesets,
-        array('size' => 7,
-          'style' => 'width:auto; min-width:150px;',
-          'class' => 'advmultiselect')
+        FALSE,
+        $this->select2style
       );
     }
   }
@@ -256,10 +259,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           $autoFilter['field_type'],
           $autoFilter['form_field_name'],
           $autoFilter['title'],
-          isset($autoFilter['options']) ? $autoFilter['options'] : array() ,
-          array('size' => 5,
-            'style' => 'width:auto; min-width:150px;',
-            'class' => 'advmultiselect')
+          isset($autoFilter['options']) ? $autoFilter['options'] : array(),
+          $this->select2style
         );
         $assignedAutoFilters[] = $autoFilter['form_field_name'];
         if(!empty($autoFilter['rule_data_type'])) {
@@ -604,14 +605,14 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'title' => ts('Automatic discount for existing members of type'),
           'form_field_name' => 'autodiscount_membership_type_id',
           'operator' => 'IN',
-          'field_type' => 'advmultiselect',
+          'field_type' => 'select',
           'options' => $this->getOptions('membership', 'membership_type_id'),
         ),
         'status_id' => array(
           'title' => ts('Automatic discount for Membership Statuses'),
           'form_field_name' => 'autodiscount_membership_status_id',
           'operator' => 'IN',
-          'field_type' => 'advmultiselect',
+          'field_type' => 'select',
           'options' => array('' => ts('--any current status--')) + $this->getOptions('membership', 'status_id'),
           'defaults_callback' => 'setMembershipStatusDefaults',
         ),
@@ -619,11 +620,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       'contact' => array(
         'contact_type' => array(
           'title' => ts('Contact Type'),
-          'field_type' => 'Text',
           'form_field_name' => 'autodiscount_contact_type',
           'operator' => 'IN',
           'options' => $this->getOptions('contact', 'contact_type'),
-          'field_type' => 'advmultiselect',
+          'field_type' => 'select',
         ),
         'age_low' => array(
           'title' => ts('Minimum Age'),
@@ -639,7 +639,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'operator' => '=',// we could make this the adjustment fn name?
           'form_field_name' => 'autodiscount_age_high',
           'rule_data_type' => 'integer',
-          'operator' => '=',
           'defaults_callback' => 'setAgeDefaults',
         ),
       ),
@@ -648,7 +647,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           'title' => ts('Country'),
           'form_field_name' => 'autodiscount_country_id',
           'operator' => 'IN',
-          'field_type' => 'advmultiselect',
+          'field_type' => 'select',
           'options' => $this->getOptions('address', 'country_id'),
         ),
       )

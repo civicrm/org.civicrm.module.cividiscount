@@ -69,6 +69,25 @@ class CRM_CiviDiscount_Utils {
     return $priceSets;
   }
 
+  static function getNestedPriceSets() {
+    $values = self::getPriceSetsInfo();
+
+    $priceSets = array();
+    if (!empty($values)) {
+      $currentLabel = NULL;
+      $optGroup = 0;
+      foreach ($values as $set) {
+        // Quickform doesn't support optgroups so this uses a hack. @see js/Common.js in core
+        if ($currentLabel !== $set['ps_label']) {
+          $priceSets['crm_optgroup_' . $optGroup++] = $set['ps_label'];
+        }
+        $priceSets[$set['item_id']] = "{$set['pf_label']} :: {$set['item_label']}";
+        $currentLabel = $set['ps_label'];
+      }
+    }
+    return $priceSets;
+  }
+
   static function getPriceSetsInfo($priceSetId = null) {
     $params = array();
     if ($priceSetId) {
