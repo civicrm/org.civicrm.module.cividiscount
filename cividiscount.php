@@ -269,6 +269,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $autodiscount = FALSE;
     $eid = $form->getVar('_eventId');
     $psid = $form->get('priceSetId');
+    $ps = $form->get('priceSet');
     $v = $form->getVar('_values');
     $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
 
@@ -406,6 +407,11 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
 
     // this seems to incorrectly set to only the last discount but it seems not to matter in the way it is used
     if ($discountApplied) {
+      if (!empty($ps['fields'])) {
+        $ps['fields'] = $amounts;
+        $form->setVar('_priceSet', $ps);
+      }
+
       $form->set('_discountInfo', array(
         'discount' => $discount,
         'autodiscount' => $autodiscount,
