@@ -57,8 +57,10 @@
     <table class="form-layout-compressed">
       <tr class="crm-discount-item-form-block-label">
         <td class="label">{$form.code.label}</td>
-        <td>{$form.code.html}&nbsp;<span class="field-suffix"><a href="# " id="generate-code" onclick="return false;">Random</a></span><br/>
-          <span class="description">{ts}WARNING: Do NOT use spaces in the Discount Code.{/ts}</span>
+        <td>
+          {$form.code.html|crmReplace:class:'crm-form-text big'}
+          <a class="crm-hover-button" href="#" id="generate-code"><span class="icon ui-icon-shuffle"></span> {ts}Random{/ts}</a>
+          <div class="description">{ts}Do NOT use spaces in the Discount Code.{/ts}</div>
         </td>
       </tr>
       <tr class="crm-discount-item-form-block-description">
@@ -71,18 +73,13 @@
       </tr>
       <tr class="crm-discount-item-form-block-amount">
         <td class="label">{$form.amount.label}</td>
-        <td>{$form.amount.html}<br/>
-            <span class="description">{ts}The amount (monetary or percentage) of the discount.{/ts}
+        <td>{$form.amount.html|crmReplace:class:'crm-form-text six'} {$form.amount_type.html}
         </td>
-      </tr>
-      <tr class="crm-discount-item-form-block-amount_type">
-        <td class="label">{$form.amount_type.label}</td>
-        <td>{$form.amount_type.html}</td>
       </tr>
       <tr class="crm-discount-item-form-block-count_max">
         <td class="label">{$form.count_max.label}</td>
-        <td>{$form.count_max.html}<br/>
-            <span class="description">{ts}How many times can this code be used? Use 0 for unlimited..{/ts}
+        <td>{$form.count_max.html|crmReplace:type:number}<br/>
+            <span class="description">{ts}How many times can this code be used? Use 0 for unlimited.{/ts}
         </td>
       </tr>
       <tr class="crm-discount-item-form-block-active_on">
@@ -172,34 +169,32 @@
 </div>
 {literal}
 <script type="text/javascript">
-  cj(function() {
-    cj().crmAccordions();
-  });
-  
-  cj("#generate-code").click(function () {
-    var chars = "abcdefghjklmnpqrstwxyz23456789";
-    var len = 8;
+  CRM.$(function($) {
+    $("#generate-code").click(function () {
+      var chars = "abcdefghjklmnpqrstwxyz23456789";
+      var len = 8;
 
-    code = randomString(chars, len);
-    cj("#code").val(code);
+      code = randomString(chars, len);
+      $("#code").val(code);
 
-    return false;
-  });
+      return false;
+    });
 
-  // Yanked from http://stackoverflow.com/questions/2477862/jquery-password-generator
-  function randomString(chars, len) {
-    var i = 0;
-    var str = "";
-    while (i <= len) {
-      $max = chars.length - 1;
-      $num = Math.floor(Math.random() * $max);
-      $temp = chars.substr($num, 1);
-      str += $temp;
-      i++;
+    // Yanked from http://stackoverflow.com/questions/2477862/jquery-password-generator
+    function randomString(chars, len) {
+      var i = 0;
+      var str = "";
+      while (i <= len) {
+        $max = chars.length - 1;
+        $num = Math.floor(Math.random() * $max);
+        $temp = chars.substr($num, 1);
+        str += $temp;
+        i++;
+      }
+
+      return str;
     }
-
-    return str;
-  }
+  });
 
 </script>
 {/literal}

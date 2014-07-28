@@ -99,6 +99,9 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       $params = array('id' => $origID);
       CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
     }
+    else {
+      $defaults['count_max'] = '0';
+    }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
     $defaults['autodiscount_active_only'] = $origID ? CRM_Utils_Array::value('autodiscount_active_only', $defaults) : 1;
     $defaults['discount_msg_enabled'] = $origID ? CRM_Utils_Array::value('discount_msg_enabled', $defaults) : 1;
@@ -171,15 +174,15 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     $this->add('text', 'description', ts('Description'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'description'));
 
-    $this->addMoney('amount', ts('Discount'), true, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), false);
+    $this->addMoney('amount', ts('Discount Amount'), true, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), false);
 
     $this->add('select', 'amount_type', ts('Amount Type'),
       array(
-        1 => ts('Percentage'),
-        2 => ts('Monetary')),
+        1 => ts('Percent'),
+        2 => ts('Fixed Amount')),
       true);
 
-    $this->add('text', 'count_max', ts('Usage'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max'), true);
+    $this->add('text', 'count_max', ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + array('min' => 0), true);
     $this->addRule('count_max', ts('Must be an integer'), 'integer');
 
     $this->addDate('active_on', ts('Activation Date'), false);
@@ -191,7 +194,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->addElement('checkbox', 'is_active', ts('Is this discount active?'));
 
     $this->addElement('checkbox', 'discount_msg_enabled', ts('Display a message to users not eligible for this discount?'));
-    $this->add('text', 'discount_msg', ts('Message to users not eligible for discount'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'discount_msg'));
+    $this->add('textarea', 'discount_msg', ts('Message to non-eligible users'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'discount_msg'));
 
     // add memberships, events, pricesets
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
@@ -206,7 +209,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $this->assignAutoDiscountFields();
     $this->addElement('text', 'advanced_autodiscount_filter_entity', ts('Specify entity for advanced autodiscount'));
-    $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter', array('size' => 50,)));
+    $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter'), array('class' => 'huge'));
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (!empty($events)) {
