@@ -101,7 +101,12 @@
             <td class="label">{$form.organization_id.label} {help id="organization" title=$form.organization_id.label}</td>
             <td>{$form.organization_id.html}</td>
           </tr>
-
+          {if $form.pricesets}
+            <tr class="crm-discount-item-form-block-price-set">
+              <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
+              <td>{$form.pricesets.html}</td>
+            </tr>
+          {/if}
           <tr>
             <td>&nbsp;</td>
             <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
@@ -128,12 +133,6 @@
             <td class="label">{$form.event_type_id.label} {help id="eventtypes" title=$form.eventstypes.label}</td>
             <td>{$form.event_type_id.html}</td>
           </tr>
-          {if $form.pricesets}
-            <tr class="crm-discount-item-form-block-price-set">
-              <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
-              <td>{$form.pricesets.html}</td>
-            </tr>
-          {/if}
         </table>
       </div>
     </div>

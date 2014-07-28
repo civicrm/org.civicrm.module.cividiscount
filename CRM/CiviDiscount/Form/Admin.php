@@ -242,7 +242,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         ts('Price Field Options'),
         $pricesets,
         FALSE,
-        $this->select2style
+        array('placeholder' => ts('- any -')) + $this->select2style
       );
     }
   }

@@ -65,7 +65,7 @@
 
 {htxt id="pricesets"}
   <p>
-    {ts}If your event uses a Price Set, the discount will be applied to ALL fields / option in the price set by default. However, if you want the discount to be applied ONLY to specific price option(s) - select those options here. NOTE: You must ALSO select the Event(s) or Event Type(s) above.{/ts}
+    {ts}If your form uses a price set, the discount will be applied to <em>all</em> options in the set by default. However, if you want the discount to be applied <em>only</em> to specific price options - select those options here.{/ts}
   </p>
 {/htxt}
 
