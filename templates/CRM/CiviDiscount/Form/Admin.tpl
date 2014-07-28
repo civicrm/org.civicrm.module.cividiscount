@@ -57,8 +57,12 @@
     <table class="form-layout-compressed">
       <tr class="crm-discount-item-form-block-label">
         <td class="label">{$form.code.label}</td>
-        <td>{$form.code.html}&nbsp;<span class="field-suffix"><a href="# " id="generate-code" onclick="return false;">Random</a></span><br/>
-          <span class="description">{ts}WARNING: Do NOT use spaces in the Discount Code.{/ts}</span>
+        <td>
+          {$form.code.html|crmReplace:class:'crm-form-text big'}
+          {if $action eq 1}
+            <a class="crm-hover-button" href="#" id="generate-code"><span class="icon ui-icon-shuffle"></span> {ts}Random{/ts}</a>
+            <div class="description">{ts}Do not use spaces in the Discount Code.{/ts}</div>
+          {/if}
         </td>
       </tr>
       <tr class="crm-discount-item-form-block-description">
@@ -71,135 +75,137 @@
       </tr>
       <tr class="crm-discount-item-form-block-amount">
         <td class="label">{$form.amount.label}</td>
-        <td>{$form.amount.html}<br/>
-            <span class="description">{ts}The amount (monetary or percentage) of the discount.{/ts}
+        <td>{$form.amount.html|crmReplace:class:'crm-form-text six'} {$form.amount_type.html}
         </td>
       </tr>
-      <tr class="crm-discount-item-form-block-amount_type">
-        <td class="label">{$form.amount_type.label}</td>
-        <td>{$form.amount_type.html}</td>
-      </tr>
-      <tr class="crm-discount-item-form-block-count_max">
-        <td class="label">{$form.count_max.label}</td>
-        <td>{$form.count_max.html}<br/>
-            <span class="description">{ts}How many times can this code be used? Use 0 for unlimited..{/ts}
-        </td>
-      </tr>
-      <tr class="crm-discount-item-form-block-active_on">
-        <td class="label">{$form.active_on.label} {help id="active_on" title=$form.active_on.label}</td>
-        <td>{include file="CRM/common/jcalendar.tpl" elementName=active_on}</td>
-      </tr>
-      <tr class="crm-discount-item-form-block-expire_on">
-        <td class="label">{$form.expire_on.label} {help id="expire_on" title=$form.expire_on.label}</td>
-        <td>{include file="CRM/common/jcalendar.tpl" elementName=expire_on}</td>
-      </tr>
-      <tr class="crm-discount-item-form-block-organization_id">
-        <td class="label">{$form.organization_id.label} {help id="organization" title=$form.organization_id.label}</td>
-        <td>{$form.organization_id.html}</td>
-      </tr>
-
-      <tr>
-        <td>&nbsp;</td>
-        <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
-      </tr>
-      <tr class="crm-discount-item-form-block-discount-message">
-        <td class="label">{$form.discount_msg.label} {help id="discount-message" title=$form.discount_msg.label}</td>
-        <td>{$form.discount_msg.html}</td>
-      </tr>
-      {if $form.events}
-        <tr class="crm-discount-item-form-block-events">
-          <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
-          <td>{$form.events.html}<td>
-        </tr>
-        <tr class="crm-discount-item-form-block-event-types">
-          <td class="label">{$form.event_type_id.label} {help id="eventtypes" title=$form.eventstypes.label}</td>
-          <td>{$form.event_type_id.html}</td>
-        </tr>
-      {/if}
-      {if $form.pricesets}
-        <tr class="crm-discount-item-form-block-price-set">
-          <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
-          <td>{$form.pricesets.html}</td>
-        </tr>
-      {/if}
-      {if $form.memberships}
-        </table>
-				<div class="crm-accordion-wrapper collapsed crm-discount-form-block-memberships"> 
-          <div class="crm-accordion-header">
-          	{ts}Discounts apply to these memberships{/ts} {help id="memberships" title=$form.memberships.label}
-          </div>
-          <div class="crm-accordion-body">
-          	<table class="form-layout-compressed">
-							<tr class="crm-discount-item-form-block-memberships">
-             		<td class="label">{$form.memberships.label}</td>
-              	<td>{$form.memberships.html}<br/></td>
-             </tr>
-            </table>
-        	</div><!-- /.crm-accordion-body -->
-        </div><!-- /.crm-accordion-wrapper -->
+    </table>
+    <fieldset class="crm-collapsible">
+      <legend class="collapsible-title">{ts}Additional Options{/ts}</legend>
+      <div>
         <table class="form-layout-compressed">
-      {/if}
-      {if $autodiscounts}
-      </table>
-				<div class="crm-accordion-wrapper collapsed crm-discount-form-block-other-criteria"> 
-          <div class="crm-accordion-header">
-           {ts}Discounts applied automatically when these criteria are met{/ts} {help id="autodiscount" title="Automatic discounts"}
-          </div>
-          <div class="crm-accordion-body">
-            <table class="form-layout-compressed">
+          <tr class="crm-discount-item-form-block-count_max">
+            <td class="label">{$form.count_max.label} {help id="count_max" title=$form.count_max.label}</td>
+            <td>{$form.count_max.html|crmReplace:type:number}</td>
+          </tr>
+          <tr class="crm-discount-item-form-block-active_on">
+            <td class="label">{$form.active_on.label} {help id="active_on" title=$form.active_on.label}</td>
+            <td>{include file="CRM/common/jcalendar.tpl" elementName=active_on}</td>
+          </tr>
+          <tr class="crm-discount-item-form-block-expire_on">
+            <td class="label">{$form.expire_on.label} {help id="expire_on" title=$form.expire_on.label}</td>
+            <td>{include file="CRM/common/jcalendar.tpl" elementName=expire_on}</td>
+          </tr>
+          <tr class="crm-discount-item-form-block-organization_id">
+            <td class="label">{$form.organization_id.label} {help id="organization" title=$form.organization_id.label}</td>
+            <td>{$form.organization_id.html}</td>
+          </tr>
+          {if $form.pricesets}
+            <tr class="crm-discount-item-form-block-price-set">
+              <td class="label">{$form.pricesets.label} {help id="pricesets" title=$form.pricesets.label}</td>
+              <td>{$form.pricesets.html}</td>
+            </tr>
+          {/if}
+          <tr>
+            <td>&nbsp;</td>
+            <td>{$form.discount_msg_enabled.html} {$form.discount_msg_enabled.label}</td>
+          </tr>
+          <tr class="crm-discount-item-form-block-discount-message">
+            <td class="label">{help id="discount-message" title=$form.discount_msg.label}</td>
+            <td>{$form.discount_msg.html}</td>
+          </tr>
+        </table>
+      </div>
+    </fieldset>
+    {if $form.events}
+    <div class="crm-accordion-wrapper {if $action eq 1}collapsed {/if}crm-discount-form-block-events">
+      <div class="crm-accordion-header">
+        {ts}Discounts for events{/ts}
+      </div>
+      <div class="crm-accordion-body">
+        <table class="form-layout-compressed">
+          <tr class="crm-discount-item-form-block-events">
+            <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
+            <td>{$form.events.html}<td>
+          </tr>
+          <tr class="crm-discount-item-form-block-event-types">
+            <td class="label">{$form.event_type_id.label} {help id="eventtypes" title=$form.eventstypes.label}</td>
+            <td>{$form.event_type_id.html}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {/if}
+
+    {if $form.memberships}
+      <div class="crm-accordion-wrapper {if $action eq 1}collapsed {/if}crm-discount-form-block-memberships">
+        <div class="crm-accordion-header">
+          {ts}Discounts for memberships{/ts}
+        </div>
+        <div class="crm-accordion-body">
+          <table class="form-layout-compressed">
+            <tr class="crm-discount-item-form-block-memberships">
+              <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
+              <td>{$form.memberships.html}<br/></td>
+           </tr>
+          </table>
+        </div>
+      </div>
+    {/if}
+    {if $autodiscounts}
+      <div class="crm-accordion-wrapper collapsed crm-discount-form-block-other-criteria">
+        <div class="crm-accordion-header">
+         {ts}Automatic Discounts{/ts}
+        </div>
+        <div class="crm-accordion-body">
+          <p class="description">{ts}Discount will be applied automatically if all of the following conditions are met (no code needed).{/ts} {help id="autodiscount" title="Automatic discounts"}</p>
+          <table class="form-layout-compressed">
             {foreach from=$autodiscounts item='autodiscount}
               <tr class="crm-discount-item-form-block-auto-discount">
                 <td class="label">{$form.$autodiscount.label}</td>
                 <td>{$form.$autodiscount.html}</td>
               </tr>
             {/foreach}
-              <tr class="crm-discount-item-form-block-advanced_autodiscount_filter_entity">
-                <td class="label">{$form.advanced_autodiscount_filter_entity.label}</td>
-                <td>{$form.advanced_autodiscount_filter_entity.html}</td>
-              </tr>
-              <tr>
-                <td class="label">{$form.advanced_autodiscount_filter_string.label}</td>
-                <td>{$form.advanced_autodiscount_filter_string.html}</td>
-              </tr>
-            </table>
-          </div><!-- /.crm-accordion-body -->
-        </div><!-- /.crm-accordion-wrapper -->
-        <table class="form-layout-compressed">
-      {/if}
-    </table>
+            <tr class="crm-discount-item-form-block-advanced_autodiscount_filter_entity">
+              <td class="label">{$form.advanced_autodiscount_filter_entity.label}</td>
+              <td>{$form.advanced_autodiscount_filter_entity.html}</td>
+            </tr>
+            <tr>
+              <td class="label">{$form.advanced_autodiscount_filter_string.label}</td>
+              <td>{$form.advanced_autodiscount_filter_string.html}</td>
+            </tr>
+          </table>
+        </div><!-- /.crm-accordion-body -->
+      </div><!-- /.crm-accordion-wrapper -->
+    {/if}
   {/if}
   <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
 </div>
 {literal}
 <script type="text/javascript">
-  cj(function() {
-    cj().crmAccordions();
-  });
-  
-  cj("#generate-code").click(function () {
-    var chars = "abcdefghjklmnpqrstwxyz23456789";
-    var len = 8;
+  CRM.$(function($) {
+    $('#discount_msg_enabled').change(function() {
+      $('.crm-discount-item-form-block-discount-message').toggle($(this).is(':checked'));
+    }).change();
 
-    code = randomString(chars, len);
-    cj("#code").val(code);
+    $("#generate-code").click(function (e) {
+      $("#code").val(randomString("abcdefghjklmnpqrstwxyz23456789", 8));
+      e.preventDefault();
+    });
 
-    return false;
-  });
+    // Yanked from http://stackoverflow.com/questions/2477862/jquery-password-generator
+    function randomString(chars, len) {
+      var i = 0, str = "", $max, $num, $temp;
+      while (i <= len) {
+        $max = chars.length - 1;
+        $num = Math.floor(Math.random() * $max);
+        $temp = chars.substr($num, 1);
+        str += $temp;
+        i++;
+      }
 
-  // Yanked from http://stackoverflow.com/questions/2477862/jquery-password-generator
-  function randomString(chars, len) {
-    var i = 0;
-    var str = "";
-    while (i <= len) {
-      $max = chars.length - 1;
-      $num = Math.floor(Math.random() * $max);
-      $temp = chars.substr($num, 1);
-      str += $temp;
-      i++;
+      return str;
     }
-
-    return str;
-  }
+  });
 
 </script>
 {/literal}

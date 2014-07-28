@@ -24,6 +24,12 @@
  +--------------------------------------------------------------------+
 *}
 
+{htxt id="count_max"}
+  <p>
+    {ts}The maximum number of times this discount code can be used. Leave blank for no limit.{/ts}
+  </p>
+{/htxt}
+
 {htxt id="active_on"}
   <p>
     {ts}This discount will not be usable before this date. Leave blank to have it be enabled right away.{/ts}
@@ -65,7 +71,7 @@
 
 {htxt id="pricesets"}
   <p>
-    {ts}If your event uses a Price Set, the discount will be applied to ALL fields / option in the price set by default. However, if you want the discount to be applied ONLY to specific price option(s) - select those options here. NOTE: You must ALSO select the Event(s) or Event Type(s) above.{/ts}
+    {ts}If your form uses a price set, the discount will be applied to <em>all</em> options in the set by default. However, if you want the discount to be applied <em>only</em> to specific price options - select those options here.{/ts}
   </p>
 {/htxt}
 

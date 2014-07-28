@@ -101,7 +101,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
     $defaults['autodiscount_active_only'] = $origID ? CRM_Utils_Array::value('autodiscount_active_only', $defaults) : 1;
-    $defaults['discount_msg_enabled'] = $origID ? CRM_Utils_Array::value('discount_msg_enabled', $defaults) : 1;
+    $defaults['discount_msg_enabled'] = $origID ? CRM_Utils_Array::value('discount_msg_enabled', $defaults) : 0;
+    $defaults['count_max'] = empty($defaults['count_max']) ? '' : $defaults['count_max'];
 
     // assign the defaults to smarty so delete can use it
     $this->assign('discountValue', $defaults);
@@ -154,7 +155,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->applyFilter('__ALL__', 'trim');
     $element = $this->add('text',
       'code',
-      ts('Code'),
+      ts('Discount Code'),
       CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'code'),
       true
     );
@@ -171,15 +172,15 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     $this->add('text', 'description', ts('Description'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'description'));
 
-    $this->addMoney('amount', ts('Discount'), true, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), false);
+    $this->addMoney('amount', ts('Discount Amount'), true, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), false);
 
-    $this->add('select', 'amount_type', ts('Amount Type'),
+    $this->add('select', 'amount_type', NULL,
       array(
-        1 => ts('Percentage'),
-        2 => ts('Monetary')),
+        1 => ts('Percent'),
+        2 => ts('Fixed Amount')),
       true);
 
-    $this->add('text', 'count_max', ts('Usage'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max'), true);
+    $this->add('text', 'count_max', ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + array('min' => 1));
     $this->addRule('count_max', ts('Must be an integer'), 'integer');
 
     $this->addDate('active_on', ts('Activation Date'), false);
@@ -191,7 +192,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->addElement('checkbox', 'is_active', ts('Is this discount active?'));
 
     $this->addElement('checkbox', 'discount_msg_enabled', ts('Display a message to users not eligible for this discount?'));
-    $this->add('text', 'discount_msg', ts('Message to users not eligible for discount'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'discount_msg'));
+    $this->add('textarea', 'discount_msg', ts('Message to non-eligible users'), array('class' => 'big'));
 
     // add memberships, events, pricesets
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
@@ -206,7 +207,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $this->assignAutoDiscountFields();
     $this->addElement('text', 'advanced_autodiscount_filter_entity', ts('Specify entity for advanced autodiscount'));
-    $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter', array('size' => 50,)));
+    $this->addElement('text', 'advanced_autodiscount_filter_string', ts('Specify api string for advanced filter'), array('class' => 'huge'));
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (!empty($events)) {
@@ -239,7 +240,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         ts('Price Field Options'),
         $pricesets,
         FALSE,
-        $this->select2style
+        array('placeholder' => ts('- any -')) + $this->select2style
       );
     }
   }
@@ -280,7 +281,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   public function postProcess() {
     if ($this->_action & CRM_Core_Action::DELETE) {
       CRM_CiviDiscount_BAO_Item::del($this->_id);
-      CRM_Core_Session::setStatus(ts('Selected Discount has been deleted.'));
+      CRM_Core_Session::setStatus(ts('Selected Discount has been deleted.'), ts('Deleted'), 'success');
       return;
     }
 
@@ -288,11 +289,13 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       $params = $this->exportValues();
       $newCode = CRM_CiviDiscount_Utils::randomString('abcdefghjklmnpqrstwxyz23456789', 8);
       CRM_CiviDiscount_BAO_Item::copy($this->_cloneID, $params, $newCode);
-      CRM_Core_Session::setStatus(ts('Selected Discount has been duplicated.'));
+      CRM_Core_Session::setStatus(ts('Selected Discount has been duplicated.'), ts('Copied'), 'success');
       return;
     }
 
     $params = $this->exportValues();
+
+    $params['count_max'] = (int) $params['count_max'];
 
     if ($this->_action & CRM_Core_Action::UPDATE) {
       $params['id'] = $this->_id;
@@ -314,7 +317,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $item = CRM_CiviDiscount_BAO_Item::add($params);
 
     CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
-      array(1 => $item->description ? $item->description : $item->code)));
+      array(1 => $item->description ? $item->description : $item->code)), ts('Saved'), 'success');
   }
 
 /**
