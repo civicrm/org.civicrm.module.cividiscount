@@ -24,6 +24,12 @@
  +--------------------------------------------------------------------+
 *}
 
+{htxt id="count_max"}
+  <p>
+    {ts}The maximum number of times this discount code can be used. Leave blank for no limit.{/ts}
+  </p>
+{/htxt}
+
 {htxt id="active_on"}
   <p>
     {ts}This discount will not be usable before this date. Leave blank to have it be enabled right away.{/ts}

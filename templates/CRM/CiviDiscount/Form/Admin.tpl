@@ -84,10 +84,8 @@
       <div>
         <table class="form-layout-compressed">
           <tr class="crm-discount-item-form-block-count_max">
-            <td class="label">{$form.count_max.label}</td>
-            <td>{$form.count_max.html|crmReplace:type:number}<br/>
-                <span class="description">{ts}How many times can this code be used? Use 0 for unlimited.{/ts}
-            </td>
+            <td class="label">{$form.count_max.label} {help id="count_max" title=$form.count_max.label}</td>
+            <td>{$form.count_max.html|crmReplace:type:number}</td>
           </tr>
           <tr class="crm-discount-item-form-block-active_on">
             <td class="label">{$form.active_on.label} {help id="active_on" title=$form.active_on.label}</td>

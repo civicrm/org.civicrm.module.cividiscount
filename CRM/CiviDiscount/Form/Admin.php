@@ -99,12 +99,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       $params = array('id' => $origID);
       CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
     }
-    else {
-      $defaults['count_max'] = '0';
-    }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
     $defaults['autodiscount_active_only'] = $origID ? CRM_Utils_Array::value('autodiscount_active_only', $defaults) : 1;
     $defaults['discount_msg_enabled'] = $origID ? CRM_Utils_Array::value('discount_msg_enabled', $defaults) : 0;
+    $defaults['count_max'] = empty($defaults['count_max']) ? '' : $defaults['count_max'];
 
     // assign the defaults to smarty so delete can use it
     $this->assign('discountValue', $defaults);
@@ -182,7 +180,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         2 => ts('Fixed Amount')),
       true);
 
-    $this->add('text', 'count_max', ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + array('min' => 0), true);
+    $this->add('text', 'count_max', ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + array('min' => 1));
     $this->addRule('count_max', ts('Must be an integer'), 'integer');
 
     $this->addDate('active_on', ts('Activation Date'), false);
@@ -296,6 +294,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
 
     $params = $this->exportValues();
+
+    $params['count_max'] = (int) $params['count_max'];
 
     if ($this->_action & CRM_Core_Action::UPDATE) {
       $params['id'] = $this->_id;
