@@ -3,9 +3,9 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.3                                                |
+ | CiviCRM version 4.5                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2013                                |
+ | Copyright CiviCRM LLC (c) 2004-2014                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -32,7 +32,7 @@
  *
  * @package Civicrm Discount
  * @subpackage API
- * @copyright CiviCRM LLC (c) 2004-2013
+ * @copyright CiviCRM LLC (c) 2004-2014
  */
 //not sure why this is required but didn't seem to autoload
 require_once 'CRM/CiviDiscount/BAO/Item.php';
