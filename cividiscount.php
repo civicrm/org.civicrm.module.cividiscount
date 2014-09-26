@@ -665,7 +665,12 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     $contribution_id = NULL;
     // Offline event registration.
     if (in_array($class, array('CRM_Event_Form_Participant', 'CRM_Event_Form_ParticipantFeeSelection'))) {
-      $entity_id = !empty($form->getVar('_id')) ? $form->getVar('_id') : $form->getVar('_participantId');
+      if ($class == 'CRM_Event_Form_ParticipantFeeSelection') {
+        $entity_id = $form->getVar('_participantId');
+      }
+      else {
+        $entity_id = $form->getVar('_id');
+      }
       $participant_payment = _cividiscount_get_participant_payment($entity_id);
       $contribution_id = $participant_payment['contribution_id'];
       $entity_table = 'civicrm_participant';
