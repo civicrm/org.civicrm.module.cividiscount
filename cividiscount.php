@@ -584,7 +584,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     'CRM_Event_Form_Participant',
     'CRM_Event_Form_Registration_Confirm',
     'CRM_Member_Form_Membership',
-    'CRM_Member_Form_MembershipRenewal'
+    'CRM_Member_Form_MembershipRenewal',
+    'CRM_Event_Form_ParticipantFeeSelection'
   ))) {
     return;
   }
@@ -663,8 +664,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   else {
     $contribution_id = NULL;
     // Offline event registration.
-    if ($class =='CRM_Event_Form_Participant') {
-      $entity_id = $form->getVar('_id');
+    if (in_array($class, array('CRM_Event_Form_Participant', 'CRM_Event_Form_ParticipantFeeSelection'))) {
+      $entity_id = !empty($form->getVar('_id')) ? $form->getVar('_id') : $form->getVar('_participantId');
       $participant_payment = _cividiscount_get_participant_payment($entity_id);
       $contribution_id = $participant_payment['contribution_id'];
       $entity_table = 'civicrm_participant';
