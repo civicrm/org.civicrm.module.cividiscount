@@ -143,6 +143,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
             'CRM_Event_Form_Registration_Register',
             //'CRM_Event_Form_Registration_AdditionalParticipant',
             'CRM_Contribute_Form_Contribution_Main',
+            'CRM_Event_Form_ParticipantFeeSelection',
           ))) {
 
     // Display the discount textfield for online events (including
@@ -153,6 +154,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
     if ( in_array($fname, array(
       'CRM_Event_Form_Registration_Register',
       //'CRM_Event_Form_Registration_AdditionalParticipant'
+      'CRM_Event_Form_ParticipantFeeSelection',
     ))) {
       $contact_id = _cividiscount_get_form_contact_id($form);
       $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('event', $form->getVar('_eventId'), $contact_id, NULL, TRUE);
@@ -187,6 +189,9 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
     if ($addDiscountField) {
         _cividiscount_add_discount_textfield($form);
         $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
+        if (empty($code) && $fname == 'CRM_Event_Form_ParticipantFeeSelection') {
+          $code = _cividiscount_get_item_by_track('civicrm_participant', $form->getVar('_participantId'), $contact_id, TRUE);
+        }
         if ($code) {
           $defaults = array('discountcode' => $code);
           $form->setDefaults($defaults);
@@ -254,6 +259,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
   if (( !$form->getVar('_action')
         || ($form->getVar('_action') & CRM_Core_Action::PREVIEW)
         || ($form->getVar('_action') & CRM_Core_Action::ADD)
+        || ($form->getVar('_action') & CRM_Core_Action::UPDATE)
       )
     && !empty($amounts) && is_array($amounts) &&
       ($pagetype == 'event' || $pagetype == 'membership')) {
@@ -271,7 +277,14 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $psid = $form->get('priceSetId');
     $ps = $form->get('priceSet');
     $v = $form->getVar('_values');
+
     $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
+    if (!array_key_exists('discountcode', $form->_submitValues)
+      && ($pid = $form->getVar('_participantId'))
+      && ($form->getVar('_action') & CRM_Core_Action::UPDATE)
+    ) {
+      $code = _cividiscount_get_item_by_track('civicrm_participant', $pid, $contact_id, TRUE);
+    }
 
     if (!empty($v['currency'])) {
       $currency = $v['currency'];
@@ -571,7 +584,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     'CRM_Event_Form_Participant',
     'CRM_Event_Form_Registration_Confirm',
     'CRM_Member_Form_Membership',
-    'CRM_Member_Form_MembershipRenewal'
+    'CRM_Member_Form_MembershipRenewal',
+    'CRM_Event_Form_ParticipantFeeSelection'
   ))) {
     return;
   }
@@ -650,8 +664,13 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   else {
     $contribution_id = NULL;
     // Offline event registration.
-    if ($class =='CRM_Event_Form_Participant') {
-      $entity_id = $form->getVar('_id');
+    if (in_array($class, array('CRM_Event_Form_Participant', 'CRM_Event_Form_ParticipantFeeSelection'))) {
+      if ($class == 'CRM_Event_Form_ParticipantFeeSelection') {
+        $entity_id = $form->getVar('_participantId');
+      }
+      else {
+        $entity_id = $form->getVar('_id');
+      }
       $participant_payment = _cividiscount_get_participant_payment($entity_id);
       $contribution_id = $participant_payment['contribution_id'];
       $entity_table = 'civicrm_participant';
@@ -710,16 +729,16 @@ function cividiscount_civicrm_postProcess($class, &$form) {
 function cividiscount_civicrm_pre($op, $name, $id, &$obj) {
   if ($op == 'delete') {
     if ( in_array($name, array('Individual','Household','Organization')) ) {
-      $result = _cividiscount_get_item_id_by_track(null, null, $id);
+      $result = _cividiscount_get_item_by_track(null, null, $id);
     }
     elseif ($name == 'Participant') {
       if (($result = _cividiscount_get_participant($id)) && ($contactid = $result['contact_id'])) {
-        $result = _cividiscount_get_item_id_by_track('civicrm_participant', $id, $contactid);
+        $result = _cividiscount_get_item_by_track('civicrm_participant', $id, $contactid);
       }
     }
     else if ($name == 'Membership') {
       if (($result = _cividiscount_get_membership($id)) && ($contactid = $result['contact_id'])) {
-        $result = _cividiscount_get_item_id_by_track('civicrm_membership', $id, $contactid);
+        $result = _cividiscount_get_item_by_track('civicrm_membership', $id, $contactid);
       }
     }
     else {
@@ -851,17 +870,22 @@ function _cividiscount_get_tracking_count_by_org($cid) {
   return $count;
 }
 
-function _cividiscount_get_item_id_by_track($table, $eid, $cid) {
-  if (!$table) {
-    $entityTableClause = "entity_table IN ('civicrm_membership','civicrm_participant')";
-  }
-  else {
+function _cividiscount_get_item_by_track($table, $eid, $cid, $returnCode = FALSE) {
+  $entityTableClause = "entity_table IN ('civicrm_membership','civicrm_participant')";
+  if (!empty($eid) && !empty($table)) {
     $entityTableClause = "entity_table = '{$table}' AND entity_id = {$eid}";
   }
-  $sql = "SELECT id, item_id FROM cividiscount_track WHERE {$entityTableClause} AND contact_id = $cid";
+
+  $sql = "SELECT cdt.id as id, item_id, code
+FROM cividiscount_track cdt
+LEFT JOIN cividiscount_item cdi ON cdt.item_id = cdi.id
+WHERE {$entityTableClause} AND contact_id = $cid";
   $dao = CRM_Core_DAO::executeQuery($sql, array());
   $discountEntries = array();
   while ($dao->fetch()) {
+    if ($returnCode) {
+      return $dao->code;
+    }
     $discountEntries[] = array('id' => $dao->id, 'item_id' => $dao->item_id);
   }
 
