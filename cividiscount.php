@@ -576,8 +576,12 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     $membership_type = $params['selectMembership'];
     $membershipId = $params['membershipID'];
 
+    if (!is_array($membership_type)) {
+      $membership_type = array($membership_type);
+    }
+    $discount_membership_matches = array_intersect($membership_type, $discount['memberships']);
     // check to make sure the discount actually applied to this membership.
-    if (!CRM_Utils_Array::value($membership_type, $discount['memberships']) || !$membershipId) {
+    if ( empty($discount_membership_matches) || !$membershipId) {
       return;
     }
 
