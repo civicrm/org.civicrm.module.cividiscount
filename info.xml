@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension key="org.civicrm.module.cividiscount" type="module">
 <downloadUrl>
-https://github.com/dlobo/org.civicrm.module.cividiscount/archive/v2.5.zip
+https://github.com/dlobo/org.civicrm.module.cividiscount/archive/v2.6.zip
 </downloadUrl>
 <file>cividiscount</file>
 <name>CiviDiscount Module Extension</name>
@@ -21,8 +21,8 @@ https://github.com/dlobo/org.civicrm.module.cividiscount/
 <author>CiviCRM LLC</author>
 <email>info@civicrm.org</email>
 </maintainer>
-<releaseDate>2013-11-05</releaseDate>
-<version>2.5</version>
+<releaseDate>2014-10-08</releaseDate>
+<version>2.6</version>
 <develStage>stable</develStage>
 <compatibility>
 <ver>4.3</ver>
