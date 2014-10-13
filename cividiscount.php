@@ -228,7 +228,9 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   // _discountInfo is assigned in cividiscount_civicrm_buildAmount() or
   // cividiscount_civicrm_membershipTypeValues() when a discount is used.
   $discounts = $form->get('_discountInfo');
-
+  if (empty($discounts)) {
+    return;
+  }
   $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
   $ok = FALSE;
   $newerrors = array();
