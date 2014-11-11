@@ -159,7 +159,6 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
       $contact_id = _cividiscount_get_form_contact_id($form);
       $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('event', $form->getVar('_eventId'), $contact_id, NULL, TRUE);
       $addDiscountField = $discountCalculator->isShowDiscountCodeField();
-
     }
     elseif ($fname == 'CRM_Contribute_Form_Contribution_Main') {
       $ids = _cividiscount_get_discounted_membership_ids();
@@ -368,7 +367,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         $autodiscount = FALSE;
       }
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
-      if (empty($priceFields) && !empty($code)) {
+      if (empty($priceFields) && (!empty($code) || $autodiscount)) {
         // apply discount to all the price fields for quickconfig pricesets
         if ($pagetype == 'event' && $isQuickConfigPriceSet) {
           $applyToAllLineItems = TRUE;
