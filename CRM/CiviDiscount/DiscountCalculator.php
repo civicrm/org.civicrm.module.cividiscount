@@ -251,6 +251,11 @@ class CRM_CiviDiscount_DiscountCalculator {
         return TRUE;
       }
       if(array_keys($discount[$type][$entity]) == array('id')) {
+
+        if (!empty($discount[$type][$entity]['id']['IN'])) {
+          return in_array($id, $discount[$type][$entity]['id']['IN']);
+        }
+        //@todo - remove this in favour of above? is it always consistent?
         return in_array($id, $discount[$type][$entity]['id']);
       }
       $params = $discount[$type][$entity] +  array_merge(array(
