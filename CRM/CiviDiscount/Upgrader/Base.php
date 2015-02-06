@@ -34,11 +34,11 @@ class CRM_CiviDiscount_Upgrader_Base {
    * Obtain a refernece to the active upgrade handler
    */
   static public function instance() {
-    if (! self::$instance) {
+    if (!self::$instance) {
       // FIXME auto-generate
       self::$instance = new CRM_CiviDiscount_Upgrader(
         'org.civicrm.module.cividiscount',
-        realpath(__DIR__ .'/../../../')
+        realpath(__DIR__ . '/../../../')
       );
     }
     return self::$instance;
@@ -84,7 +84,7 @@ class CRM_CiviDiscount_Upgrader_Base {
   /**
    * Run a CustomData file
    *
-   * @param string $xml_file  the CustomData XML file path (absolute path)
+   * @param string $xml_file the CustomData XML file path (absolute path)
    * @return bool
    */
   protected static function executeCustomDataFileByAbsPath($xml_file) {
@@ -200,7 +200,7 @@ class CRM_CiviDiscount_Upgrader_Base {
    * @return array(revisionNumbers) sorted numerically
    */
   public function getRevisions() {
-    if (! is_array($this->revisions)) {
+    if (!is_array($this->revisions)) {
       $this->revisions = array();
 
       $clazz = new ReflectionClass(get_class($this));
@@ -285,7 +285,7 @@ class CRM_CiviDiscount_Upgrader_Base {
   }
 
   public function onUpgrade($op, CRM_Queue_Queue $queue = NULL) {
-    switch($op) {
+    switch ($op) {
       case 'check':
         return array($this->hasPendingRevisions());
       case 'enqueue':

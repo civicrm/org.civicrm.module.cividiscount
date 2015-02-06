@@ -1,10 +1,9 @@
 <?php
-
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.6                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2015                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -27,11 +26,7 @@
 */
 
 /**
- *
- * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2014
- * $Id$
- *
+ * @package CiviDiscount
  */
 
 require_once 'CRM/CiviDiscount/DAO/Item.php';
@@ -49,18 +44,18 @@ class CRM_CiviDiscount_Page_Usage extends CRM_Core_Page {
 
   function preProcess() {
 
-    $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
-    $oid = CRM_Utils_Request::retrieve('oid', 'Positive', $this, false);
+    $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this, FALSE);
+    $oid = CRM_Utils_Request::retrieve('oid', 'Positive', $this, FALSE);
 
     if ($oid) {
-      $this->_id = CRM_Utils_Request::retrieve('oid', 'Positive', $this, false);
+      $this->_id = CRM_Utils_Request::retrieve('oid', 'Positive', $this, FALSE);
     }
     else {
       $this->assign('hide_contact', TRUE);
       $this->_id = $cid;
     }
 
-    if (! CRM_Utils_Rule::positiveInteger($this->_id)) {
+    if (!CRM_Utils_Rule::positiveInteger($this->_id)) {
       CRM_Core_Error::fatal('We need a valid discount ID for view');
     }
 

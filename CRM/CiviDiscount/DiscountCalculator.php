@@ -1,10 +1,9 @@
 <?php
-
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.6                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2015                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -27,13 +26,8 @@
 */
 
 /**
- *
  * @package CiviDiscount
- * @copyright CiviCRM LLC (c) 2004-2014
- * $Id$
- *
  */
-
 class CRM_CiviDiscount_DiscountCalculator {
   protected $entity;
   protected $entity_id;
@@ -53,7 +47,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * @param boolean $is_anonymous - ie are we trying to calculate whether it would be possible to find a discount cod
    */
   function __construct($entity, $entity_id, $contact_id, $code, $is_display_field_mode) {
-    if(empty($code) && empty($contact_id) && !$is_display_field_mode) {
+    if (empty($code) && empty($contact_id) && !$is_display_field_mode) {
       $this->discounts = array();
     }
     else {
@@ -70,11 +64,11 @@ class CRM_CiviDiscount_DiscountCalculator {
    * Get discounts that apply in this instance
    */
   function getDiscounts() {
-    if(!empty($this->code)) {
+    if (!empty($this->code)) {
       $this->filterDiscountByCode();
     }
     $this->filterDiscountByEntity();
-    if(!$this->is_display_field_mode) {
+    if (!$this->is_display_field_mode) {
       $this->filterDiscountsByContact();
     }
     return $this->entity_discounts;
@@ -99,12 +93,12 @@ class CRM_CiviDiscount_DiscountCalculator {
    * (saves a query)
    */
   function filterDiscountsByContact() {
-    if(empty($this->contact_id)) {
+    if (empty($this->contact_id)) {
       return;
     }
     $entityDiscounts = $this->entity_discounts;
     foreach ($this->entity_discounts as $discount_id => $discount) {
-      if(empty($discount['autodiscount'])) {
+      if (empty($discount['autodiscount'])) {
         if (!empty($discount['memberships'])) {
           $applyForMembershipOnly = TRUE;
           continue;
@@ -114,7 +108,7 @@ class CRM_CiviDiscount_DiscountCalculator {
       foreach (array_keys($discount['autodiscount']) as $entity) {
         $additionalParams = array('contact_id' => $this->contact_id);
         $id = ($entity == 'contact') ? $this->contact_id : NULL;
-        if(!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
+        if (!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
           unset($entityDiscounts[$discount_id]);
           continue;
         }
@@ -129,7 +123,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * get discounts relative to the entity
    */
   function getEntityDiscounts() {
-    if(is_array($this->entity_discounts)) {
+    if (is_array($this->entity_discounts)) {
       return $this->entity_discounts;
     }
     $this->setEntityDiscounts();
@@ -141,7 +135,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   function getEntityHasDiscounts() {
     $this->getDiscounts();
-    if(!empty($this->entity_discounts)) {
+    if (!empty($this->entity_discounts)) {
       return TRUE;
     }
   }
@@ -153,7 +147,7 @@ class CRM_CiviDiscount_DiscountCalculator {
     if (!$this->getEntityHasDiscounts()) {
       return FALSE;
     }
-    if(!empty($this->entity_discounts)) {
+    if (!empty($this->entity_discounts)) {
       return TRUE;
     }
   }
@@ -205,25 +199,25 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
     try {
-      if(!isset($discount[$type][$entity])) {
+      if (!isset($discount[$type][$entity])) {
         return FALSE;
       }
-      if(empty($discount[$type][$entity])) {
+      if (empty($discount[$type][$entity])) {
         return TRUE;
       }
 
-      $params = $discount[$type][$entity] +  array_merge(array(
-        'options' => array('limit' => 999999999), 'return' => 'id'
-      ), $additionalFilter);
+      $params = $discount[$type][$entity] + array_merge(array(
+          'options' => array('limit' => 999999999),
+          'return' => 'id'
+        ), $additionalFilter);
       $ids = civicrm_api3($entity, 'get', $params);
-      if($id) {
+      if ($id) {
         return in_array($id, array_keys($ids['values']));
       }
       else {
         return !empty($ids['values']);
       }
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
       return FALSE;
     }
   }

@@ -1,8 +1,8 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.6                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2015                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -30,17 +30,17 @@
   {else}{ts}Delete Discount{/ts}{/if}
 </h3>
 <div class="crm-block crm-form-block crm-discount-item-form-block">
-{if $action eq 16384}
-  <div class="messages status no-popup">
-    <dl>
-      <dt>
-      <div class="icon inform-icon"></div>
-      </dt>
-      <dd>
-        {ts}Are you sure you want to copy this discount code?{/ts}
-      </dd>
-    </dl>
-  </div>
+  {if $action eq 16384}
+    <div class="messages status no-popup">
+      <dl>
+        <dt>
+        <div class="icon inform-icon"></div>
+        </dt>
+        <dd>
+          {ts}Are you sure you want to copy this discount code?{/ts}
+        </dd>
+      </dl>
+    </div>
   {elseif $action eq 8}
     <div class="messages status no-popup">
       <dl>
@@ -117,23 +117,23 @@
       </div>
     </fieldset>
     {if $form.events}
-    <div class="crm-accordion-wrapper {if $action eq 1}collapsed {/if}crm-discount-form-block-events">
-      <div class="crm-accordion-header">
-        {ts}Discounts for events{/ts}
+      <div class="crm-accordion-wrapper {if $action eq 1}collapsed {/if}crm-discount-form-block-events">
+        <div class="crm-accordion-header">
+          {ts}Discounts for events{/ts}
+        </div>
+        <div class="crm-accordion-body">
+          <table class="form-layout-compressed">
+            <tr class="crm-discount-item-form-block-events">
+              <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
+              <td>{$form.events.html}<td>
+            </tr>
+            <tr class="crm-discount-item-form-block-event-types">
+              <td class="label">{$form.event_type_id.label} {help id="eventtypes" title=$form.eventstypes.label}</td>
+              <td>{$form.event_type_id.html}</td>
+            </tr>
+          </table>
+        </div>
       </div>
-      <div class="crm-accordion-body">
-        <table class="form-layout-compressed">
-          <tr class="crm-discount-item-form-block-events">
-            <td class="label">{$form.events.label} {help id="events" title=$form.events.label}</td>
-            <td>{$form.events.html}<td>
-          </tr>
-          <tr class="crm-discount-item-form-block-event-types">
-            <td class="label">{$form.event_type_id.label} {help id="eventtypes" title=$form.eventstypes.label}</td>
-            <td>{$form.event_type_id.html}</td>
-          </tr>
-        </table>
-      </div>
-    </div>
     {/if}
 
     {if $form.memberships}
@@ -146,7 +146,7 @@
             <tr class="crm-discount-item-form-block-memberships">
               <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
               <td>{$form.memberships.html}<br/></td>
-           </tr>
+            </tr>
           </table>
         </div>
       </div>
@@ -154,12 +154,12 @@
     {if $autodiscounts}
       <div class="crm-accordion-wrapper collapsed crm-discount-form-block-other-criteria">
         <div class="crm-accordion-header">
-         {ts}Automatic Discounts{/ts}
+          {ts}Automatic Discounts{/ts}
         </div>
         <div class="crm-accordion-body">
           <p class="description">{ts}Discount will be applied automatically if all of the following conditions are met (no code needed).{/ts} {help id="autodiscount" title="Automatic discounts"}</p>
           <table class="form-layout-compressed">
-            {foreach from=$autodiscounts item='autodiscount}
+            {foreach from=$autodiscounts item='autodiscount'}
               <tr class="crm-discount-item-form-block-auto-discount">
                 <td class="label">{$form.$autodiscount.label}</td>
                 <td>{$form.$autodiscount.html}</td>
@@ -174,38 +174,38 @@
               <td>{$form.advanced_autodiscount_filter_string.html}</td>
             </tr>
           </table>
-        </div><!-- /.crm-accordion-body -->
-      </div><!-- /.crm-accordion-wrapper -->
+        </div>
+      </div>
     {/if}
   {/if}
   <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl" location="bottom"}</div>
 </div>
 {literal}
-<script type="text/javascript">
-  CRM.$(function($) {
-    $('#discount_msg_enabled').change(function() {
-      $('.crm-discount-item-form-block-discount-message').toggle($(this).is(':checked'));
-    }).change();
+  <script type="text/javascript">
+    CRM.$(function($) {
+      $('#discount_msg_enabled').change(function() {
+        $('.crm-discount-item-form-block-discount-message').toggle($(this).is(':checked'));
+      }).change();
 
-    $("#generate-code").click(function (e) {
-      $("#code").val(randomString("abcdefghjklmnpqrstwxyz23456789", 8));
-      e.preventDefault();
+      $("#generate-code").click(function (e) {
+        $("#code").val(randomString("abcdefghjklmnpqrstwxyz23456789", 8));
+        e.preventDefault();
+      });
+
+      // Yanked from http://stackoverflow.com/questions/2477862/jquery-password-generator
+      function randomString(chars, len) {
+        var i = 0, str = "", $max, $num, $temp;
+        while (i <= len) {
+          $max = chars.length - 1;
+          $num = Math.floor(Math.random() * $max);
+          $temp = chars.substr($num, 1);
+          str += $temp;
+          i++;
+        }
+
+        return str;
+      }
     });
 
-    // Yanked from http://stackoverflow.com/questions/2477862/jquery-password-generator
-    function randomString(chars, len) {
-      var i = 0, str = "", $max, $num, $temp;
-      while (i <= len) {
-        $max = chars.length - 1;
-        $num = Math.floor(Math.random() * $max);
-        $temp = chars.substr($num, 1);
-        str += $temp;
-        i++;
-      }
-
-      return str;
-    }
-  });
-
-</script>
+  </script>
 {/literal}

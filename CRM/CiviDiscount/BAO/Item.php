@@ -1,10 +1,9 @@
 <?php
-
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.6                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2015                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -27,11 +26,7 @@
 */
 
 /**
- *
- * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2014
- * $Id$
- *
+ * @package CiviDiscount
  */
 
 require_once 'CRM/CiviDiscount/DAO/Item.php';
@@ -52,7 +47,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * discount item. The params array could contain additional unused name/value
    * pairs
    *
-   * @param array  $params (reference ) an assoc array of name/value pairs
+   * @param array $params (reference ) an assoc array of name/value pairs
    *
    * @return object CRM_CiviDiscount_BAO_Item object
    * @access public
@@ -81,28 +76,28 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
       }
     }
 
-    if (! empty($params['id'])) {
+    if (!empty($params['id'])) {
       $item->id = $params['id'];
     }
 
     $item->is_active = CRM_Utils_Array::value('is_active', $params) ? 1 : 0;
     $item->discount_msg_enabled = CRM_Utils_Array::value('discount_msg_enabled', $params) ? 1 : 0;
 
-    if (! empty($params['active_on'])) {
+    if (!empty($params['active_on'])) {
       $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
     }
     else {
       $item->active_on = 'null';
     }
 
-    if (! empty($params['expire_on'])) {
+    if (!empty($params['expire_on'])) {
       $item->expire_on = CRM_Utils_Date::processDate($params['expire_on']);
     }
     else {
       $item->expire_on = 'null';
     }
 
-    if (! empty($params['organization_id'])) {
+    if (!empty($params['organization_id'])) {
       $item->organization_id = $params['organization_id'];
     }
     else {
@@ -125,7 +120,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * of time. This is the inverse function of create. It also stores all the retrieved
    * values in the default array
    *
-   * @param array $params   (reference) an assoc array of name/value pairs
+   * @param array $params (reference) an assoc array of name/value pairs
    * @param array $defaults (reference) an assoc array to hold the flattened values
    *
    * @return object CRM_CiviDiscount_BAO_Item object on success, null otherwise
@@ -135,17 +130,17 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   static function retrieve(&$params, &$defaults) {
     $item = new CRM_CiviDiscount_DAO_Item();
     $item->copyValues($params);
-    if ($item->find(true)) {
+    if ($item->find(TRUE)) {
       CRM_Core_DAO::storeValues($item, $defaults);
       return $item;
     }
-    return null;
+    return NULL;
   }
 
   static function getValidDiscounts() {
     static $discounts = array();
     static $hasRun = FALSE;
-    if($hasRun) {
+    if ($hasRun) {
       //not checking if empty discounts as could be legitimately empty
       return $discounts;
     }
@@ -200,21 +195,25 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   static function buildDiscountFilters($discount) {
     $filters = json_decode($discount['filters'], TRUE);
     // Expand set-valued fields.
-    $fields = array('events' => 'event', 'pricesets' => 'price_set', 'memberships' => 'membership');
+    $fields = array(
+      'events' => 'event',
+      'pricesets' => 'price_set',
+      'memberships' => 'membership'
+    );
     foreach ($fields as $field => $entity) {
-      if(!isset($discount[$field]) || is_null($discount[$field])) {
+      if (!isset($discount[$field]) || is_null($discount[$field])) {
         $items = array();
       }
       else {
         $items = explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR));
-        if(!empty($items)) {
-          if(!isset($filters[$entity])) {
+        if (!empty($items)) {
+          if (!isset($filters[$entity])) {
             $filters[$entity] = array();
           }
           //0 indicates 'any' so for 0 we construct an empty filter - otherwise we add a limit by id clause
           //note that this may be combined with stored filters e.g. 'event_type_id'
-          if(!in_array(0, $items)) {
-            if($field == 'memberships') {
+          if (!in_array(0, $items)) {
+            if ($field == 'memberships') {
               $filters[$entity]['membership_type_id'] = array('IN' => $items);
             }
             else {
@@ -233,8 +232,8 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * update the is_active flag in the db
    *
-   * @param int      $id        id of the database record
-   * @param boolean  $is_active value we want to set the is_active field
+   * @param int $id id of the database record
+   * @param boolean $is_active value we want to set the is_active field
    *
    * @return Object             DAO object on sucess, null otherwise
    *
@@ -273,7 +272,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
       return FALSE;
     }
 
-    $time = CRM_Utils_Date::getToday(null, 'Y-m-d H:i:s');
+    $time = CRM_Utils_Date::getToday(NULL, 'Y-m-d H:i:s');
 
     if (strtotime($time) > abs(strtotime($code['expire_on']))) {
       return TRUE;
@@ -288,7 +287,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
       return TRUE;
     }
 
-    $time = CRM_Utils_Date::getToday(null, 'Y-m-d H:i:s');
+    $time = CRM_Utils_Date::getToday(NULL, 'Y-m-d H:i:s');
 
     if (strtotime($time) > abs(strtotime($code['active_on']))) {
       return TRUE;
@@ -309,7 +308,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * Function to delete discount codes
    *
-   * @param  int  $itemID     ID of the discount code to be deleted.
+   * @param  int $itemID ID of the discount code to be deleted.
    *
    * @access public
    * @static
@@ -333,7 +332,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * Function to copy discount codes
    *
-   * @param  int  $itemID     ID of the discount code to be copied.
+   * @param  int $itemID ID of the discount code to be copied.
    *
    * @access public
    * @static
@@ -351,7 +350,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
         $item->description = 'Copy of ' . $item->description;
       }
 
-      CRM_Utils_Hook::pre('create', 'CiviDiscount', null, $params);
+      CRM_Utils_Hook::pre('create', 'CiviDiscount', NULL, $params);
       $item->save();
       CRM_Utils_Hook::post('create', 'CiviDiscount', $item->id, $item);
       return TRUE;
