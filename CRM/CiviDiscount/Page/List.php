@@ -35,6 +35,8 @@ require_once 'CRM/CiviDiscount/DAO/Item.php';
  * Page for displaying list of discount codes
  */
 class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
+  public $useLivePageJS = TRUE;
+
   /**
    * The action links that we need to display for the browse screen
    *
