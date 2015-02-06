@@ -30,14 +30,15 @@
   <div class="action-link">
     <div class="crm-submit-buttons">
       {if call_user_func(array('CRM_Core_Permission','check'), 'administer CiviCRM')}
-        <a class="button" href='{crmURL p='civicrm/cividiscount/discount/edit' q="reset=1&id=$id"}' accesskey="e"><span><div class="icon edit-icon"></div>{ts}Edit{/ts}</span></a>
+        <a class="button" href='{crmURL p='civicrm/cividiscount/discount/edit' q="reset=1&id=$id"}' accesskey="e">
+          <span><span class="icon ui-icon-pencil"></span>{ts}Edit{/ts}</span>
+        </a>
       {/if}
       {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute')}
-        <a class="button" href='{crmURL p='civicrm/cividiscount/discount/delete' q="reset=1&id=$id"}'><span><div class="icon delete-icon"></div>{ts}Delete{/ts}</span></a>
+        <a class="button" href='{crmURL p='civicrm/cividiscount/discount/delete' q="reset=1&id=$id"}'>
+          <span><span class="icon delete-icon"></span>{ts}Delete{/ts}</span>
+        </a>
       {/if}
-      <a class="button" href="{crmURL p='civicrm/cividiscount/discount/list' q='reset=1'}">
-        <span class="crm-button_discount-view_cancel">{ts}Done{/ts}</span>
-      </a>
     </div>
   </div>
 
@@ -121,11 +122,16 @@
     <div class="crm-submit-buttons">
       {assign var='urlParams' value="reset=1&id=$id"}
       {if call_user_func(array('CRM_Core_Permission','check'), 'administer CiviCRM')}
-        <a class="button" href="{crmURL p='civicrm/cividiscount/discount/edit' q=$urlParams}" accesskey="e"><span><div class="icon edit-icon"></div>{ts}Edit{/ts}</span></a>
+        <a class="button" href="{crmURL p='civicrm/cividiscount/discount/edit' q=$urlParams}" accesskey="e">
+          <span><span class="icon ui-icon-pencil"></span>{ts}Edit{/ts}</span></a>
       {/if}
       {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute')}
-        <a class="button" href="{crmURL p='civicrm/cividiscount/discount/delete' q=$urlParams}"><span><div class="icon delete-icon"></div>{ts}Delete{/ts}</span></a>
+        <a class="button" href="{crmURL p='civicrm/cividiscount/discount/delete' q=$urlParams}">
+          <span><span class="icon delete-icon"></span>{ts}Delete{/ts}</span></a>
       {/if}
+      <a class="button cancel" href="{crmURL p='civicrm/cividiscount/discount/list' q='reset=1'}">
+        <span class="icon ui-icon-close"></span><span class="crm-button_discount-view_cancel">{ts}Done{/ts}</span>
+      </a>
     </div>
   </div>
 </div>

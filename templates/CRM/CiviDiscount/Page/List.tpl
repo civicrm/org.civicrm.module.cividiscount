@@ -67,5 +67,5 @@
 
 <div class="action-link">
   <a href='{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}' id="newDiscountCode"
-     class="button"><div class="icon add-icon"></div> {ts}New Discount Code{/ts}</a>
+     class="button"><span class="icon ui-icon-circle-plus"></span> {ts}New Discount Code{/ts}</a>
 </div>
