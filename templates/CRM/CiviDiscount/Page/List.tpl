@@ -1,8 +1,8 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.6                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2015                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -30,7 +30,7 @@
 {if $rows}
   <div id="discount-list">
     {strip}
-    {* handle enable/disable actions *}
+      {* handle enable/disable actions *}
       {include file="CRM/common/enableDisableApi.tpl"}
       {include file="CRM/common/jsortable.tpl"}
       <table id="options" class="display">
@@ -67,5 +67,5 @@
 
 <div class="action-link">
   <a href='{crmURL p='civicrm/cividiscount/discount/add' q="reset=1"}' id="newDiscountCode"
-     class="button"><div class="icon add-icon"></div> {ts}New Discount Code{/ts}</a>
+     class="button"><span class="icon ui-icon-circle-plus"></span> {ts}New Discount Code{/ts}</a>
 </div>

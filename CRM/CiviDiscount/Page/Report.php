@@ -1,10 +1,9 @@
 <?php
-
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 4.5                                                |
+ | CiviCRM version 4.6                                                |
  +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2014                                |
+ | Copyright CiviCRM LLC (c) 2004-2015                                |
  +--------------------------------------------------------------------+
  | This file is a part of CiviCRM.                                    |
  |                                                                    |
@@ -27,11 +26,7 @@
 */
 
 /**
- *
- * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2014
- * $Id$
- *
+ * @package CiviDiscount
  */
 
 require_once 'CRM/CiviDiscount/DAO/Item.php';
@@ -47,7 +42,7 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
    */
   protected $_id;
 
-  protected $_multiValued = null;
+  protected $_multiValued = NULL;
 
   /**
    * The action links that we need to display for the browse screen
@@ -55,7 +50,7 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
    * @var array
    * @static
    */
-  static $_links = null;
+  static $_links = NULL;
 
   /**
    * Get BAO Name
@@ -74,31 +69,29 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
   function &links() {
     if (!(self::$_links)) {
       self::$_links = array(
-                            CRM_Core_Action::UPDATE  => array(
-                                                              'name'  => ts('Edit'),
-                                                              'url'   => 'civicrm/cividiscount/discount/edit',
-                                                              'qs'    => '&id=%%id%%&reset=1',
-                                                              'title' => ts('Edit Discount')
-                                                             ),
-                            CRM_Core_Action::DISABLE => array(
-                                                              'name'  => ts('Disable'),
-                                                              'class' => 'crm-enable-disable',
-                                                              'title' => ts('Disable Discount')
-                                                             ),
-
-                            CRM_Core_Action::ENABLE => array(
-                                                              'name'  => ts('Enable'),
-                                                              'class' => 'crm-enable-disable',
-                                                              'title' => ts('Enable Discount')
-                                                            ),
-
-                            CRM_Core_Action::DELETE  => array(
-                                                              'name'  => ts('Delete'),
-                                                              'url'   => 'civicrm/cividiscount/discount/delete',
-                                                              'qs'    => '&id=%%id%%',
-                                                              'title' => ts('Delete Discount')
-                                                            )
-                           );
+        CRM_Core_Action::UPDATE => array(
+          'name' => ts('Edit'),
+          'url' => 'civicrm/cividiscount/discount/edit',
+          'qs' => '&id=%%id%%&reset=1',
+          'title' => ts('Edit Discount')
+        ),
+        CRM_Core_Action::DISABLE => array(
+          'name' => ts('Disable'),
+          'class' => 'crm-enable-disable',
+          'title' => ts('Disable Discount')
+        ),
+        CRM_Core_Action::ENABLE => array(
+          'name' => ts('Enable'),
+          'class' => 'crm-enable-disable',
+          'title' => ts('Enable Discount')
+        ),
+        CRM_Core_Action::DELETE => array(
+          'name' => ts('Delete'),
+          'url' => 'civicrm/cividiscount/discount/delete',
+          'qs' => '&id=%%id%%',
+          'title' => ts('Delete Discount')
+        )
+      );
     }
     return self::$_links;
   }
@@ -126,15 +119,15 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
    *
    * @return string user context.
    */
-  function userContext($mode = null) {
+  function userContext($mode = NULL) {
     return 'civicrm/cividiscount/discount';
   }
 
   function preProcess() {
-    $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, false);
+    $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, FALSE);
 
     require_once 'CRM/Utils/Rule.php';
-    if (! CRM_Utils_Rule::positiveInteger($this->_id)) {
+    if (!CRM_Utils_Rule::positiveInteger($this->_id)) {
       CRM_Core_Error::fatal(ts('We need a valid discount ID for view'));
     }
 

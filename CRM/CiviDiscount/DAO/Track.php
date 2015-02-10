@@ -1,9 +1,9 @@
 <?php
 /*
 +--------------------------------------------------------------------+
-| CiviCRM version 4.5                                                |
+| CiviCRM version 4.6                                                |
 +--------------------------------------------------------------------+
-| Copyright CiviCRM LLC (c) 2004-2014                                |
+| Copyright CiviCRM LLC (c) 2004-2015                                |
 +--------------------------------------------------------------------+
 | This file is a part of CiviCRM.                                    |
 |                                                                    |
@@ -25,14 +25,11 @@
 +--------------------------------------------------------------------+
 */
 /**
- *
- * @package CRM
- * @copyright CiviCRM LLC (c) 2004-2014
- * $Id$
- *
+ * @package CiviDiscount
  */
 require_once 'CRM/Core/DAO.php';
 require_once 'CRM/Utils/Type.php';
+
 class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
   /**
    * static instance to hold the table name
@@ -47,14 +44,14 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_fields = null;
+  static $_fields = NULL;
   /**
    * static instance to hold the FK relationships
    *
    * @var string
    * @static
    */
-  static $_links = null;
+  static $_links = NULL;
   /**
    * static instance to hold the values that can
    * be imported
@@ -62,7 +59,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_import = null;
+  static $_import = NULL;
   /**
    * static instance to hold the values that can
    * be exported
@@ -70,7 +67,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_export = null;
+  static $_export = NULL;
   /**
    * static value to see if we should log any modifications to
    * this table in the civicrm_log table
@@ -78,7 +75,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var boolean
    * @static
    */
-  static $_log = false;
+  static $_log = FALSE;
   /**
    * Discount Item ID
    *
@@ -127,16 +124,17 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var text
    */
   public $description;
+
   /**
    * class constructor
    *
    * @access public
    * @return cividiscount_track
    */
-  function __construct()
-  {
+  function __construct() {
     parent::__construct();
   }
+
   /**
    * return foreign links
    *
@@ -153,6 +151,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
     }
     return self::$_links;
   }
+
   /**
    * returns all the column names of this table
    *
@@ -162,53 +161,54 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
   static function &fields() {
     if (!(self::$_fields)) {
       self::$_fields = array(
-          'id' => array(
-            'name' => 'id',
-            'type' => CRM_Utils_Type::T_INT,
-            'required' => true,
-          ),
-          'item_id' => array(
-            'name' => 'item_id',
-            'type' => CRM_Utils_Type::T_INT,
-            'FKClassName' => 'CRM_CiviDiscount_DAO_Item',
-          ),
-          'contact_id' => array(
-            'name' => 'contact_id',
-            'type' => CRM_Utils_Type::T_INT,
-            'FKClassName' => 'CRM_Contact_DAO_Contact',
-          ),
-          'used_date' => array(
-            'name' => 'used_date',
-            'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-            'title' => ts('Used Date'),
-          ),
-          'contribution_id' => array(
-            'name' => 'contribution_id',
-            'type' => CRM_Utils_Type::T_INT,
-            'FKClassName' => 'CRM_Contribute_DAO_Contribution',
-          ),
-          'entity_table' => array(
-            'name' => 'entity_table',
-            'type' => CRM_Utils_Type::T_STRING,
-            'title' => ts('Entity Table'),
-            'required' => true,
-            'maxlength' => 64,
-            'size' => CRM_Utils_Type::BIG,
-          ),
-          'entity_id' => array(
-            'name' => 'entity_id',
-            'type' => CRM_Utils_Type::T_INT,
-            'required' => true,
-          ),
-          'description' => array(
-            'name' => 'description',
-            'type' => CRM_Utils_Type::T_TEXT,
-            'title' => ts('Description'),
-          ),
-       );
+        'id' => array(
+          'name' => 'id',
+          'type' => CRM_Utils_Type::T_INT,
+          'required' => TRUE,
+        ),
+        'item_id' => array(
+          'name' => 'item_id',
+          'type' => CRM_Utils_Type::T_INT,
+          'FKClassName' => 'CRM_CiviDiscount_DAO_Item',
+        ),
+        'contact_id' => array(
+          'name' => 'contact_id',
+          'type' => CRM_Utils_Type::T_INT,
+          'FKClassName' => 'CRM_Contact_DAO_Contact',
+        ),
+        'used_date' => array(
+          'name' => 'used_date',
+          'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
+          'title' => ts('Used Date'),
+        ),
+        'contribution_id' => array(
+          'name' => 'contribution_id',
+          'type' => CRM_Utils_Type::T_INT,
+          'FKClassName' => 'CRM_Contribute_DAO_Contribution',
+        ),
+        'entity_table' => array(
+          'name' => 'entity_table',
+          'type' => CRM_Utils_Type::T_STRING,
+          'title' => ts('Entity Table'),
+          'required' => TRUE,
+          'maxlength' => 64,
+          'size' => CRM_Utils_Type::BIG,
+        ),
+        'entity_id' => array(
+          'name' => 'entity_id',
+          'type' => CRM_Utils_Type::T_INT,
+          'required' => TRUE,
+        ),
+        'description' => array(
+          'name' => 'description',
+          'type' => CRM_Utils_Type::T_TEXT,
+          'title' => ts('Description'),
+        ),
+      );
     }
     return self::$_fields;
   }
+
   /**
    * returns the names of this table
    *
@@ -218,6 +218,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
   static function getTableName() {
     return CRM_Core_DAO::getLocaleTableName(self::$_tableName);
   }
+
   /**
    * returns if this table needs to be logged
    *
@@ -227,46 +228,48 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
   function getLog() {
     return self::$_log;
   }
+
   /**
    * returns the list of fields that can be imported
    *
    * @access public
    * return array
    */
-  function &import($prefix = false) {
+  function &import($prefix = FALSE) {
     if (!(self::$_import)) {
       self::$_import = array();
       $fields = self::fields();
-      foreach($fields as $name => $field) {
+      foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('import', $field)) {
           if ($prefix) {
-            self::$_import['ount_track'] = & $fields[$name];
+            self::$_import['ount_track'] = &$fields[$name];
           }
           else {
-            self::$_import[$name] = & $fields[$name];
+            self::$_import[$name] = &$fields[$name];
           }
         }
       }
     }
     return self::$_import;
   }
+
   /**
    * returns the list of fields that can be exported
    *
    * @access public
    * return array
    */
-  function &export($prefix = false) {
+  function &export($prefix = FALSE) {
     if (!(self::$_export)) {
       self::$_export = array();
       $fields = self::fields();
-      foreach($fields as $name => $field) {
+      foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('export', $field)) {
           if ($prefix) {
-            self::$_export['ount_track'] = & $fields[$name];
+            self::$_export['ount_track'] = &$fields[$name];
           }
           else {
-            self::$_export[$name] = & $fields[$name];
+            self::$_export[$name] = &$fields[$name];
           }
         }
       }
