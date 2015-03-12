@@ -73,8 +73,6 @@ class CRM_CiviDiscount_DiscountCalculator {
    * @param integer $contact_id
    * @param string $code
    * @param $is_display_field_mode
-   *
-   * @internal param bool $is_anonymous - ie are we trying to calculate whether it would be possible to find a discount cod
    */
   function __construct($entity, $entity_id, $contact_id, $code, $is_display_field_mode) {
     if(empty($code) && empty($contact_id) && !$is_display_field_mode) {
