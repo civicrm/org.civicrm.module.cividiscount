@@ -644,6 +644,11 @@ function cividiscount_civicrm_postProcess($class, &$form) {
 
       $participant = _cividiscount_get_participant($entity_id);
       $contact_id = $participant['contact_id'];
+      //For offline reg - save contact id, entity data required in schema
+      $trackingItem['entity_id'] = $entity_id;
+      $trackingItem['entity_table'] = $entity_table;
+      $trackingItem['contact_id'] = $contact_id;
+
     }
     // Offline membership.
     elseif ( in_array($class, array('CRM_Member_Form_Membership','CRM_Member_Form_MembershipRenewal') ) ) {
