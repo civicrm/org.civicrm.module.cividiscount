@@ -755,6 +755,12 @@ function _cividiscount_get_items_from_discounts($discounts, $key, $include_autod
 }
 
 /**
+ * Returns an array of all discountable event ids.
+ */
+function _cividiscount_get_discounted_event_ids() {
+  return _cividiscount_get_items_from_discounts(_cividiscount_get_discounts(), 'events');
+}
+/**
  * @return array of all discountable priceset ids.
  */
 function _cividiscount_get_discounted_priceset_ids() {
