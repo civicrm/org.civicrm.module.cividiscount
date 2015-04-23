@@ -152,6 +152,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
             'CRM_Event_Form_Registration_Register',
             //'CRM_Event_Form_Registration_AdditionalParticipant',
             'CRM_Contribute_Form_Contribution_Main',
+            'CRM_Event_Cart_Form_Checkout_ParticipantsAndPrices',
           ))) {
 
     // Display the discount textfield for online events (including
@@ -161,6 +162,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 
     if ( in_array($fname, array(
       'CRM_Event_Form_Registration_Register',
+      'CRM_Event_Cart_Form_Checkout_ParticipantsAndPrices',
       //'CRM_Event_Form_Registration_AdditionalParticipant'
     ))) {
       $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('event', $form->getVar('_eventId'), $form->getContactID(), NULL, TRUE);
@@ -180,7 +182,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
     }
 
     if (empty($ids)) {
-      $ids = _cividiscount_get_discounted_priceset_ids();
+      $ids = _cividiscount_get_discounted_event_ids();
 
       if (!empty($ids)) {
         if(in_array($form->getVar('_eventId'), $ids)){
