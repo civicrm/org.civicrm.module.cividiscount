@@ -324,21 +324,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
        $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
     }
 
-    if (empty($discounts)) {
-      // Check if a discount is available
-      if ($pagetype == 'event') {
-        $discounts = _cividiscount_get_discounts();
-        foreach ($discounts as $code => $discount) {
-          if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
-                $discount['discount_msg_enabled']) {
-            // Display discount available message
-            CRM_Core_Session::setStatus(html_entity_decode($discount['discount_msg']), '', 'no-popup');
-          }
-        }
-      }
-      return;
-    }
-
     // here we check if discount is configured for events or for membership types.
     // There are two scenarios:
     // 1. Discount is configure for the event or membership type, in that case we should apply discount only
@@ -368,7 +353,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
         $autodiscount = FALSE;
       }
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
-      if (empty($priceFields) && !empty($code)) {
+      if (empty($priceFields)) {
         // apply discount to all the price fields for quickconfig pricesets
         if ($pagetype == 'event' && $isQuickConfigPriceSet) {
           $applyToAllLineItems = TRUE;
@@ -414,6 +399,16 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
               $discountApplied = TRUE;
             }
           }
+        }
+      }
+    }
+
+    // Display discount message if one is available
+    if ($pagetype == 'event') {
+      foreach ($discounts as $code => $discount) {
+        if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
+              $discount['discount_msg_enabled'] && (!isset($discountApplied) || !$discountApplied)) {
+          CRM_Core_Session::setStatus(html_entity_decode($discount['discount_msg']), '', 'no-popup');
         }
       }
     }
