@@ -419,7 +419,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     // this seems to incorrectly set to only the last discount but it seems not to matter in the way it is used
-    if ($discountApplied) {
+    if (isset($discountApplied) && $discountApplied) {
       if (!empty($ps['fields'])) {
         $ps['fields'] = $amounts;
         $form->setVar('_priceSet', $ps);
