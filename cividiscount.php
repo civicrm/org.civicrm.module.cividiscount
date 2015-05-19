@@ -369,8 +369,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       if (empty($priceFields) && !empty($code)) {
-        // apply discount to all the price fields for quickconfig pricesets
-        if ($pagetype == 'event' && $isQuickConfigPriceSet) {
+        // apply discount to all the price fields if no price set set
+        if ($pagetype == 'event') {
           $applyToAllLineItems = TRUE;
           if (!empty($key)) {
             $discounts[$key]['pricesets'] = array_keys($priceSetInfo);
