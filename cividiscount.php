@@ -389,7 +389,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       // this $discount is autodiscount or used discount
       if ($autodiscount || (!empty($code) && $code==$discount['code']) ){
         $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
-      } 
+      }
       else {
         // silently set FALSE
         $apcount = FALSE;
