@@ -634,8 +634,9 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
   // form - CRM_Contribute_Form_Contribution_Confirm completes the
   // transaction.
-  } else if ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
-    $membership_type = $params['selectMembership'];
+  }
+  elseif ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
+    $membership_type = !empty($params['selectMembership']) ? $params['selectMembership'] : NULL;
     $membershipId = $params['membershipID'];
 
     if (!is_array($membership_type)) {
