@@ -105,12 +105,14 @@ class CRM_CiviDiscount_DiscountCalculator {
         }
         unset($entityDiscounts[$discount_id]);
       }
-      foreach (array_keys($discount['autodiscount']) as $entity) {
-        $additionalParams = array('contact_id' => $this->contact_id);
-        $id = ($entity == 'contact') ? $this->contact_id : NULL;
-        if (!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
-          unset($entityDiscounts[$discount_id]);
-          continue;
+      else {
+        foreach (array_keys($discount['autodiscount']) as $entity) {
+          $additionalParams = array('contact_id' => $this->contact_id);
+          $id = ($entity == 'contact') ? $this->contact_id : NULL;
+          if (!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
+            unset($entityDiscounts[$discount_id]);
+            continue;
+          }
         }
       }
     }
