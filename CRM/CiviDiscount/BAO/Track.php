@@ -29,9 +29,6 @@
  * @package CiviDiscount
  */
 
-require_once 'CRM/CiviDiscount/DAO/Track.php';
-
-
 class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
 
   /**
@@ -178,7 +175,6 @@ SELECT    t.item_id as item_id,
       return FALSE;
     }
 
-    require_once 'CRM/CiviDiscount/DAO/Track.php';
     $item = new CRM_CiviDiscount_DAO_Track();
     $item->id = $trackID;
     $item->delete();

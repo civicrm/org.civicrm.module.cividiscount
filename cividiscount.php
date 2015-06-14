@@ -57,7 +57,7 @@ function cividiscount_civicrm_disable() {
  * Implementation of hook_civicrm_upgrade
  *
  * @param $op string, the type of operation being performed; 'check' or 'enqueue'
- * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
+ * @param CRM_Queue_Queue $queue  (for 'enqueue') the modifiable list of pending up upgrade tasks
  *
  * @return mixed  based on op. for 'check', returns array(boolean) (TRUE if upgrades are pending)
  *                for 'enqueue', returns void
@@ -71,6 +71,8 @@ function cividiscount_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  *
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
+ *
+ * @param array $entities
  */
 function cividiscount_civicrm_managed(&$entities) {
   return _cividiscount_civix_civicrm_managed($entities);
@@ -111,6 +113,9 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
  * initial registration screen.
  *
  * Works for events and membership.
+ *
+ * @param string $fname
+ * @param CRM_Contribute_Form_Contribution_Main|CRM_Core_Form $form
  */
 function cividiscount_civicrm_buildForm($fname, &$form) {
   // skip for delete action
@@ -203,6 +208,12 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
  * Implementation of hook_civicrm_validateForm()
  *
  * Used in the initial event registration screen.
+ *
+ * @param string $name
+ * @param array $fields reference
+ * @param array $files
+ * @param CRM_Core_Form $form
+ * @param $errors
  */
 function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$errors) {
   if (!in_array($name, array(
@@ -253,6 +264,10 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
  * based on a users membership.
  *
  * Check all priceset items and only apply the discount to the discounted items.
+ *
+ * @param string $pageType
+ * @param CRM_Core_Form $form
+ * @param $amounts
  */
 function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
   if (( !$form->getVar('_action')
