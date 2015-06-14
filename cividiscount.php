@@ -610,93 +610,39 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     return;
   }
 
-  $ts = CRM_Utils_Time::getTime();
   $discount = $discountInfo['discount'];
   $params = $form->getVar('_params');
-  $description = CRM_Utils_Array::value('amount_level', $params);
-
+  $discountParams = array(
+    'item_id' => $discount['id'],
+    'description' => CRM_Utils_Array::value('amount_level', $params) . " " . CRM_Utils_Array::value('description', $params),
+  );
   // Online event registration.
   // Note that CRM_Event_Form_Registration_Register is an intermediate form.
   // CRM_Event_Form_Registration_Confirm completes the transaction.
   if ($class == 'CRM_Event_Form_Registration_Confirm') {
-    $pids = $form->getVar('_participantIDS');
-
-    // if multiple participant discount is not enabled then only use primary participant info for discount
-    // and ignore additional participants
-    if (!_cividiscount_allow_multiple()) {
-      $pids = array($pids[0]);
-    }
-
-    foreach ($pids as $pid) {
-      $participant = _cividiscount_get_participant($pid);
-      $contact_id = $participant['contact_id'];
-      $participant_payment = _cividiscount_get_participant_payment($pid);
-      $contribution_id = $participant_payment['contribution_id'];
-
-      CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
-      $track = new CRM_CiviDiscount_DAO_Track();
-      $track->item_id = $discount['id'];
-      $track->contact_id = $contact_id;
-      $track->contribution_id = $contribution_id;
-      $track->entity_table = 'civicrm_participant';
-      $track->entity_id = $pid;
-      $track->used_date = $ts;
-      $track->description = $description;
-      $track->save();
-    }
-
-  // Online membership.
-  // Note that CRM_Contribute_Form_Contribution_Main is an intermediate
-  // form - CRM_Contribute_Form_Contribution_Confirm completes the
-  // transaction.
+    _cividiscount_consume_discount_code_for_online_event($form->getVar('_participantIDS'), $discountParams);
   }
   elseif ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
-    $membership_type = !empty($params['selectMembership']) ? $params['selectMembership'] : NULL;
-    $membershipId = $params['membershipID'];
-
-    if (!is_array($membership_type)) {
-      $membership_type = array($membership_type);
-    }
-    $discount_membership_matches = array_intersect($membership_type, $discount['memberships']);
-    // check to make sure the discount actually applied to this membership.
-    if ( empty($discount_membership_matches) || !$membershipId) {
-      return;
-    }
-
-    $description = CRM_Utils_Array::value('description', $params);
-
-    $membership = _cividiscount_get_membership($membershipId);
-    $contact_id = $membership['contact_id'];
-    $membership_payment = _cividiscount_get_membership_payment($membershipId);
-    $contribution_id = $membership_payment['contribution_id'];
-
-    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
-    $track = new CRM_CiviDiscount_DAO_Track();
-    $track->item_id = $discount['id'];
-    $track->contact_id = $contact_id;
-    $track->contribution_id = $contribution_id;
-    $track->entity_table = 'civicrm_membership';
-    $track->entity_id = $membershipId;
-    $track->used_date = $ts;
-    $track->description = $description;
-    $track->save();
+    // Note that CRM_Contribute_Form_Contribution_Main is an intermediate form.
+    // CRM_Contribute_Form_Contribution_Confirm completes the transaction.
+    _cividiscount_consume_discount_code_for_online_contribution($params, $discount);
   }
   else {
     $contribution_id = NULL;
     // Offline event registration.
     if (in_array($class, array('CRM_Event_Form_Participant', 'CRM_Event_Form_ParticipantFeeSelection'))) {
       if ($class == 'CRM_Event_Form_ParticipantFeeSelection') {
-        $entity_id = $form->getVar('_participantId');
+        $discountParams['entity_id'] = $entity_id = $form->getVar('_participantId');
       }
       else {
-        $entity_id = $form->getVar('_id');
+        $discountParams['entity_id'] = $entity_id = $form->getVar('_id');
       }
       $participant_payment = _cividiscount_get_participant_payment($entity_id);
-      $contribution_id = $participant_payment['contribution_id'];
-      $entity_table = 'civicrm_participant';
+      $discountParams['contribution_id'] = $participant_payment['contribution_id'];
+      $discountParams['entity_table'] = 'civicrm_participant';
 
       $participant = _cividiscount_get_participant($entity_id);
-      $contact_id = $participant['contact_id'];
+      $discountParams['contact_id'] = $participant['contact_id'];
     }
     // Offline membership.
     elseif ( in_array($class, array('CRM_Member_Form_Membership','CRM_Member_Form_MembershipRenewal') ) ) {
@@ -712,31 +658,88 @@ function cividiscount_civicrm_postProcess($class, &$form) {
         return;
       }
 
-      $entity_table = 'civicrm_membership';
-      $entity_id = $form->getVar('_id');
+      $discountParams['entity_table'] = 'civicrm_membership';
+      $discountParams['entity_id'] = $entity_id = $form->getVar('_id');
 
       $membership_payment = _cividiscount_get_membership_payment($entity_id);
-      $contribution_id = $membership_payment['contribution_id'];
-      $description = CRM_Utils_Array::value('description', $params);
+      $discountParams['contribution_id'] = $membership_payment['contribution_id'];
 
       $membership = _cividiscount_get_membership($entity_id);
-      $contact_id = $membership['contact_id'];
+      $discountParams['contact_id'] = $membership['contact_id'];
     }
     else {
-      $entity_table = 'civicrm_contribution';
-      $entity_id = $contribution_id;
+      $discountParams['entity_table'] = 'civicrm_contribution';
+      $discountParams['entity_id'] = $contribution_id;
     }
+    civicrm_api3('DiscountTrack', 'create', $discountParams);
+  }
 
-    CRM_CiviDiscount_BAO_Item::incrementUsage($discount['id']);
-    $track = new CRM_CiviDiscount_DAO_Track();
-    $track->item_id = $discount['id'];
-    $track->contact_id = $contact_id;
-    $track->contribution_id = $contribution_id;
-    $track->entity_table = $entity_table;
-    $track->entity_id = $entity_id;
-    $track->used_date = $ts;
-    $track->description = $description;
-    $track->save();
+}
+
+/**
+ * Record discount code usage from online contribution page.
+ *
+ * Currently (for historical reasons) only membership line items are supported
+ * for discounts.
+ *
+ * @param $params
+ * @param $discount
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
+function _cividiscount_consume_discount_code_for_online_contribution($params, $discount) {
+  $membership_type = !empty($params['selectMembership']) ? $params['selectMembership'] : NULL;
+  $membershipId = $params['membershipID'];
+
+  if (!is_array($membership_type)) {
+    $membership_type = array($membership_type);
+  }
+  $discount_membership_matches = array_intersect($membership_type, $discount['memberships']);
+  // check to make sure the discount actually applied to this membership.
+  if (empty($discount_membership_matches) || !$membershipId) {
+    return;
+  }
+  $membership = _cividiscount_get_membership($membershipId);
+
+  civicrm_api3('DiscountTrack', 'create', array(
+    'item_id' => $discount['id'],
+    'contact_id' => $membership['contact_id'],
+    'contribution_id' => civicrm_api3('membership_payment', 'getvalue', array(
+      'id' => $membershipId,
+      'return' => 'contribution_id',
+    )),
+    'entity_table' => 'civicrm_membership',
+    'entity_id' => $membershipId,
+    'description' => CRM_Utils_Array::value('description', $params),
+  ));
+}
+
+/**
+ * Record discount code usage for online event.
+ *
+ * This is different to other related functions in that there can be more than 1.
+ *
+ * @param array $participant_ids
+ * @param array $discountParams
+ *
+ * @throws \CiviCRM_API3_Exception
+ */
+function _cividiscount_consume_discount_code_for_online_event($participant_ids, $discountParams) {
+
+  // if multiple participant discount is not enabled then only use primary participant info for discount
+  // and ignore additional participants
+  if (!_cividiscount_allow_multiple()) {
+    $participant_ids = array($participant_ids[0]);
+  }
+
+  foreach ($participant_ids as $participant_id) {
+    $participant = _cividiscount_get_participant($participant_id);
+    $participant_payment = _cividiscount_get_participant_payment($participant_id);
+    $discountParams['contact_id'] = $participant['contact_id'];
+    $discountParams['contribution_id'] = $participant_payment['contribution_id'];
+    $discountParams['entity_table'] = 'civicrm_participant';
+    $discountParams['entity_id'] = $participant_id;
+    civicrm_api3('DiscountTrack', 'create', $discountParams);
   }
 }
 

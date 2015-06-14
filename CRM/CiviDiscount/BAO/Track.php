@@ -39,6 +39,30 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
   }
 
   /**
+   * Add the membership log record.
+   *
+   * @param array $params
+   *   Values to use in create.
+   *
+   * @return CRM_CiviDiscount_DAO_Track
+   */
+  public static function create($params) {
+    $hook = empty($params['id']) ? 'create' : 'edit';
+    CRM_Utils_Hook::pre($hook, 'DiscountTrack', CRM_Utils_Array::value('id', $params), $params);
+
+    $dao = new CRM_CiviDiscount_DAO_Track();
+    $dao->copyValues($params);
+    $dao->save();
+    $dao->free();
+
+    if ($hook == 'create') {
+      CRM_CiviDiscount_BAO_Item::incrementUsage($dao->item_id);
+    }
+    CRM_Utils_Hook::post($hook, 'DiscountTrack', $dao->id, $dao);
+    return $dao;
+  }
+
+  /**
    * Takes a bunch of params that are needed to match certain criteria and
    * retrieves the relevant objects. Typically the valid params are only
    * contact_id. We'll tweak this function to be more full featured over a period
