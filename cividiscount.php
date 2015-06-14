@@ -132,7 +132,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 
     if ($form->getVar('_single') == 1 || in_array($form->getVar('_context'), array('membership', 'standalone'))) {
       _cividiscount_add_discount_textfield($form);
-      $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
+      $code = trim(CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST'));
       if ($code) {
         $defaults = array('discountcode' => $code);
         $form->setDefaults($defaults);
