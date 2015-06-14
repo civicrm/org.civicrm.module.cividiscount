@@ -615,6 +615,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   $discountParams = array(
     'item_id' => $discount['id'],
     'description' => CRM_Utils_Array::value('amount_level', $params) . " " . CRM_Utils_Array::value('description', $params),
+    'contribution_id' => CRM_Utils_Array::value('contributionID', $params),
   );
   // Online event registration.
   // Note that CRM_Event_Form_Registration_Register is an intermediate form.
@@ -625,7 +626,7 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   elseif ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
     // Note that CRM_Contribute_Form_Contribution_Main is an intermediate form.
     // CRM_Contribute_Form_Contribution_Confirm completes the transaction.
-    _cividiscount_consume_discount_code_for_online_contribution($params, $discount);
+    _cividiscount_consume_discount_code_for_online_contribution($params, $discountParams, $discount['memberships']);
   }
   else {
     $contribution_id = NULL;
@@ -682,36 +683,70 @@ function cividiscount_civicrm_postProcess($class, &$form) {
  * Currently (for historical reasons) only membership line items are supported
  * for discounts.
  *
- * @param $params
- * @param $discount
+ * @param array $params
+ *   Form Parameters. Only the price_x fields are relevant
+ * @param array $discountParams
+ *   Already determined discount parameters for recording tracking code.
+ * @param array $discountedMemberships
+ *   Membership types eligible for discount.
  *
  * @throws \CiviCRM_API3_Exception
  */
-function _cividiscount_consume_discount_code_for_online_contribution($params, $discount) {
-  $membership_type = !empty($params['selectMembership']) ? $params['selectMembership'] : NULL;
+function _cividiscount_consume_discount_code_for_online_contribution($params, $discountParams, $discountedMemberships) {
+  $membership_types = _cividiscount_extract_memberships_from_line_items($params);
   $membershipId = $params['membershipID'];
 
-  if (!is_array($membership_type)) {
-    $membership_type = array($membership_type);
-  }
-  $discount_membership_matches = array_intersect($membership_type, $discount['memberships']);
-  // check to make sure the discount actually applied to this membership.
+  $discount_membership_matches = array_intersect($membership_types, $discountedMemberships);
+  // Check to make sure the discount actually applied to this membership.
   if (empty($discount_membership_matches) || !$membershipId) {
     return;
   }
   $membership = _cividiscount_get_membership($membershipId);
 
-  civicrm_api3('DiscountTrack', 'create', array(
-    'item_id' => $discount['id'],
-    'contact_id' => $membership['contact_id'],
-    'contribution_id' => civicrm_api3('membership_payment', 'getvalue', array(
-      'id' => $membershipId,
-      'return' => 'contribution_id',
-    )),
-    'entity_table' => 'civicrm_membership',
-    'entity_id' => $membershipId,
-    'description' => CRM_Utils_Array::value('description', $params),
-  ));
+  $discountParams['contact_id'] = $membership['contact_id'];
+  $discountParams['entity_table'] = 'civicrm_membership';
+  $discountParams['entity_id'] =  $membershipId;
+
+  civicrm_api3('DiscountTrack', 'create', $discountParams);
+}
+
+/**
+ * Determine which membership(s) are purchased in this transaction.
+ *
+ * Note that independent of whether a price set is configured through the UI
+ * the post hook will receive price set lines so we only worry about what is
+ * presented via the price set.
+ *
+ * @param array $params
+ *   Parameters from form. We are only interested in price_x fields
+ *
+ * @return array
+ *   Membership types that have been purchased.
+ */
+function _cividiscount_extract_memberships_from_line_items($params) {
+  $membershipTypes = array();
+  foreach ($params as $key => $value) {
+    // We are looking for fields like 'price_4'. The is_numeric is to eliminate the
+    // possibility of fields like 'price_set' being caught.
+    if (substr($key, 0, 6) == 'price_' && is_numeric(substr($key, 6, 1))) {
+      $priceFieldID = substr($key, 6);
+      $priceFieldType = civicrm_api3('price_field', 'getvalue', array(
+        'id' => $priceFieldID,
+        'return' => 'html_type',
+      ));
+
+      if ($priceFieldType == 'Text') {
+        // As of 4.6 membership text fields are not supported.
+        continue;
+      }
+      $values = civicrm_api3('price_field_value', 'get', array(
+        'price_field_id' => $priceFieldID,
+        'return' => 'membership_type_id',
+      ));
+      $membershipTypes[] = $values['values'][$params['price_' . $priceFieldID]]['membership_type_id'];
+    }
+  }
+  return $membershipTypes;
 }
 
 /**
@@ -939,6 +974,13 @@ function _cividiscount_get_membership($mid = 0) {
   return FALSE;
 }
 
+/**
+ * Get Membership Payment record.
+ *
+ * @param int $mid
+ *
+ * @return bool|mixed
+ */
 function _cividiscount_get_membership_payment($mid = 0) {
   $result = civicrm_api('MembershipPayment', 'get', array('version' => '3', 'membership_id' => $mid));
   if ($result['is_error'] == 0) {
