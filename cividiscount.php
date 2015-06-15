@@ -1104,8 +1104,7 @@ function _cividiscount_add_button_before_priceSet(&$form) {
  * @return bool
  */
 function _cividiscount_version_at_least($version) {
-  $codeVersion = explode('.', CRM_Utils_System::version());
-  if (version_compare($codeVersion[0] . '.' . $codeVersion[1], $version) >= 0) {
+  if (version_compare(CRM_Utils_System::version(), $version) >= 0) {
     return TRUE;
   }
   return FALSE;
