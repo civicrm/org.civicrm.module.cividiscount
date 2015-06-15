@@ -1073,7 +1073,7 @@ function _cividiscount_form_is_eligible_for_pretty_placement($form) {
 function _cividiscount_add_button_before_priceSet(&$form) {
   CRM_Core_Region::instance('price-set-1')->add(array(
     'template' => 'CRM/CiviDiscount/discountButton.tpl',
-    'placement' => 'before',
+    'weight' => -1,
     'type' => 'template',
     'name' => 'discount_code',
   ));
