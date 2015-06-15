@@ -647,6 +647,8 @@ function cividiscount_civicrm_postProcess($class, &$form) {
     }
     // Offline membership.
     elseif ( in_array($class, array('CRM_Member_Form_Membership','CRM_Member_Form_MembershipRenewal') ) ) {
+      // @todo check whether this uses price sets in submit & hence can use same
+      // code as the online section and test whether code is decremented when a price set is used.
       $membership_types = $form->getVar('_memTypeSelected');
       $membership_type = isset($membership_types[0]) ? $membership_types[0] : NULL;
 
@@ -1014,10 +1016,16 @@ function _cividiscount_get_participant_payment($pid = 0) {
 }
 
 /**
- * Add the discount textfield to a form
+ * Add the discount textfield to a form.
+ *
+ * @param CRM_Core_Form $form
  */
 function _cividiscount_add_discount_textfield(&$form) {
-  $element = $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
+  if (_cividiscount_form_is_eligible_for_pretty_placement($form)) {
+    _cividiscount_add_button_before_priceSet($form);
+    return;
+  }
+  $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
   $errorMessage = $form->get('discountCodeErrorMsg');
   if ($errorMessage) {
     $form->setElementError('discountcode', $errorMessage);
@@ -1025,7 +1033,7 @@ function _cividiscount_add_discount_textfield(&$form) {
   $form->set('discountCodeErrorMsg', null);
   $buttonName = $form->getButtonName('reload');
   $form->addElement('submit', $buttonName, ts('Apply'), array('formnovalidate' => 1));
-  $template =& CRM_Core_Smarty::singleton();
+  $template = CRM_Core_Smarty::singleton();
   $bhfe = $template->get_template_vars('beginHookFormElements');
   if (!$bhfe) {
     $bhfe = array();
@@ -1033,6 +1041,74 @@ function _cividiscount_add_discount_textfield(&$form) {
   $bhfe[] = 'discountcode';
   $bhfe[] = $buttonName;
   $form->assign('beginHookFormElements', $bhfe);
+}
+
+/**
+ * Can we put the discount block somewhere better than the top of the page.
+ *
+ * If we are in 4.6.3+ and we are working with a price set then the best place
+ * to put it is in the new price-set-1 region - just before it.
+ *
+ * This is only tested / implemented on contribution forms at this stage.
+ *
+ * @param CRM_Core_Form $form
+ *
+ * @return bool
+ *   Should we put the discount block somewhere better than just at the top.
+ */
+function _cividiscount_form_is_eligible_for_pretty_placement($form) {
+  if (get_class($form) != 'CRM_Contribute_Form_Contribution_Main'
+  || !_cividiscount_version_at_least('4.6.4')
+  ) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Add the discount button immediately before the price set.
+ *
+ * @param CRM_Contribute_Form_Contribution_Main $form
+ */
+function _cividiscount_add_button_before_priceSet(&$form) {
+  CRM_Core_Region::instance('price-set-1')->add(array(
+    'template' => 'CRM/CiviDiscount/discountButton.tpl',
+    'placement' => 'before',
+    'type' => 'template',
+    'name' => 'discount_code',
+  ));
+
+  $form->add(
+    'text',
+    'discountcode',
+    ts('If you have a discount code, enter it here'),
+    array('class' => 'description')
+  );
+  $errorMessage = $form->get('discountCodeErrorMsg');
+  if ($errorMessage) {
+    $form->setElementError('discountcode', $errorMessage);
+  }
+  $form->set('discountCodeErrorMsg', null);
+  $buttonName = $form->getButtonName('reload');
+  $form->addElement('submit', $buttonName, ts('Apply'), array('formnovalidate' => 1));
+  $form->assign('discountElements', array(
+    'discountcode',
+    $buttonName
+  ));
+}
+/**
+ * Check version is at least as high as the one passed.
+ *
+ * @param string $version
+ *
+ * @return bool
+ */
+function _cividiscount_version_at_least($version) {
+  $codeVersion = explode('.', CRM_Utils_System::version());
+  if (version_compare($codeVersion[0] . '.' . $codeVersion[1], $version) >= 0) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
