@@ -29,9 +29,6 @@
  * @package CiviDiscount
  */
 
-require_once 'CRM/CiviDiscount/DAO/Track.php';
-
-
 class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
 
   /**
@@ -39,6 +36,30 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
    */
   function __construct() {
     parent::__construct();
+  }
+
+  /**
+   * Add the membership log record.
+   *
+   * @param array $params
+   *   Values to use in create.
+   *
+   * @return CRM_CiviDiscount_DAO_Track
+   */
+  public static function create($params) {
+    $hook = empty($params['id']) ? 'create' : 'edit';
+    CRM_Utils_Hook::pre($hook, 'DiscountTrack', CRM_Utils_Array::value('id', $params), $params);
+
+    $dao = new CRM_CiviDiscount_DAO_Track();
+    $dao->copyValues($params);
+    $dao->save();
+    $dao->free();
+
+    if ($hook == 'create') {
+      CRM_CiviDiscount_BAO_Item::incrementUsage($dao->item_id);
+    }
+    CRM_Utils_Hook::post($hook, 'DiscountTrack', $dao->id, $dao);
+    return $dao;
   }
 
   /**
@@ -178,7 +199,6 @@ SELECT    t.item_id as item_id,
       return FALSE;
     }
 
-    require_once 'CRM/CiviDiscount/DAO/Track.php';
     $item = new CRM_CiviDiscount_DAO_Track();
     $item->id = $trackID;
     $item->delete();
