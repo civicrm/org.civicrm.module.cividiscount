@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension key="org.civicrm.module.cividiscount" type="module">
-  <downloadUrl>
-    https://github.com/dlobo/org.civicrm.module.cividiscount/archive/v2.6.0.zip
-  </downloadUrl>
   <file>cividiscount</file>
   <name>CiviDiscount Module Extension</name>
-  <description>This module requires PHP v5.3+ and CiviCRM v4.5+</description>
+  <description>Enables discount codes and automatic discounts for events and memberships.</description>
   <urls>
     <url desc="Main Extension Page">
       http://civicrm.org/extension/cividiscount-extension
@@ -21,9 +18,8 @@
     <author>CiviCRM LLC</author>
     <email>info@civicrm.org</email>
   </maintainer>
-  <releaseDate>2014-06-04</releaseDate>
-  <version>2.6.0</version>
-  <develStage>alpha</develStage>
+  <releaseDate>2015-06-10</releaseDate>
+  <version>3.1</version>
   <compatibility>
     <ver>4.5</ver>
     <ver>4.6</ver>
