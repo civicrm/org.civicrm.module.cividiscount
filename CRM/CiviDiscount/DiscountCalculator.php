@@ -182,6 +182,12 @@ class CRM_CiviDiscount_DiscountCalculator {
       }
       if ($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
         $this->entity_discounts[$discount_id] = $discount;
+        /* Added by BOT
+        * To decide if discount text box should be displayed, no need to loop through all discount codes 
+        */ 
+        if( empty( $this->code ) ) {
+          break;
+        }
       }
     }
   }
