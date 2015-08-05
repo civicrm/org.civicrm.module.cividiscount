@@ -53,7 +53,6 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
     $dao = new CRM_CiviDiscount_DAO_Track();
     $dao->copyValues($params);
     $dao->save();
-    $dao->free();
 
     if ($hook == 'create') {
       CRM_CiviDiscount_BAO_Item::incrementUsage($dao->item_id);
