@@ -563,6 +563,9 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     if (!empty($values['membership']['active_only'])) {
       return '';
     }
+    elseif (!empty($values['membership']['status_id']['IN'])) {
+      return $values['membership']['status_id']['IN'];
+    }
   }
 
 
