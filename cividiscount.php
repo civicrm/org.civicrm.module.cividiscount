@@ -345,9 +345,6 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     // 2. Discount is configure at price field level, in this case discount should be applied only for
     //    that particular price set field.
 
-    // here we need to check if selected price set is quick config
-    $isQuickConfigPriceSet = CRM_CiviDiscount_Utils::checkForQuickConfigPriceSet($psid);
-
     $keys = array_keys($discounts);
     $key = array_shift($keys);
 
@@ -368,8 +365,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       if (empty($priceFields) && (!empty($code) || $autodiscount)) {
-        // apply discount to all the price fields for quickconfig pricesets
-        if ($pagetype == 'event' && $isQuickConfigPriceSet) {
+        // apply discount to all the price fields if no price set set
+        if ($pagetype == 'event') {
           $applyToAllLineItems = TRUE;
           if (!empty($key)) {
             $discounts[$key]['pricesets'] = array_keys($priceSetInfo);
@@ -387,9 +384,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       }
       // we should check for MultParticipant AND set Error Messages only if
       // this $discount is autodiscount or used discount
-      if ($autodiscount || (!empty($code) && $code==$discount['code']) ){
+      if ($autodiscount || (!empty($code) && $code == $discount['code'])){
         $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
-      } 
+      }
       else {
         // silently set FALSE
         $apcount = FALSE;
