@@ -385,7 +385,16 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
           }
         }
       }
-      $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
+      // we should check for MultParticipant AND set Error Messages only if
+      // this $discount is autodiscount or used discount
+      if ($autodiscount || (!empty($code) && $code==$discount['code']) ){
+        $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
+      } 
+      else {
+        // silently set FALSE
+        $apcount = FALSE;
+      }
+
       if (empty($apcount)) {
         //this was set to return but that doesn't make sense as there might be another discount
         continue;
