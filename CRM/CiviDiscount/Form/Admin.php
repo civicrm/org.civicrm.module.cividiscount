@@ -406,11 +406,11 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   function adjustAgeFields(&$fields) {
     if (!empty($fields['contact'])) {
       if (!empty($fields['contact']['age_low'])) {
-        $fields['contact']['birth_date_high'] = '- ' . $fields['contact']['age_low']['='] . ' years';
+        $fields['contact']['birth_date_low'] = '- ' . $fields['contact']['age_low']['='] . ' years';
         unset($fields['contact']['age_low']);
       }
       if (!empty($fields['contact']['age_high'])) {
-        $fields['contact']['birth_date_low'] = '- ' . $fields['contact']['age_high']['='] . ' years';
+        $fields['contact']['birth_date_high'] = '- ' . $fields['contact']['age_high']['='] . ' years';
         unset($fields['contact']['age_high']);
       }
     }
@@ -544,8 +544,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    */
   function setAgeDefaults(&$defaults, $fieldName, $values, $spec) {
     $fields = array(
-      'autodiscount_age_low' => 'birth_date_high',
-      'autodiscount_age_high' => 'birth_date_low'
+      'autodiscount_age_low' => 'birth_date_low',
+      'autodiscount_age_high' => 'birth_date_high'
     );
     if (!empty($values['contact'][$fields[$fieldName]])) {
       return abs(filter_var($values['contact'][$fields[$fieldName]], FILTER_SANITIZE_NUMBER_INT));
