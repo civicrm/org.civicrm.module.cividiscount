@@ -332,8 +332,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     $form->set('_discountInfo', NULL);
-    $dicountCalculater = new CRM_CiviDiscount_DiscountCalculator($pagetype, $eid, $contact_id, $code, FALSE);
-    $discounts = $dicountCalculater->getDiscounts();
+    $discountCalculator = new CRM_CiviDiscount_DiscountCalculator($pagetype, $eid, $contact_id, $code, FALSE);
+
+    $discounts = $discountCalculator->getDiscounts();
      if (!empty($code) && empty($discounts)) {
        $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
     }
@@ -357,7 +358,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     $originalAmounts = $amounts;
     //$discount = array_shift($discounts);
     foreach ($discounts as $done_care => $discount) {
-      if (!empty($dicountCalculater->autoDiscounts) && array_key_exists($done_care, $dicountCalculater->autoDiscounts)) {
+      if (!empty($discountCalculator->autoDiscounts) && array_key_exists($done_care, $discountCalculator->autoDiscounts)) {
         $autodiscount = TRUE;
       }
       else {

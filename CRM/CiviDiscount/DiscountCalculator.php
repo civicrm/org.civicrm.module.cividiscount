@@ -82,7 +82,9 @@ class CRM_CiviDiscount_DiscountCalculator {
   }
 
   /**
-   * Filter discounts by autodiscount criteria. If any one of the criteria is not met for this contact then the discount
+   * Filter discounts by auto-discount criteria.
+   *
+   * If any one of the criteria is not met for this contact then the discount
    * does not apply
    *
    * We can assume that the no-contact id situation is dealt with in that
@@ -96,28 +98,21 @@ class CRM_CiviDiscount_DiscountCalculator {
     if (empty($this->contact_id)) {
       return;
     }
-    $entityDiscounts = $this->entity_discounts;
+    $this->autoDiscounts = $this->entity_discounts;
     foreach ($this->entity_discounts as $discount_id => $discount) {
       if (empty($discount['autodiscount'])) {
-        if (!empty($discount['memberships'])) {
-          $applyForMembershipOnly = TRUE;
-          continue;
-        }
-        unset($entityDiscounts[$discount_id]);
+        unset($this->autoDiscounts[$discount_id]);
       }
       else {
         foreach (array_keys($discount['autodiscount']) as $entity) {
           $additionalParams = array('contact_id' => $this->contact_id);
           $id = ($entity == 'contact') ? $this->contact_id : NULL;
           if (!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
-            unset($entityDiscounts[$discount_id]);
+            unset($this->autoDiscounts[$discount_id]);
             continue;
           }
         }
       }
-    }
-    if (empty($applyForMembershipOnly) && $this->entity != 'membership') {
-      $this->autoDiscounts = $entityDiscounts;
     }
   }
 
@@ -193,11 +188,13 @@ class CRM_CiviDiscount_DiscountCalculator {
    * 3) the only filter is on id (in which case we will do a direct comparison
    * 4) there is an api filter
    *
-   * @param array $discounts discount array from db
-   * @param string $field - this should match the api entity
+   * @param array $discount
+   * @param string $entity
    * @param integer $id entity id
    * @param string $type 'filters' or autodiscount
    * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
+   *
+   * @return bool
    */
   function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
     try {
@@ -219,7 +216,8 @@ class CRM_CiviDiscount_DiscountCalculator {
       else {
         return !empty($ids['values']);
       }
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       return FALSE;
     }
   }
