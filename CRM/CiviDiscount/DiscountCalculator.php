@@ -82,7 +82,9 @@ class CRM_CiviDiscount_DiscountCalculator {
   }
 
   /**
-   * Filter discounts by autodiscount criteria. If any one of the criteria is not met for this contact then the discount
+   * Filter discounts by auto-discount criteria.
+   *
+   * If any one of the criteria is not met for this contact then the discount
    * does not apply
    *
    * We can assume that the no-contact id situation is dealt with in that
@@ -193,11 +195,13 @@ class CRM_CiviDiscount_DiscountCalculator {
    * 3) the only filter is on id (in which case we will do a direct comparison
    * 4) there is an api filter
    *
-   * @param array $discounts discount array from db
-   * @param string $field - this should match the api entity
+   * @param array $discount
+   * @param string $entity
    * @param integer $id entity id
    * @param string $type 'filters' or autodiscount
    * @param array $additionalFilter e.g array('contact_id' => x) when looking at memberships
+   *
+   * @return bool
    */
   function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
     try {
@@ -219,7 +223,8 @@ class CRM_CiviDiscount_DiscountCalculator {
       else {
         return !empty($ids['values']);
       }
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       return FALSE;
     }
   }
