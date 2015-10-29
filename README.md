@@ -4,9 +4,9 @@ CiviDiscount Extension
 ADVANCED FILTERS
 --
 
-CiviDiscount now allows you to specify you own criteria for who should get automatic discounts. This is a powerful feature
+CiviDiscount now allows you to specify your own criteria for who should get automatic discounts. This is a powerful feature
 but does require some technical skill and thorough testing is recommended. Use the api explorer (on your site
-at the url civicrm/api/explorer to help you discover the api options you could pass.
+at the url civicrm/api/explorer) to help you discover the api options you could pass.
 
 You need to specify an API Entity that you want to query and a query string. If you specify contact then the logged in contact id
 will be passed in as 'id'. For all other api it will be passed in as 'contact_id'
@@ -20,7 +20,7 @@ NEEDED
 --
 
 * Enhance UI with an "apply discount" button that updates displayed prices on any forms
-  + basically you want to emulate having the discount code sent in via th URL and let the person know if discount code is
+  + basically you want to emulate having the discount code sent in via the URL and let the person know if discount code is
     bogus
   + it would be nice to do this with ajax but isn't worth much effort.
 
@@ -40,7 +40,7 @@ FIXED ALREADY
 --
 
 * Fix/check cividiscount_civicrm_buildAmount() for both online and offline forms/cases (event registration):
-  + check multi-participant case well ( currently this needs to be enabled in code )
+  + check multi-participant case well (currently this needs to be enabled in code)
 * Fix/check cividiscount_civicrm_buildForm() for both online, offline and renewal forms/cases (memberships):
   + check multi-step form case well
 * Check all transaction amounts match amount displayed on forms.
@@ -53,7 +53,7 @@ FIXED ALREADY
   + When deleting membership record, also delete their tracking info/usage
 * Fix/check cividiscount_civicrm_postProcess() tracking for all forms/cases:
   + check we have correct participantID, membershipID, contributionID when it's needed for tracking
-  + check generic generic contribution cases well ( discount is not available for this )
+  + check generic generic contribution cases well (discount is not available for this)
 * Fix/check discount tracking tabs.
 * Generally clean up the code and logic.
 * Carefully review discount verification and applicability:
