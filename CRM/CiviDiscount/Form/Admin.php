@@ -48,7 +48,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     parent::preProcess();
 
     $session = CRM_Core_Session::singleton();
-    $url = CRM_Utils_System::url('civicrm/cividiscount/discount/list', 'reset=1');
+    $url = CRM_Utils_System::url('civicrm/cividiscount', 'reset=1');
     $session->pushUserContext($url);
 
     // check and ensure that update / delete have a valid id
@@ -322,8 +322,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * Add advanced filters from UI. Note that setting an entity but not a filter string basically means
    * that only the contact id will be passed in as a parameter (as id for contact or contact_id for all others)
    *
-   * @param params
-   * @param discountString
+   * @param array $params
+   * @param string $discountEntity
+   * @param string $discountString
+   * @throws \CRM_Core_Exception
    */
   private function addAdvancedFilterToAutodiscount(&$params, $discountEntity, $discountString) {
     if ($discountString) {
@@ -417,11 +419,13 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   }
 
   /**
-   * Convert handle 'any current' -
+   * Convert handle 'any current'
+   *
    * If it is set then we need to translate it to 'active_only' as
    * we want this to move over time if the membership statuses are changed so we should interpret it to
    * 'active_only'
-   * @param unknown $fields
+   *
+   * @param array $fields
    */
   function adjustMembershipStatusField(&$fields) {
     if (!empty($fields['membership'])) {
@@ -442,8 +446,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
-   * @return array filters to be stored in DB
+   * @param array $defaults
    */
   function applyFilterDefaults(&$defaults) {
     $this->applyJsonFieldDefaults($defaults, 'filters', 'getSupportedFilters');
@@ -451,8 +454,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
-   * @return array filters to be stored in DB
+   * @param array $defaults
    */
   function applyAutoDiscountDefaults(&$defaults) {
     $this->applyJsonFieldDefaults($defaults, 'autodiscount', 'getSupportedAutoDiscountFilters');
@@ -461,9 +463,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Apply defaults to fields stored in json fields
-   * @param defaults
-   * @param type
+   * @param array defaults
+   * @param string type
    * @param string $fn function to get definition from
+   * @return array
    */
   private function applyJsonFieldDefaults(&$defaults, $type, $fn) {
     if (empty($defaults[$type])) {
@@ -537,10 +540,11 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Set default for age fields as stored as birth_date_high & birth_date_low
-   * @param unknown $defaults
-   * @param unknown $fieldName
-   * @param unknown $value
-   * @param unknown $spec
+   *
+   * @param array $defaults
+   * @param string $fieldName
+   * @param array $values
+   * @param null $spec
    */
   function setAgeDefaults(&$defaults, $fieldName, $values, $spec) {
     $fields = array(
@@ -554,10 +558,11 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Set default for membership status based on presence of 'active_only' param
-   * @param unknown $defaults
-   * @param unknown $fieldName
-   * @param unknown $value
-   * @param unknown $spec
+   *
+   * @param array $defaults
+   * @param string $fieldName
+   * @param array $values
+   * @param null $spec
    */
   function setMembershipStatusDefaults(&$defaults, $fieldName, $values, $spec) {
     if (!empty($values['membership']['active_only'])) {
@@ -577,7 +582,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    *     'entity' => array(
    *       'field1' => array('form_field_name' => field1),
    *       'field2' => array('form_field_name' => field2),
-   * )
+   *   )
    * where both the entity & the field names should be valid for api calls.
    * The form field name is the name of the field on the form - we set it in case we get a conflict
    *  - eg. multiple entities have 'status_id'

@@ -5,6 +5,7 @@
      <path>civicrm/cividiscount</path>
      <page_callback>CRM_CiviDiscount_Page_List</page_callback>
      <access_arguments>administer CiviCRM</access_arguments>
+     <title>Discounts</title>
   </item>
   <item>
      <path>civicrm/cividiscount/discount/add</path>
@@ -34,12 +35,6 @@
      <path>civicrm/cividiscount/discount/view</path>
      <page_arguments>mode=4</page_arguments>
      <page_callback>CRM_CiviDiscount_Page_View</page_callback>
-     <access_arguments>administer CiviCRM</access_arguments>
-  </item>
-  <item>
-     <path>civicrm/cividiscount/discount/list</path>
-     <page_callback>CRM_CiviDiscount_Page_List</page_callback>
-     <title>Discounts</title>
      <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <item>

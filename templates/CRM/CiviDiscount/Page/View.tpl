@@ -129,7 +129,7 @@
         <a class="button" href="{crmURL p='civicrm/cividiscount/discount/delete' q=$urlParams}">
           <span><span class="icon delete-icon"></span>{ts}Delete{/ts}</span></a>
       {/if}
-      <a class="button cancel" href="{crmURL p='civicrm/cividiscount/discount/list' q='reset=1'}">
+      <a class="button cancel" href="{crmURL p='civicrm/cividiscount' q='reset=1'}">
         <span class="icon ui-icon-close"></span><span class="crm-button_discount-view_cancel">{ts}Done{/ts}</span>
       </a>
     </div>
