@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension key="org.civicrm.module.cividiscount" type="module">
   <file>cividiscount</file>
-  <name>CiviDiscount Module Extension</name>
+  <name>CiviDiscount</name>
   <description>Enables discount codes and automatic discounts for events and memberships.</description>
   <urls>
     <url desc="Main Extension Page">
