@@ -428,7 +428,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     if ($pagetype == 'event') {
       foreach ($discounts as $code => $discount) {
         if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
-          $discount['discount_msg_enabled'] && (!isset($discountApplied) || !$discountApplied)) {
+          $discount['discount_msg_enabled'] && (!isset($discountApplied) || !$discountApplied) && !empty($discount['autodiscount'])) {
           CRM_Core_Session::setStatus(html_entity_decode($discount['discount_msg']), '', 'no-popup');
         }
       }
