@@ -411,26 +411,22 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
               $originalAmount = CRM_Utils_Rule::cleanMoney($originalAmounts[$fee_id]['options'][$option_id]['amount']);
               list($amount, $label) =
                 _cividiscount_calc_discount($originalAmount, $originalLabel, $discount, $autodiscount, $currency);
-              /*
-               * Priyanka Karan @ Veda NFP Consulting Ltd
-               * Apply discount to VAT/Sales tax
-               */
-              $taxAmount = '';
-              if (array_key_exists('tax_amount', $originalAmounts[$fee_id]['options'][$option_id])) {
-                $originalTaxAmount = (integer) $originalAmounts[$fee_id]['options'][$option_id]['tax_amount'];
-                if ($originalTaxAmount) {
-                  list($taxAmount, $taxLabel) =
-                    _cividiscount_calc_discount($originalTaxAmount, $originalLabel, $discount, $autodiscount, $currency);
-                }
-              }
               $discountAmount = $originalAmounts[$fee_id]['options'][$option_id]['amount'] - $amount;
               if($discountAmount > CRM_Utils_Array::value('discount_applied', $option)) {
                 $option['amount'] = $amount;
                 $option['label'] = $label;
                 $option['discount_applied'] = $discountAmount;
-                //Update VAT/Tax Amount if discount got succesfully applied
-                if ($taxAmount) {
-                  $option['tax_amount'] = $taxAmount;
+                /*
+                * Priyanka Karan @ Veda NFP Consulting Ltd
+                * Re-calculate VAT/Sales TAX on discounted amount.
+                */
+                $recalculateTaxAmount = array();
+                if (array_key_exists('tax_amount', $originalAmounts[$fee_id]['options'][$option_id]) &&
+                    array_key_exists('tax_rate', $originalAmounts[$fee_id]['options'][$option_id])) {
+                  $recalculateTaxAmount = CRM_Contribute_BAO_Contribution_Utils::calculateTaxAmount($amount, $originalAmounts[$fee_id]['options'][$option_id]['tax_rate']);
+                  if (!empty($recalculateTaxAmount)) {
+                    $option['tax_amount'] = round($recalculateTaxAmount['tax_amount'], 2);
+                  }
                 }
               }
               $discountApplied = TRUE;
