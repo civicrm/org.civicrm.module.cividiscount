@@ -1071,8 +1071,10 @@ function _cividiscount_add_discount_textfield(&$form) {
  *   Should we put the discount block somewhere better than just at the top.
  */
 function _cividiscount_form_is_eligible_for_pretty_placement($form) {
-  if (get_class($form) != 'CRM_Contribute_Form_Contribution_Main'
-  || !_cividiscount_version_at_least('4.6.4')
+  $formClass = get_class($form);
+  if (($formClass != 'CRM_Contribute_Form_Contribution_Main'
+      && $formClass != 'CRM_Event_Form_Registration_Register')
+      || !_cividiscount_version_at_least('4.6.4')
   ) {
     return FALSE;
   }
