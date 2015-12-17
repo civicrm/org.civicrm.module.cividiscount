@@ -166,6 +166,8 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
       $addDiscountField = $discountCalculator->isShowDiscountCodeField();
     }
     elseif ($fname == 'CRM_Contribute_Form_Contribution_Main') {
+      CRM_Core_Resources::singleton()
+        ->addScriptFile('org.civicrm.module.cividiscount', 'js/main.js');
       $ids = _cividiscount_get_discounted_membership_ids();
       if(!empty($form->_membershipBlock['membership_types'])){
         $memtypes = explode(',', $form->_membershipBlock['membership_types']);
