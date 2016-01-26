@@ -363,7 +363,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
       foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('import', $field)) {
           if ($prefix) {
-            self::$_import['ount_item'] = &$fields[$name];
+            self::$_import['cividiscount_item'] = &$fields[$name];
           }
           else {
             self::$_import[$name] = &$fields[$name];
@@ -387,7 +387,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
       foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('export', $field)) {
           if ($prefix) {
-            self::$_export['ount_item'] = &$fields[$name];
+            self::$_export['cividiscount_item'] = &$fields[$name];
           }
           else {
             self::$_export[$name] = &$fields[$name];
