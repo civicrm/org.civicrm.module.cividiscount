@@ -165,10 +165,10 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     count_max,
     filters
   FROM cividiscount_item AS i
-  WHERE is_active = 1  /* replaces isEnabled(), r3.1--Issue-138 */
-  AND (active_on IS NULL OR active_on <= NOW())  /* replaces isActive(), r3.1--Issue-138 */
-  AND (expire_on IS NULL OR expire_on > NOW())  /* replaces isExpired(), r3.1--Issue-138 */
-  AND (count_max = 0 OR count_max > count_use)  /* replaces isValid(), r3.1--Issue-138 */
+  WHERE is_active = 1
+  AND (active_on IS NULL OR active_on <= NOW())
+  AND (expire_on IS NULL OR expire_on > NOW())
+  AND (count_max = 0 OR count_max > count_use)
 ";
     $dao = CRM_Core_DAO::executeQuery($sql, array());
     while ($dao->fetch()) {
