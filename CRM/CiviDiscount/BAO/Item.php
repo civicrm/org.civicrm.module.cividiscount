@@ -164,17 +164,16 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     count_use,
     count_max,
     filters
-  FROM cividiscount_item i
+  FROM cividiscount_item AS i
   WHERE is_active = 1
+  AND (active_on IS NULL OR active_on <= NOW())
+  AND (expire_on IS NULL OR expire_on > NOW())
   AND (count_max = 0 OR count_max > count_use)
 ";
     $dao = CRM_Core_DAO::executeQuery($sql, array());
     while ($dao->fetch()) {
       $a = (array) $dao;
-      if (CRM_CiviDiscount_BAO_Item::isValid($a)) {
-        $discounts[$a['code']] = self::buildDiscountFilters($a);
-
-      }
+      $discounts[$a['code']] = self::buildDiscountFilters($a);
     }
     return $discounts;
   }
@@ -253,56 +252,6 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   static function decrementUsage($id) {
     $sql = "UPDATE cividiscount_item SET count_use = count_use-1 WHERE id = {$id}";
     return CRM_Core_DAO::executeQuery($sql);
-  }
-
-  static function isValid($code) {
-    if (!CRM_CiviDiscount_BAO_Item::isExpired($code) &&
-      CRM_CiviDiscount_BAO_Item::isActive($code) &&
-      CRM_CiviDiscount_BAO_Item::isEnabled($code) &&
-      ($code['count_max'] == 0 || $code['count_max'] > $code['count_use'])
-    ) {
-      return TRUE;
-    }
-
-    return FALSE;
-  }
-
-  static function isExpired($code) {
-    if (empty($code['expire_on'])) {
-      return FALSE;
-    }
-
-    $time = CRM_Utils_Date::getToday(NULL, 'Y-m-d H:i:s');
-
-    if (strtotime($time) > abs(strtotime($code['expire_on']))) {
-      return TRUE;
-    }
-
-    return FALSE;
-  }
-
-
-  static function isActive($code) {
-    if (empty($code['active_on'])) {
-      return TRUE;
-    }
-
-    $time = CRM_Utils_Date::getToday(NULL, 'Y-m-d H:i:s');
-
-    if (strtotime($time) > abs(strtotime($code['active_on']))) {
-      return TRUE;
-    }
-
-    return FALSE;
-  }
-
-
-  static function isEnabled($code) {
-    if ($code['is_active'] == 1) {
-      return TRUE;
-    }
-
-    return FALSE;
   }
 
   /**
