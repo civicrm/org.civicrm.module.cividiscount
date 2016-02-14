@@ -892,7 +892,7 @@ function _cividiscount_filter_membership_discounts($discounts, $membershipTypeVa
  * Calculate either a monetary or percentage discount.
  */
 function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
-  $title = $autodiscount ? 'Includes Automatic Member Discount of' : "Includes Applied Discount Code {$discount['code']}";
+  $title = $autodiscount ? ts('Includes automatic member discount of') : ts('Includes applied discount code %1', array(1 => $discount['code']));
   if ($discount['amount_type'] == '2') {
     $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
     $fmt_discount = CRM_Utils_Money::format($discount['amount'], $currency);
