@@ -178,15 +178,15 @@ class CRM_CiviDiscount_DiscountCalculator {
       $this->entity_discounts = $this->discounts;
     }
     foreach ($this->discounts as $discount_id => $discount) {
+      // WARNING! The previous attempted to improve performance in deciding when
+      // the autoDiscount field should be displayed resulted in breakage.
+      // See https://github.com/dlobo/org.civicrm.module.cividiscount/issues/145 before
+      // attempting.
       if ($this->entity == 'membership' && !empty($discount['autodiscount'])) {
         unset($this->entity_discounts[$discount_id]);
       }
       if ($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
         $this->entity_discounts[$discount_id] = $discount;
-        // Added by BOT To decide if discount text box should be displayed, no need to loop through all discount codes
-        if (empty($this->code)) {
-          break;
-        }
       }
     }
   }
