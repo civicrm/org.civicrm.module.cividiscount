@@ -10,10 +10,10 @@
     <url desc="Documentation">
       https://github.com/dlobo/org.civicrm.module.cividiscount/
     </url>
-    <url desc="Support">http://forum.civicrm.org/index.php?topic=24759.0</url>
+    <url desc="Support">http://civicrm.stackexchange.com</url>
     <url desc="Licensing">http://civicrm.org/licensing</url>
   </urls>
-  <license>AGPL</license>
+  <license>AGPL-3.0</license>
   <maintainer>
     <author>CiviCRM LLC</author>
     <email>info@civicrm.org</email>
