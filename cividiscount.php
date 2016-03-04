@@ -3,28 +3,28 @@
 require_once 'cividiscount.civix.php';
 
 /**
- * Implementation of hook_civicrm_install()
+ * Implements hook_civicrm_install().
  */
 function cividiscount_civicrm_install() {
   return _cividiscount_civix_civicrm_install();
 }
 
 /**
- * Implementation of hook_civicrm_uninstall()
+ * Implements hook_civicrm_uninstall().
  */
 function cividiscount_civicrm_uninstall() {
   return _cividiscount_civix_civicrm_uninstall();
 }
 
 /**
- * Implementation of hook_civicrm_config()
+ * Implements hook_civicrm_config().
  */
 function cividiscount_civicrm_config(&$config) {
   _cividiscount_civix_civicrm_config($config);
 }
 
 /**
- * Implementation of hook_civicrm_perm()
+ * Implements hook_civicrm_perm().
  *
  * Module extensions dont implement this hook as yet, will need to add for 4.2
  */
@@ -33,28 +33,28 @@ function cividiscount_civicrm_perm() {
 }
 
 /**
- * Implementation of hook_civicrm_xmlMenu
+ * Implements hook_civicrm_xmlMenu().
  */
 function cividiscount_civicrm_xmlMenu(&$files) {
   _cividiscount_civix_civicrm_xmlMenu($files);
 }
 
 /**
- * Implementation of hook_civicrm_enable
+ * Implements hook_civicrm_enable().
  */
 function cividiscount_civicrm_enable() {
   return _cividiscount_civix_civicrm_enable();
 }
 
 /**
- * Implementation of hook_civicrm_disable
+ * Implements hook_civicrm_disable().
  */
 function cividiscount_civicrm_disable() {
   return _cividiscount_civix_civicrm_disable();
 }
 
 /**
- * Implementation of hook_civicrm_upgrade
+ * Implements hook_civicrm_upgrade().
  *
  * @param $op string, the type of operation being performed; 'check' or 'enqueue'
  * @param CRM_Queue_Queue $queue  (for 'enqueue') the modifiable list of pending up upgrade tasks
@@ -67,7 +67,7 @@ function cividiscount_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 }
 
 /**
- * Implementation of hook_civicrm_managed
+ * Implements hook_civicrm_managed().
  *
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
@@ -106,7 +106,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
 }
 
 /**
- * Implementation of hook_civicrm_buildForm()
+ * Implements hook_civicrm_buildForm().
  *
  * If the event id of the form being loaded has a discount code, modify
  * the form to include the textfield. Only display the textfield on the
@@ -207,7 +207,7 @@ function cividiscount_civicrm_buildForm($fname, &$form) {
 }
 
 /**
- * Implementation of hook_civicrm_validateForm()
+ * Implements hook_civicrm_validateForm().
  *
  * Used in the initial event registration screen.
  *
@@ -271,16 +271,16 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
  * @param CRM_Core_Form $form
  * @param $amounts
  */
-function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
+function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
   if (( !$form->getVar('_action')
         || ($form->getVar('_action') & CRM_Core_Action::PREVIEW)
         || ($form->getVar('_action') & CRM_Core_Action::ADD)
         || ($form->getVar('_action') & CRM_Core_Action::UPDATE)
       )
     && !empty($amounts) && is_array($amounts) &&
-      ($pagetype == 'event' || $pagetype == 'membership')) {
+      ($pageType == 'event' || $pageType == 'membership')) {
 
-    if (!$pagetype == 'membership' && in_array(get_class($form), array(
+    if (!$pageType == 'membership' && in_array(get_class($form), array(
       'CRM_Contribute_Form_Contribution',
       'CRM_Contribute_Form_Contribution_Main',
     ))) {
@@ -334,9 +334,10 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     $form->set('_discountInfo', NULL);
-    $discountCalculator = new CRM_CiviDiscount_DiscountCalculator($pagetype, $eid, $contact_id, $code, FALSE);
+    $discountCalculator = new CRM_CiviDiscount_DiscountCalculator($pageType, $eid, $contact_id, $code, FALSE);
 
     $discounts = $discountCalculator->getDiscounts();
+
      if (!empty($code) && empty($discounts)) {
        $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
     }
@@ -358,9 +359,8 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     //retrieve price set field associated with this priceset
     $priceSetInfo = CRM_CiviDiscount_Utils::getPriceSetsInfo($psid);
     $originalAmounts = $amounts;
-    //$discount = array_shift($discounts);
-    foreach ($discounts as $done_care => $discount) {
-      if (!empty($discountCalculator->autoDiscounts) && array_key_exists($done_care, $discountCalculator->autoDiscounts)) {
+    foreach ($discounts as $discountID => $discount) {
+      if (!empty($discountCalculator->autoDiscounts) && array_key_exists($discountID, $discountCalculator->autoDiscounts)) {
         $autodiscount = TRUE;
       }
       else {
@@ -369,7 +369,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       $priceFields = isset($discount['pricesets']) ? $discount['pricesets'] : array();
       if (empty($priceFields) && (!empty($code) || $autodiscount)) {
         // apply discount to all the price fields if no price set set
-        if ($pagetype == 'event') {
+        if ($pageType == 'event') {
           $applyToAllLineItems = TRUE;
           if (!empty($key)) {
             $discounts[$key]['pricesets'] = array_keys($priceSetInfo);
@@ -388,7 +388,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
       // we should check for MultParticipant AND set Error Messages only if
       // this $discount is autodiscount or used discount
       if ($autodiscount || (!empty($code) && $code == $discount['code'])){
-        $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pagetype, $form, $discount);
+        $apcount = _cividiscount_checkEventDiscountMultipleParticipants($pageType, $form, $discount);
       }
       else {
         // silently set FALSE
@@ -439,7 +439,7 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
     }
 
     // Display discount message if one is available
-    if ($pagetype == 'event') {
+    if ($pageType == 'event') {
       foreach ($discounts as $code => $discount) {
         if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
           $discount['discount_msg_enabled'] && (!isset($discountApplied) || !$discountApplied) && !empty($discount['autodiscount'])) {
@@ -484,9 +484,9 @@ function cividiscount_civicrm_buildAmount($pagetype, &$form, &$amounts) {
  * @param form
  * @param array $discount
  */
-function _cividiscount_checkEventDiscountMultipleParticipants($pagetype, &$form, $discount) {
+function _cividiscount_checkEventDiscountMultipleParticipants($pageType, &$form, $discount) {
   $apcount = 1;
-  if ($pagetype == 'event' && _cividiscount_allow_multiple()) {
+  if ($pageType == 'event' && _cividiscount_allow_multiple()) {
     if ($discount['count_max'] > 0) {
       // Initially 1 for person registering.
       $apcount = 1;
