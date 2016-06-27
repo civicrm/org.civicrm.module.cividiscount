@@ -197,7 +197,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     $fields = array(
       'events' => 'event',
       'pricesets' => 'price_set',
-      'memberships' => 'membership'
+      'memberships' => 'membership_type'
     );
     foreach ($fields as $field => $entity) {
       if (!isset($discount[$field]) || is_null($discount[$field])) {
@@ -212,12 +212,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
           //0 indicates 'any' so for 0 we construct an empty filter - otherwise we add a limit by id clause
           //note that this may be combined with stored filters e.g. 'event_type_id'
           if (!in_array(0, $items)) {
-            if ($field == 'memberships') {
-              $filters[$entity]['membership_type_id'] = array('IN' => $items);
-            }
-            else {
-              $filters[$entity]['id'] = array('IN' => $items);
-            }
+            $filters[$entity]['id'] = array('IN' => $items);
           }
         }
       }

@@ -124,19 +124,6 @@ class CRM_CiviDiscount_DiscountCalculator {
   }
 
   /**
-   * Get discounts relative to the entity.
-   *
-   * @todo not used?
-   */
-  protected function getEntityDiscounts() {
-    if (is_array($this->entity_discounts)) {
-      return $this->entity_discounts;
-    }
-    $this->setEntityDiscounts();
-    return $this->entity_discounts;
-  }
-
-  /**
    * Check if the entity has applicable discounts.
    */
   protected function getEntityHasDiscounts() {
@@ -172,19 +159,11 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   protected function setEntityDiscounts() {
     $this->entity_discounts = array();
-    //since we cannot choose online contribution page as criteria for creating discount code so
-    //we need to bypass the check for entity=membership
-    if ($this->entity == 'membership') {
-      $this->entity_discounts = $this->discounts;
-    }
     foreach ($this->discounts as $discount_id => $discount) {
       // WARNING! The previous attempted to improve performance in deciding when
       // the autoDiscount field should be displayed resulted in breakage.
       // See https://github.com/dlobo/org.civicrm.module.cividiscount/issues/145 before
       // attempting.
-      if ($this->entity == 'membership' && !empty($discount['autodiscount'])) {
-        unset($this->entity_discounts[$discount_id]);
-      }
       if ($this->checkDiscountsByEntity($discount, $this->entity, $this->entity_id, 'filters')) {
         $this->entity_discounts[$discount_id] = $discount;
       }
