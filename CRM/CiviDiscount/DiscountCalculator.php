@@ -217,11 +217,21 @@ class CRM_CiviDiscount_DiscountCalculator {
         return TRUE;
       }
 
-      $params = $discount[$type][$entity] + array_merge(array(
-          'options' => array('limit' => 999999999),
-          'return' => 'id',
-        ), $additionalFilter);
-      $ids = civicrm_api3($entity, 'get', $params);
+      if (count($discount[$type][$entity]) == 1 && CRM_Utils_Array::value('id', $discount[$type][$entity])) {
+        // If this discount is only limited by specific entity (say, a specific
+        // event and not an event type), we have the IDs already and don't need
+        // to make an API call. Store the IDs in a structure like they would
+        // have as the result of an API call.
+        $ids = array('values' => array_flip($discount[$type][$entity]['id']['IN']));
+      }
+      else {
+        $params = $discount[$type][$entity] + array_merge(array(
+            'options' => array('limit' => 999999999),
+            'return' => 'id',
+          ), $additionalFilter);
+        $ids = civicrm_api3($entity, 'get', $params);
+      }
+
       if ($id) {
         return in_array($id, array_keys($ids['values']));
       }
