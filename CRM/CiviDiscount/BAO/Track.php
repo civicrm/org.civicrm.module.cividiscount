@@ -124,7 +124,7 @@ SELECT    t.item_id as item_id,
       if ($cid) {
         $sql .= ", i.code ";
         $where = " LEFT JOIN cividiscount_item AS i ON (i.id = t.item_id) ";
-        $where = " WHERE t.contact_id = " . CRM_Utils_Type::escape($cid, 'Integer');
+        $where .= " WHERE t.contact_id = " . CRM_Utils_Type::escape($cid, 'Integer');
       }
       else {
         $where = " WHERE t.item_id = " . CRM_Utils_Type::escape($id, 'Integer');
