@@ -1167,4 +1167,10 @@ function cividiscount_civicrm_entityTypes(&$entityTypes) {
     'class' => 'CRM_CiviDiscount_DAO_Item',
     'table' => 'cividiscount_item'
   );
+  $entityTypes['CRM_CiviDiscount_DAO_Track'] = array(
+    'name' => 'DiscountTrack',
+    'class' => 'CRM_CiviDiscount_DAO_Track',
+    'table' => 'cividiscount_track'
+  );
+
 }
