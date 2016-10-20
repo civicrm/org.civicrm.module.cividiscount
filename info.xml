@@ -18,15 +18,15 @@
     <author>CiviCRM LLC</author>
     <email>info@civicrm.org</email>
   </maintainer>
-  <releaseDate>2015-06-20</releaseDate>
-  <version>3.2</version>
+  <releaseDate>2016-10-20</releaseDate>
+  <version>3.3</version>
   <compatibility>
     <ver>4.5</ver>
     <ver>4.6</ver>
     <ver>4.7</ver>
   </compatibility>
   <comments>
-    For support, please contact the team on the forums. (http://forum.civicrm.org)
+    For support, please ask on chat.civicrm.org
   </comments>
   <civix>
     <namespace>CRM/CiviDiscount</namespace>
