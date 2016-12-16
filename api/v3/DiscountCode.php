@@ -56,7 +56,11 @@ function civicrm_api3_discount_code_create($params) {
  */
 function _civicrm_api3_discount_code_create_spec(&$params) {
   $params['is_active']['api.default'] = 1;
-  $params['multi_valued']['api.default'] = array();
+  $params['multi_valued']['api.default'] = array(
+      'events' => NULL,
+      'memberships' => NULL,
+      'pricesets' => NULL,
+  );
   $params['multi_valued']['title'] = 'List of discount types being passed in';
 }
 
