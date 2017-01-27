@@ -437,10 +437,13 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
           }
         }
       }
+      if ($autodiscount) {
+        break;
+      }
     }
 
     // Display discount message if one is available
-    if ($pageType == 'event') {
+    if ($pageType == 'event' && !$autodiscount) {
       foreach ($discounts as $code => $discount) {
         if (isset($discount['events']) && array_key_exists($eid, $discount['events']) &&
           $discount['discount_msg_enabled'] && (!isset($discountApplied) || !$discountApplied) && !empty($discount['autodiscount'])) {
