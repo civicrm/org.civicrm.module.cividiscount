@@ -176,37 +176,33 @@ function _cividiscount_civix_glob($pattern) {
 }
 
 /**
- * Inserts a navigation menu item at a given place in the hierarchy
+ * Inserts a navigation menu item at a given place in the hierarchy.
  *
- * $menu - menu hierarchy
- * $path - path where insertion should happen (ie. Administer/System Settings)
- * $item - menu you need to insert (parent/child attributes will be filled for you)
- * $parentId - used internally to recurse in the menu structure
+ * @param array $menu - menu hierarchy
+ * @param string $path - path where insertion should happen (ie. Administer/System Settings)
+ * @param array $item - menu you need to insert (parent/child attributes will be filled for you)
  */
-function _cividiscount_civix_insert_navigation_menu(&$menu, $path, $item, $parentId = NULL) {
-  static $navId;
-
+function _cividiscount_civix_insert_navigation_menu(&$menu, $path, $item) {
   // If we are done going down the path, insert menu
   if (empty($path)) {
-    if (!$navId) $navId = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
-    $navId ++;
-    $menu[$navId] = array (
-      'attributes' => array_merge($item, array(
+    $menu[] = array(
+      'attributes' => array_merge(array(
         'label'      => CRM_Utils_Array::value('name', $item),
         'active'     => 1,
-        'parentID'   => $parentId,
-        'navID'      => $navId,
-      ))
+      ), $item),
     );
-    return true;
-  } else {
+    return TRUE;
+  }
+  else {
     // Find an recurse into the next level down
-    $found = false;
+    $found = FALSE;
     $path = explode('/', $path);
     $first = array_shift($path);
     foreach ($menu as $key => &$entry) {
       if ($entry['attributes']['name'] == $first) {
-        if (!$entry['child']) $entry['child'] = array();
+        if (!isset($entry['child'])) {
+          $entry['child'] = array();
+        }
         $found = _cividiscount_civix_insert_navigation_menu($entry['child'], implode('/', $path), $item, $key);
       }
     }
