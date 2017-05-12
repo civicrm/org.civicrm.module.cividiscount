@@ -13,6 +13,6 @@ CiviDiscount is designed to allow discounts of a set percentage or dollar amount
 * Discounts valid for specific events or event types
 * Discounts valid for specific membership types
 * Automatic discounts applied for specific members types or statuses
-* Automatic discounts applied to contacts based on type, age, country or custom fields and other entities.
+* Automatic discounts applied to contacts based on type, age, country or custom fields.
 * Code summary screen displays usage for a given discount code
 * Usage and assigned code tabs on a contact record
