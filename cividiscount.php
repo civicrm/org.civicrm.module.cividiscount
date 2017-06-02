@@ -432,6 +432,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
                   }
                 }
               }
+              $appliedDiscountID = $discountID;
               $discountApplied = TRUE;
             }
           }
@@ -449,15 +450,14 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
       }
     }
 
-    // this seems to incorrectly set to only the last discount but it seems not to matter in the way it is used
-    if (isset($discountApplied) && $discountApplied) {
+    if (isset($discountApplied) && $discountApplied && !empty($discounts[$appliedDiscountID])) {
       if (!empty($ps['fields'])) {
         $ps['fields'] = $amounts;
         $form->setVar('_priceSet', $ps);
       }
 
       $form->set('_discountInfo', array(
-        'discount' => $discount,
+        'discount' => $discounts[$appliedDiscountID],
         'autodiscount' => $autodiscount,
         'contact_id' => $contact_id,
       ));
