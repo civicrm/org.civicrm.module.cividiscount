@@ -637,10 +637,10 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   // Online event registration.
   // Note that CRM_Event_Form_Registration_Register is an intermediate form.
   // CRM_Event_Form_Registration_Confirm completes the transaction.
-  if ($class == 'CRM_Event_Form_Registration_Confirm') {
+  if ($class == 'CRM_Event_Form_Registration_Confirm' && !empty($discountParams)) {
     _cividiscount_consume_discount_code_for_online_event($form->getVar('_participantIDS'), $discountParams);
   }
-  elseif ($class == 'CRM_Contribute_Form_Contribution_Confirm') {
+  elseif ($class == 'CRM_Contribute_Form_Contribution_Confirm' && !empty($discountParams)) {
     // Note that CRM_Contribute_Form_Contribution_Main is an intermediate form.
     // CRM_Contribute_Form_Contribution_Confirm completes the transaction.
     _cividiscount_consume_discount_code_for_online_contribution($params, $discountParams, $discount['memberships']);
