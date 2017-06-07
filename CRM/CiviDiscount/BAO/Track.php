@@ -120,6 +120,11 @@ SELECT    t.item_id as item_id,
       $where = " LEFT JOIN cividiscount_item AS i ON (i.id = t.item_id) ";
       $where .= " WHERE i.organization_id = " . CRM_Utils_Type::escape($orgid, 'Integer');
     }
+    else if ($cid) {
+      $sql .= ", i.code ";
+      $where = " LEFT JOIN cividiscount_item AS i ON (i.id = t.item_id) ";
+      $where .= " WHERE t.contact_id = " . CRM_Utils_Type::escape($cid, 'Integer');
+    }
     else {
       if ($cid) {
         $sql .= ", i.code ";
