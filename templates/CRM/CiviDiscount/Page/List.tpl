@@ -41,6 +41,7 @@
           <th>{ts}Usage{/ts}</th>
           <th>{ts}Start Date{/ts}</th>
           <th>{ts}End Date{/ts}</th>
+          <th>{ts}Enabled?{/ts}</th>
           <th></th>
         </tr>
         </thead>
@@ -52,6 +53,7 @@
               / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
             <td>{if $row.active_on neq '0000-00-00 00:00:00'}{$row.active_on|truncate:10:''|crmDate}{/if}</td>
             <td>{if $row.expire_on neq '0000-00-00 00:00:00'}{$row.expire_on|truncate:10:''|crmDate}{/if}</td>
+            <td>{if $row.is_active eq 1}Yes{else}No{/if}</td>
             <td>{$row.action|replace:'xx':$row.id}</td>
           </tr>
         {/foreach}
