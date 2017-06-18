@@ -1,0 +1,21 @@
+site_name: CiviDiscount
+repo_url: https://github.com/dlobo/org.civicrm.module.cividiscount
+theme: material
+
+pages:
+- Home: index.md
+- Installation: install.md
+- Setup Codes: codesetup.md
+- Automatic Discounts: autodiscount.md
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - def_list
+  - codehilite
+  - toc(permalink=true)
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tilde
+  - pymdownx.betterem
+  - pymdownx.mark
