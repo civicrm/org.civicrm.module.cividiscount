@@ -4,8 +4,8 @@ Anyone with the selected memberships or contact attributes will automatically ha
 
 ![Screenshot of automatic discount setup](/images/autodiscount.png)
 
-* Atomatic discounts can be applied based on membership status and/or type.
-* Atomatic discounts can be applied to contacts based on type, age (minimum or maximum) and/or country
+* Automatic discounts can be applied based on membership status and/or type.
+* Automatic discounts can be applied to contacts based on type, age (minimum or maximum) and/or country
 
 ### Advanced Filters
 CiviDiscount now allows you to specify your own criteria for who should get automatic discounts. This is a powerful feature but does require some technical skill and thorough testing is recommended. Use the api explorer (on your site at the url civicrm/api/explorer) to help you discover the api options you could pass.
