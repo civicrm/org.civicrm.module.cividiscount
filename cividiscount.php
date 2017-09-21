@@ -1,6 +1,7 @@
 <?php
 
 require_once 'cividiscount.civix.php';
+use CRM_CiviDiscount_ExtensionUtil as E;
 
 /**
  * Implements hook_civicrm_install().
@@ -89,7 +90,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
     $tabs[] = array(
       'id' => 'discounts',
       'count' => $count,
-      'title' => ts('Codes Assigned'),
+      'title' => E::ts('Codes Assigned'),
       'weight' => '98',
       'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&oid={$cid}", false, null, false),
     );
@@ -99,7 +100,7 @@ function cividiscount_civicrm_tabs(&$tabs, $cid) {
   $tabs[] = array(
     'id' => 'discounts',
     'count' => $count,
-    'title' => ts('Codes Redeemed'),
+    'title' => E::ts('Codes Redeemed'),
     'weight' => '99',
     'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&cid={$cid}", false, null, false),
   );
@@ -238,7 +239,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
   if ((!$discountInfo || !$discountInfo['autodiscount']) && trim($code) != '') {
 
     if (!$discountInfo) {
-      $errors['discountcode'] = ts('The discount code you entered is invalid.');
+      $errors['discountcode'] = E::ts('The discount code you entered is invalid.');
       return;
     }
 
@@ -252,7 +253,7 @@ function cividiscount_civicrm_validateForm($name, &$fields, &$files, &$form, &$e
         $apcount += $sv['additional_participants'];
       }
       if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-        $errors['discountcode'] = ts('There are not enough uses remaining for this code.');
+        $errors['discountcode'] = E::ts('There are not enough uses remaining for this code.');
       }
     }
   }
@@ -340,7 +341,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
     $discounts = $discountCalculator->getDiscounts();
 
      if (!empty($code) && empty($discounts)) {
-       $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
+       $form->set( 'discountCodeErrorMsg', E::ts('The discount code you entered is invalid.'));
     }
 
     // here we check if discount is configured for events or for membership types.
@@ -497,7 +498,7 @@ function _cividiscount_checkEventDiscountMultipleParticipants($pageType, &$form,
         $apcount += $sv['additional_participants'];
       }
       if (($discount['count_use'] + $apcount) > $discount['count_max']) {
-        $form->set('discountCodeErrorMsg', ts('There are not enough uses remaining for this code.'));
+        $form->set('discountCodeErrorMsg', E::ts('There are not enough uses remaining for this code.'));
         return FALSE;
       }
     }
@@ -584,7 +585,7 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     $discounts = $discountCalculator->getDiscounts();
   }
   if(!empty($code) && empty($discounts)) {
-    $form->set( 'discountCodeErrorMsg', ts('The discount code you entered is invalid.'));
+    $form->set( 'discountCodeErrorMsg', E::ts('The discount code you entered is invalid.'));
   }
   if (empty($discounts)) {
     return;
@@ -893,7 +894,7 @@ function _cividiscount_filter_membership_discounts($discounts, $membershipTypeVa
  * Calculate either a monetary or percentage discount.
  */
 function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
-  $title = $autodiscount ? ts('Includes automatic member discount of') : ts('Includes applied discount code %1', array(1 => $discount['code']));
+  $title = $autodiscount ? E::ts('Includes automatic member discount of') : E::ts('Includes applied discount code %1', array(1 => $discount['code']));
   if ($discount['amount_type'] == '2') {
     $newamount = CRM_Utils_Rule::cleanMoney($amount) - CRM_Utils_Rule::cleanMoney($discount['amount']);
     $fmt_discount = CRM_Utils_Money::format($discount['amount'], $currency);
@@ -1042,14 +1043,14 @@ function _cividiscount_add_discount_textfield(&$form) {
     _cividiscount_add_button_before_priceSet($form);
     return;
   }
-  $form->addElement('text', 'discountcode', ts('If you have a discount code, enter it here'));
+  $form->addElement('text', 'discountcode', E::ts('If you have a discount code, enter it here'));
   $errorMessage = $form->get('discountCodeErrorMsg');
   if ($errorMessage) {
     $form->setElementError('discountcode', $errorMessage);
   }
   $form->set('discountCodeErrorMsg', null);
   $buttonName = $form->getButtonName('reload');
-  $form->addElement('submit', $buttonName, ts('Apply'), array('formnovalidate' => 1));
+  $form->addElement('submit', $buttonName, E::ts('Apply'), array('formnovalidate' => 1));
   $template = CRM_Core_Smarty::singleton();
   $bhfe = $template->get_template_vars('beginHookFormElements');
   if (!$bhfe) {
@@ -1100,7 +1101,7 @@ function _cividiscount_add_button_before_priceSet(&$form) {
   $form->add(
     'text',
     'discountcode',
-    ts('If you have a discount code, enter it here'),
+    E::ts('If you have a discount code, enter it here'),
     array('class' => 'description')
   );
   $errorMessage = $form->get('discountCodeErrorMsg');
@@ -1109,7 +1110,7 @@ function _cividiscount_add_button_before_priceSet(&$form) {
   }
   $form->set('discountCodeErrorMsg', null);
   $buttonName = $form->getButtonName('reload');
-  $form->addElement('submit', $buttonName, ts('Apply'), array('formnovalidate' => 1));
+  $form->addElement('submit', $buttonName, E::ts('Apply'), array('formnovalidate' => 1));
   $form->assign('discountElements', array(
     'discountcode',
     $buttonName
