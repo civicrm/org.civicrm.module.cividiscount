@@ -30,6 +30,7 @@
  */
 
 require_once 'CRM/CiviDiscount/DAO/Item.php';
+use CRM_CiviDiscount_ExtensionUtil as E;
 
 /**
  * Page for displaying discount code details
@@ -70,26 +71,26 @@ class CRM_CiviDiscount_Page_View extends CRM_Core_Page {
     if (!(self::$_links)) {
       self::$_links = array(
         CRM_Core_Action::UPDATE => array(
-          'name' => ts('Edit'),
+          'name' => E::ts('Edit'),
           'url' => 'civicrm/cividiscount/discount/edit',
           'qs' => '&id=%%id%%&reset=1',
-          'title' => ts('Edit Discount')
+          'title' => E::ts('Edit Discount')
         ),
         CRM_Core_Action::DISABLE => array(
-          'name' => ts('Disable'),
+          'name' => E::ts('Disable'),
           'class' => 'crm-enable-disable',
-          'title' => ts('Disable Discount')
+          'title' => E::ts('Disable Discount')
         ),
         CRM_Core_Action::ENABLE => array(
-          'name' => ts('Enable'),
+          'name' => E::ts('Enable'),
           'class' => 'crm-enable-disable',
-          'title' => ts('Enable Discount')
+          'title' => E::ts('Enable Discount')
         ),
         CRM_Core_Action::DELETE => array(
-          'name' => ts('Delete'),
+          'name' => E::ts('Delete'),
           'url' => 'civicrm/cividiscount/discount/delete',
           'qs' => '&id=%%id%%&reset=1',
-          'title' => ts('Delete Discount')
+          'title' => E::ts('Delete Discount')
         )
       );
     }

@@ -25,6 +25,8 @@
 +--------------------------------------------------------------------+
 */
 
+use CRM_CiviDiscount_ExtensionUtil as E;
+
 /**
  * @package CiviDiscount
  */
@@ -225,7 +227,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'code' => array(
           'name' => 'code',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Code'),
+          'title' => E::ts('Code'),
           'required' => TRUE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
@@ -233,7 +235,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'description' => array(
           'name' => 'description',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Description'),
+          'title' => E::ts('Description'),
           'required' => TRUE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
@@ -241,7 +243,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'filters' => array(
           'name' => 'filters',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Discount Filters'),
+          'title' => E::ts('Discount Filters'),
           'required' => FALSE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
@@ -249,7 +251,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'amount' => array(
           'name' => 'amount',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Amount'),
+          'title' => E::ts('Amount'),
           'required' => TRUE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
@@ -257,7 +259,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'amount_type' => array(
           'name' => 'amount_type',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Amount Type'),
+          'title' => E::ts('Amount Type'),
           'required' => TRUE,
           'maxlength' => 4,
           'size' => CRM_Utils_Type::FOUR,
@@ -265,35 +267,35 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'count_max' => array(
           'name' => 'count_max',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Count Max'),
+          'title' => E::ts('Count Max'),
           'required' => TRUE,
         ),
         'count_use' => array(
           'name' => 'count_use',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Count Use'),
+          'title' => E::ts('Count Use'),
           'required' => TRUE,
           'default' => 0,
         ),
         'events' => array(
           'name' => 'events',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Events'),
+          'title' => E::ts('Events'),
         ),
         'pricesets' => array(
           'name' => 'pricesets',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Pricesets'),
+          'title' => E::ts('Pricesets'),
         ),
         'memberships' => array(
           'name' => 'memberships',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Memberships'),
+          'title' => E::ts('Memberships'),
         ),
         'autodiscount' => array(
           'name' => 'autodiscount',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Autodiscount'),
+          'title' => E::ts('Autodiscount'),
         ),
         'organization_id' => array(
           'name' => 'organization_id',
@@ -303,12 +305,12 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'active_on' => array(
           'name' => 'active_on',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('Activation Date'),
+          'title' => E::ts('Activation Date'),
         ),
         'expire_on' => array(
           'name' => 'expire_on',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('Expiration Date'),
+          'title' => E::ts('Expiration Date'),
         ),
         'is_active' => array(
           'name' => 'is_active',
@@ -321,7 +323,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'discount_msg' => array(
           'name' => 'discount_msg',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Discount Message'),
+          'title' => E::ts('Discount Message'),
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ),
