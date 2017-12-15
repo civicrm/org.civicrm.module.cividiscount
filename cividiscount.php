@@ -420,6 +420,8 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
                 $option['amount'] = $amount;
                 $option['label'] = $label;
                 $option['discount_applied'] = $discountAmount;
+                $option['discount_code'] = $discount['code'];
+                $option['discount_description'] = $discount['description'];
                 /*
                 * Priyanka Karan @ Veda NFP Consulting Ltd
                 * Re-calculate VAT/Sales TAX on discounted amount.
