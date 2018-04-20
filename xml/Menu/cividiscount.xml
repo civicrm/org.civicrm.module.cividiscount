@@ -4,52 +4,52 @@
   <item>
      <path>civicrm/cividiscount</path>
      <page_callback>CRM_CiviDiscount_Page_List</page_callback>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
      <title>Discounts</title>
   </item>
   <item>
      <path>civicrm/cividiscount/discount/add</path>
      <page_callback>CRM_CiviDiscount_Form_Admin</page_callback>
      <page_arguments>mode=1</page_arguments>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
   <item>
      <path>civicrm/cividiscount/discount/edit</path>
      <page_callback>CRM_CiviDiscount_Form_Admin</page_callback>
      <page_arguments>mode=2</page_arguments>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
   <item>
      <path>civicrm/cividiscount/discount/delete</path>
      <page_callback>CRM_CiviDiscount_Form_Admin</page_callback>
      <page_arguments>mode=8</page_arguments>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
   <item>
      <path>civicrm/cividiscount/discount/copy</path>
      <page_callback>CRM_CiviDiscount_Form_Admin</page_callback>
      <page_arguments>mode=16384</page_arguments>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
   <item>
      <path>civicrm/cividiscount/discount/view</path>
      <page_arguments>mode=4</page_arguments>
      <page_callback>CRM_CiviDiscount_Page_View</page_callback>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
   <item>
      <path>civicrm/cividiscount/settings</path>
      <page_callback>CRM_CiviDiscount_Form_Settings</page_callback>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
   <item>
      <path>civicrm/cividiscount/report</path>
      <page_callback>CRM_CiviDiscount_Page_Report</page_callback>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
   <item>
      <path>civicrm/cividiscount/usage</path>
      <page_callback>CRM_CiviDiscount_Page_Usage</page_callback>
-     <access_arguments>administer CiviCRM</access_arguments>
+     <access_arguments>administer CiviCRM;administer CiviDiscount</access_arguments>
   </item>
 </menu>

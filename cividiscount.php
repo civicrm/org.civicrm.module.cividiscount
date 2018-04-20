@@ -25,15 +25,6 @@ function cividiscount_civicrm_config(&$config) {
 }
 
 /**
- * Implements hook_civicrm_perm().
- *
- * Module extensions dont implement this hook as yet, will need to add for 4.2
- */
-function cividiscount_civicrm_perm() {
-  return array('view CiviDiscount', 'administer CiviDiscount');
-}
-
-/**
  * Implements hook_civicrm_xmlMenu().
  */
 function cividiscount_civicrm_xmlMenu(&$files) {
@@ -1159,6 +1150,16 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
       )
     );
   }
+  foreach (array('Events', 'Contributions') as $header) {
+    _cividiscount_civix_insert_navigation_menu($params, $header, array(
+      'label' => ts('CiviDiscount', array('domain' => 'org.civicrm.module.cividiscount')),
+      'name' => 'CiviDiscount',
+      'url' => 'civicrm/cividiscount',
+      'permission' => 'administer CiviCRM,administer CiviDiscount',
+      'operator' => 'OR',
+      'separator' => 2,
+    ));
+  }
 }
 
 /**
@@ -1176,4 +1177,10 @@ function cividiscount_civicrm_entityTypes(&$entityTypes) {
     'table' => 'cividiscount_track'
   );
 
+}
+
+function cividiscount_civicrm_permission(&$permissions) {
+  $permissions += array(
+    'administer CiviDiscount' => ts('administer CiviDiscount', array('domain' => 'org.civicrm.module.cividiscount')),
+  );
 }

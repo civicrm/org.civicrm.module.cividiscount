@@ -29,12 +29,12 @@
 
   <div class="action-link">
     <div class="crm-submit-buttons">
-      {if call_user_func(array('CRM_Core_Permission','check'), 'administer CiviCRM')}
+      {if call_user_func(array('CRM_Core_Permission','check'), 'administer CiviCRM') OR call_user_func(array('CRM_Core_Permission','check'), 'administer CiviDiscount')}
         <a class="button" href='{crmURL p='civicrm/cividiscount/discount/edit' q="reset=1&id=$id"}' accesskey="e">
           <span><span class="icon ui-icon-pencil"></span>{ts}Edit{/ts}</span>
         </a>
       {/if}
-      {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute')}
+      {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute') OR call_user_func(array('CRM_Core_Permission','check'), 'administer CiviDiscount')}
         <a class="button" href='{crmURL p='civicrm/cividiscount/discount/delete' q="reset=1&id=$id"}'>
           <span><span class="icon delete-icon"></span>{ts}Delete{/ts}</span>
         </a>
@@ -121,11 +121,11 @@
   <div class="action-link">
     <div class="crm-submit-buttons">
       {assign var='urlParams' value="reset=1&id=$id"}
-      {if call_user_func(array('CRM_Core_Permission','check'), 'administer CiviCRM')}
+      {if call_user_func(array('CRM_Core_Permission','check'), 'administer CiviCRM') OR call_user_func(array('CRM_Core_Permission','check'), 'administer CiviDiscount')}
         <a class="button" href="{crmURL p='civicrm/cividiscount/discount/edit' q=$urlParams}" accesskey="e">
           <span><span class="icon ui-icon-pencil"></span>{ts}Edit{/ts}</span></a>
       {/if}
-      {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute')}
+      {if call_user_func(array('CRM_Core_Permission','check'), 'delete in CiviContribute') OR call_user_func(array('CRM_Core_Permission','check'), 'administer CiviDiscount')}
         <a class="button" href="{crmURL p='civicrm/cividiscount/discount/delete' q=$urlParams}">
           <span><span class="icon delete-icon"></span>{ts}Delete{/ts}</span></a>
       {/if}
