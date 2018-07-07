@@ -9,6 +9,19 @@ CRM.$(function($) {
       }
     }
 
+    /**
+     * Function copied from templates/CRM/Price/Form/Calculate.tpl - calculateTotalFee() (in case it gets changed somewhere along the way)
+     * This Calculates the total fee on CiviCRM
+     */
+    function discountCalculateTotalFee() {
+      var totalFee = 0;
+      $('#priceset [price]').each(function () {
+        totalFee = totalFee + $(this).data('line_raw_total');
+      });
+
+      return totalFee;
+    }
+
     function skipPaymentMethod() {
       var flag = false;
       $('.price-set-option-content input').each( function(){
@@ -18,7 +31,7 @@ CRM.$(function($) {
         }
       });
       $('.price-set-option-content input').change( function () {
-        if ($(this).attr('data-amount').replace(/[^\/\d]/g,'') == 0 ) {
+        if (discountCalculateTotalFee() == 0) {
           flag = true;
         } else {
           flag = false;
@@ -29,4 +42,3 @@ CRM.$(function($) {
     }
   }
 });
-
