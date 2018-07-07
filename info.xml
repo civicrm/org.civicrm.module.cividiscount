@@ -5,20 +5,20 @@
   <description>Enables discount codes and automatic discounts for events and memberships.</description>
   <urls>
     <url desc="Main Extension Page">
-      http://civicrm.org/extension/cividiscount-extension
+      https://civicrm.org/extensions/cividiscount
     </url>
     <url desc="Documentation">
-      https://github.com/dlobo/org.civicrm.module.cividiscount/
+      https://github.com/civicrm/org.civicrm.module.cividiscount
     </url>
-    <url desc="Support">http://civicrm.stackexchange.com</url>
-    <url desc="Licensing">http://civicrm.org/licensing</url>
+    <url desc="Support">https://civicrm.stackexchange.com</url>
+    <url desc="Licensing">https://civicrm.org/license</url>
   </urls>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>CiviCRM LLC</author>
     <email>info@civicrm.org</email>
   </maintainer>
-  <releaseDate>2016-10-20</releaseDate>
+  <releaseDate>2018-07-07</releaseDate>
   <version>3.4</version>
   <compatibility>
     <ver>4.6</ver>
