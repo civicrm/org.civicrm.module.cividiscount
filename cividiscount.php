@@ -577,9 +577,9 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   $form->set('_discountInfo', NULL);
   $code = CRM_Utils_Request::retrieve('discountcode', 'String', $form, false, null, 'REQUEST');
   $discountCalculator = new CRM_CiviDiscount_DiscountCalculator('membership_type', NULL, $contact_id, $code, FALSE);
-  if (!empty($code)) {
-    $discounts = $discountCalculator->getDiscounts();
-  }
+  $discounts = $discountCalculator->getDiscounts();
+  if (empty($code))
+    $discounts = $discountCalculator->autoDiscounts;
   if(!empty($code) && empty($discounts)) {
     $form->set( 'discountCodeErrorMsg', E::ts('The discount code you entered is invalid.'));
   }
