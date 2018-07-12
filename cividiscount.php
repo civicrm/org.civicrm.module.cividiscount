@@ -600,6 +600,8 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     'autodiscount' => $discountCalculator->isAutoDiscount(),
     'contact_id' => $contact_id,
   ));
+  // unset total amount text field value submitted with form
+  unset($form->_submitValues['total_amount']);
 }
 
 /**
