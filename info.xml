@@ -21,9 +21,7 @@
   <releaseDate>2018-07-30</releaseDate>
   <version>3.5</version>
   <compatibility>
-    <ver>4.6</ver>
-    <ver>4.7</ver>
-    <ver>5.0</ver>
+    <ver>5.3</ver>
   </compatibility>
   <comments>
     For support, please ask on chat.civicrm.org
