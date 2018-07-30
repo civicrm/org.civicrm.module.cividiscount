@@ -592,6 +592,14 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
       list($value, $label) = _cividiscount_calc_discount($values['minimum_fee'], $values['name'], $discount, $discountCalculator->isAutoDiscount());
       $values['minimum_fee'] = $value;
       $values['name'] = $label;
+	  
+	  // set total amount to be same as the calculated discount
+	  // this will overwrite the submitted total amount
+	  if (!empty($form->_submitValues['membership_type_id'])) {
+        if ($values['member_of_contact_id'] == $form->_submitValues['membership_type_id'][0] && $values['id'] == $form->_submitValues['membership_type_id'][1]) {
+          $form->_submitValues['total_amount'] = $value;
+        }
+      }
     }
   }
 
@@ -600,8 +608,6 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     'autodiscount' => $discountCalculator->isAutoDiscount(),
     'contact_id' => $contact_id,
   ));
-  // unset total amount text field value submitted with form
-  unset($form->_submitValues['total_amount']);
 }
 
 /**
