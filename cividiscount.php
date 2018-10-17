@@ -71,30 +71,31 @@ function cividiscount_civicrm_managed(&$entities) {
 }
 
 /**
- * Implementation of hook_civicrm_tabs()
+ * Implementation of hook_civicrm_tabset()
  *
  * Display a discounts tab listing discount code usage for that contact.
  */
-function cividiscount_civicrm_tabs(&$tabs, $cid) {
-  if (_cividiscount_is_org($cid)) {
-    $count = _cividiscount_get_tracking_count_by_org($cid);
+function cividiscount_civicrm_tabset($path, &$tabs, $context) {
+  if ($path === 'civicrm/contact/view') {
+    $cid = $context['contact_id'];
+    if (_cividiscount_is_org($cid)) {
+      $tabs[] = array(
+        'id' => 'discounts_assigned',
+        'count' => _cividiscount_get_tracking_count_by_org($cid),
+        'title' => E::ts('Codes Assigned'),
+        'weight' => 115,
+        'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&oid={$cid}", FALSE, NULL, FALSE),
+      );
+    }
+
     $tabs[] = array(
       'id' => 'discounts',
-      'count' => $count,
-      'title' => E::ts('Codes Assigned'),
-      'weight' => '98',
-      'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&oid={$cid}", false, null, false),
+      'count' => _cividiscount_get_tracking_count($cid),
+      'title' => E::ts('Codes Redeemed'),
+      'weight' => 116,
+      'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&cid={$cid}", FALSE, NULL, FALSE),
     );
   }
-
-  $count = _cividiscount_get_tracking_count($cid);
-  $tabs[] = array(
-    'id' => 'discounts',
-    'count' => $count,
-    'title' => E::ts('Codes Redeemed'),
-    'weight' => '99',
-    'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&cid={$cid}", false, null, false),
-  );
 }
 
 /**
