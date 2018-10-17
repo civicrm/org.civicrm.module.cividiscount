@@ -16,6 +16,11 @@ will get an automatic discount if they meet other criteria above  - ie a minimum
 
 <img src='https://github.com/dlobo/org.civicrm.module.cividiscount/blob/master/docs/images/advancedFilters.jpg'>
 
+DOCUMENTATION
+--
+
+View the [CiviDiscount documentation](https://docs.civicrm.org/discount/en/latest/) on https://docs.civicrm.org.
+
 NEEDED
 --
 
