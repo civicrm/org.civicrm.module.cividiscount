@@ -29,7 +29,6 @@
  * @package CiviDiscount
  */
 
-require_once 'CRM/CiviDiscount/DAO/Item.php';
 use CRM_CiviDiscount_ExtensionUtil as E;
 
 /**
@@ -127,7 +126,6 @@ class CRM_CiviDiscount_Page_View extends CRM_Core_Page {
   function preProcess() {
     $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, FALSE);
 
-    require_once 'CRM/Utils/Rule.php';
     if (!CRM_Utils_Rule::positiveInteger($this->_id)) {
       CRM_Core_Error::fatal(ts('We need a valid discount ID for view'));
     }
@@ -136,7 +134,6 @@ class CRM_CiviDiscount_Page_View extends CRM_Core_Page {
     $defaults = array();
     $params = array('id' => $this->_id);
 
-    require_once 'CRM/CiviDiscount/BAO/Item.php';
     CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
 
     $this->assign('code_id', $defaults['id']);
@@ -158,7 +155,6 @@ class CRM_CiviDiscount_Page_View extends CRM_Core_Page {
 
     if (array_key_exists('organization_id', $defaults)) {
       $this->assign('organization_id', $defaults['organization_id']);
-      require_once 'CRM/Contact/BAO/Contact.php';
       $orgname = CRM_Contact_BAO_Contact::displayName($defaults['organization_id']);
       $this->assign('organization', $orgname);
     }
@@ -183,9 +179,6 @@ class CRM_CiviDiscount_Page_View extends CRM_Core_Page {
         }
       }
     }
-
-    require_once 'CRM/CiviDiscount/Utils.php';
-    require_once 'CRM/Member/BAO/MembershipType.php';
 
     if (array_key_exists('events', $defaults)) {
       $events = CRM_CiviDiscount_Utils::getEvents();

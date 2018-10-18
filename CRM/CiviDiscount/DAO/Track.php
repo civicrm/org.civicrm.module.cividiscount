@@ -27,8 +27,7 @@
 /**
  * @package CiviDiscount
  */
-require_once 'CRM/Core/DAO.php';
-require_once 'CRM/Utils/Type.php';
+use CRM_CiviDiscount_ExtensionUtil as E;
 
 class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
   /**
@@ -179,7 +178,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
         'used_date' => array(
           'name' => 'used_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
-          'title' => ts('Used Date'),
+          'title' => E::ts('Used Date'),
         ),
         'contribution_id' => array(
           'name' => 'contribution_id',
@@ -189,7 +188,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
         'entity_table' => array(
           'name' => 'entity_table',
           'type' => CRM_Utils_Type::T_STRING,
-          'title' => ts('Entity Table'),
+          'title' => E::ts('Entity Table'),
           'required' => TRUE,
           'maxlength' => 64,
           'size' => CRM_Utils_Type::BIG,
@@ -202,7 +201,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
         'description' => array(
           'name' => 'description',
           'type' => CRM_Utils_Type::T_TEXT,
-          'title' => ts('Description'),
+          'title' => E::ts('Description'),
         ),
       );
     }

@@ -29,7 +29,7 @@
  * @package CiviDiscount
  */
 
-require_once 'CRM/CiviDiscount/DAO/Item.php';
+use CRM_CiviDiscount_ExtensionUtil as E;
 
 /**
  * Page for displaying discount code details
@@ -70,26 +70,26 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
     if (!(self::$_links)) {
       self::$_links = array(
         CRM_Core_Action::UPDATE => array(
-          'name' => ts('Edit'),
+          'name' => E::ts('Edit'),
           'url' => 'civicrm/cividiscount/discount/edit',
           'qs' => '&id=%%id%%&reset=1',
-          'title' => ts('Edit Discount')
+          'title' => E::ts('Edit Discount')
         ),
         CRM_Core_Action::DISABLE => array(
-          'name' => ts('Disable'),
+          'name' => E::ts('Disable'),
           'class' => 'crm-enable-disable',
-          'title' => ts('Disable Discount')
+          'title' => E::ts('Disable Discount')
         ),
         CRM_Core_Action::ENABLE => array(
-          'name' => ts('Enable'),
+          'name' => E::ts('Enable'),
           'class' => 'crm-enable-disable',
-          'title' => ts('Enable Discount')
+          'title' => E::ts('Enable Discount')
         ),
         CRM_Core_Action::DELETE => array(
-          'name' => ts('Delete'),
+          'name' => E::ts('Delete'),
           'url' => 'civicrm/cividiscount/discount/delete',
           'qs' => '&id=%%id%%',
-          'title' => ts('Delete Discount')
+          'title' => E::ts('Delete Discount')
         )
       );
     }
@@ -126,19 +126,16 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
   function preProcess() {
     $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, FALSE);
 
-    require_once 'CRM/Utils/Rule.php';
     if (!CRM_Utils_Rule::positiveInteger($this->_id)) {
-      CRM_Core_Error::fatal(ts('We need a valid discount ID for view'));
+      CRM_Core_Error::fatal('We need a valid discount ID for view');
     }
 
     $this->assign('id', $this->_id);
     $defaults = array();
     $params = array('id' => $this->_id);
 
-    require_once 'CRM/CiviDiscount/BAO/Item.php';
     CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
 
-    require_once 'CRM/CiviDiscount/BAO/Track.php';
     $rows = CRM_CiviDiscount_BAO_Track::getUsageByCode($this->_id);
 
     $this->assign('rows', $rows);

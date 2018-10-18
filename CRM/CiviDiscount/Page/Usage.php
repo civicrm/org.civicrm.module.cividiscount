@@ -29,7 +29,6 @@
  * @package CiviDiscount
  */
 
-require_once 'CRM/CiviDiscount/DAO/Item.php';
 
 /**
  * Page for displaying discount code details
@@ -63,10 +62,8 @@ class CRM_CiviDiscount_Page_Usage extends CRM_Core_Page {
     $defaults = array();
     $params = array('id' => $this->_id);
 
-    require_once 'CRM/CiviDiscount/BAO/Item.php';
     CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
 
-    require_once 'CRM/CiviDiscount/BAO/Track.php';
     if ($cid) {
       $rows = CRM_CiviDiscount_BAO_Track::getUsageByContact($this->_id);
     }

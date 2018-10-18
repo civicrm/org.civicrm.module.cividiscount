@@ -29,8 +29,6 @@
  * @package CiviDiscount
  */
 
-require_once 'CRM/CiviDiscount/DAO/Item.php';
-
 class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
 
   /**
