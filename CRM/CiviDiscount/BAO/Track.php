@@ -98,12 +98,6 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
   }
 
   static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
-    require_once 'CRM/CiviDiscount/Utils.php';
-    require_once 'CRM/Member/BAO/Membership.php';
-    require_once 'CRM/Contact/BAO/Contact.php';
-
-    $where = '';
-
     $sql = "
 SELECT    t.item_id as item_id,
       t.contact_id as contact_id,

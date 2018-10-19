@@ -1157,7 +1157,7 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
   }
   foreach (array('Events', 'Contributions') as $header) {
     _cividiscount_civix_insert_navigation_menu($params, $header, array(
-      'label' => ts('CiviDiscount', array('domain' => 'org.civicrm.module.cividiscount')),
+      'label' => E::ts('CiviDiscount'),
       'name' => 'CiviDiscount',
       'url' => 'civicrm/cividiscount',
       'permission' => 'administer CiviCRM,administer CiviDiscount',
@@ -1186,6 +1186,6 @@ function cividiscount_civicrm_entityTypes(&$entityTypes) {
 
 function cividiscount_civicrm_permission(&$permissions) {
   $permissions += array(
-    'administer CiviDiscount' => ts('administer CiviDiscount', array('domain' => 'org.civicrm.module.cividiscount')),
+    'administer CiviDiscount' => E::ts('administer CiviDiscount'),
   );
 }

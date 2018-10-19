@@ -56,17 +56,17 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     // check and ensure that update / delete have a valid id
     if ($this->_action & (CRM_Core_Action::UPDATE | CRM_Core_Action::DELETE)) {
       if (!CRM_Utils_Rule::positiveInteger($this->_id)) {
-        CRM_Core_Error::fatal(ts('We need a valid discount ID for update and/or delete'));
+        CRM_Core_Error::fatal('We need a valid discount ID for update and/or delete');
       }
     }
 
     if ($this->_action & CRM_Core_Action::COPY) {
       if (!CRM_Utils_Rule::positiveInteger($this->_cloneID)) {
-        CRM_Core_Error::fatal(ts('We need a valid discount ID for update and/or delete'));
+        CRM_Core_Error::fatal('We need a valid discount ID for update and/or delete');
       }
     }
 
-    CRM_Utils_System::setTitle(ts('Discounts'));
+    CRM_Utils_System::setTitle(E::ts('Discounts'));
 
     $this->_multiValued = array(
       'memberships' => NULL,
@@ -211,7 +211,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (!empty($events)) {
-      $events = array(ts('--any event--')) + $events;
+      $events = array(E::ts('--any event--')) + $events;
       $this->_multiValued['events'] = $events;
       $this->add('select',
         'events',
@@ -265,7 +265,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         );
         $assignedAutoFilters[] = $autoFilter['form_field_name'];
         if (!empty($autoFilter['rule_data_type'])) {
-          $this->addRule($autoFilter['form_field_name'], E::ts('Please re-enter ' . $autoFilter['title'] . ' you need to enter an ' . $autoFilter['rule_data_type']), $autoFilter['rule_data_type']);
+          $this->addRule($autoFilter['form_field_name'], E::ts('Please re-enter %1, a %2 is required.', [1 => $autoFilter['title'], 2 => $autoFilter['rule_data_type']]), $autoFilter['rule_data_type']);
         }
       }
     }
@@ -281,7 +281,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   public function postProcess() {
     if ($this->_action & CRM_Core_Action::DELETE) {
       CRM_CiviDiscount_BAO_Item::del($this->_id);
-      CRM_Core_Session::setStatus(ts('Selected Discount has been deleted.'), E::ts('Deleted'), 'success');
+      CRM_Core_Session::setStatus(E::ts('Selected Discount has been deleted.'), E::ts('Deleted'), 'success');
       return;
     }
 
@@ -289,7 +289,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       $params = $this->exportValues();
       $newCode = CRM_CiviDiscount_Utils::randomString('abcdefghjklmnpqrstwxyz23456789', 8);
       CRM_CiviDiscount_BAO_Item::copy($this->_cloneID, $params, $newCode);
-      CRM_Core_Session::setStatus(ts('Selected Discount has been duplicated.'), E::ts('Copied'), 'success');
+      CRM_Core_Session::setStatus(E::ts('Selected Discount has been duplicated.'), E::ts('Saved'), 'success');
       return;
     }
 
@@ -303,7 +303,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $params['multi_valued'] = $this->_multiValued;
 
     if (isset($params['events']) && in_array(0, $params['events']) && count($params['events']) > 1) {
-      CRM_Core_Session::setStatus(ts('You selected `any event` and specific events, specific events have been unset'));
+      CRM_Core_Session::setStatus(E::ts('The events you selected will be ignored because you also chose "any event."'));
       $params['events'] = array(0);
     }
     if (!empty($params['autodiscount_membership_type_id']) && count($params['autodiscount_membership_status_id']) == 0) {
@@ -316,8 +316,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $item = CRM_CiviDiscount_BAO_Item::add($params);
 
-    CRM_Core_Session::setStatus(ts('The discount \'%1\' has been saved.',
-      array(1 => $item->description ? $item->description : $item->code)), E::ts('Saved'), 'success');
+    CRM_Core_Session::setStatus(E::ts('The discount "%1" has been saved.',
+      [1 => $item->description ?: $item->code]), E::ts('Saved'), 'success');
   }
 
   /**
@@ -330,9 +330,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @throws \CRM_Core_Exception
    */
   private function addAdvancedFilterToAutodiscount(&$params, $discountEntity, $discountString) {
+    $discounts = [];
     if ($discountString) {
       if (stristr($discountString, 'api.') || stristr($discountString, 'api_')) {
-        throw new CRM_Core_Exception(ts('You cannot nest apis in the advanced filter'));
+        throw new CRM_Core_Exception(E::ts('You cannot nest apis in the advanced filter'));
       }
       if (stristr($discountString, '{')) {
         $discounts = json_decode($discountString, TRUE);
@@ -341,7 +342,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         $discounts = explode(',', $discountString);
         foreach ($discounts as $id => $discount) {
           if (!stristr($discount, '=')) {
-            throw new CRM_Core_Exception(ts('You have a criteria without an = sign'));
+            throw new CRM_Core_Exception(E::ts('You have a criteria without an = sign'));
           }
           $parts = explode('=', $discount);
           $discounts[$parts[0]] = $parts[1];
@@ -405,7 +406,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert handling of age fields to api-acceptable 'birth_date_high' & birth_date_low
-   * @param unknown $fields
+   * @param array $fields
    */
   function adjustAgeFields(&$fields) {
     if (!empty($fields['contact'])) {
@@ -436,7 +437,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           if (empty($status)) {
             $fields['membership']['active_only'] = 1;
             if (count($fields['membership']['status_id']['IN']) > 1) {
-              CRM_Core_Session::setStatus(ts('You set "any current status" and specific statuses, specific statuses have been discarded'));
+              CRM_Core_Session::setStatus(E::ts('The statuses you selected will be ignored because you also chose "any current status."'));
             }
             unset($fields['membership']['status_id']);
             continue;
@@ -565,6 +566,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @param string $fieldName
    * @param array $values
    * @param null $spec
+   * @return string
    */
   function setMembershipStatusDefaults(&$defaults, $fieldName, $values, $spec) {
     if (!empty($values['membership']['active_only'])) {

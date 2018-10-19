@@ -29,7 +29,6 @@
  * @package CiviDiscount
  */
 
-require_once 'CRM/CiviDiscount/DAO/Item.php';
 use CRM_CiviDiscount_ExtensionUtil as E;
 
 /**
