@@ -1135,10 +1135,14 @@ function _cividiscount_version_at_least($version) {
  */
 function cividiscount_civicrm_navigationMenu( &$params ) {
   // get the id of Administer Menu
-  $administerMenuId = CRM_Core_DAO::getFieldValue('CRM_Core_BAO_Navigation', 'Administer', 'id', 'name');
+  foreach($params as $key => $item) {
+  	if (isset($item['attributes']['name']) && $item['attributes']['name'] === 'Administer') {
+  	  $administerMenuId = $item['attributes']['navID'];
+  	}
+  }
 
   // skip adding menu if there is no administer menu
-  if ($administerMenuId) {
+  if (!empty($administerMenuId)) {
     // get the maximum key under adminster menu
     $maxKey = max( array_keys($params[$administerMenuId]['child']));
     $params[$administerMenuId]['child'][$maxKey+1] =  array (
