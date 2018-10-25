@@ -1142,7 +1142,7 @@ function cividiscount_civicrm_navigationMenu( &$params ) {
   }
 
   // skip adding menu if there is no administer menu
-  if ($administerMenuId) {
+  if (!empty($administerMenuId)) {
     // get the maximum key under adminster menu
     $maxKey = max( array_keys($params[$administerMenuId]['child']));
     $params[$administerMenuId]['child'][$maxKey+1] =  array (
