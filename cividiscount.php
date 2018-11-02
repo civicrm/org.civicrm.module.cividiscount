@@ -84,6 +84,7 @@ function cividiscount_civicrm_tabset($path, &$tabs, $context) {
         'count' => _cividiscount_get_tracking_count_by_org($cid),
         'title' => E::ts('Codes Assigned'),
         'weight' => 115,
+        'icon' => 'crm-i fa-qrcode',
         'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&oid={$cid}", FALSE, NULL, FALSE),
       );
     }
@@ -93,6 +94,7 @@ function cividiscount_civicrm_tabset($path, &$tabs, $context) {
       'count' => _cividiscount_get_tracking_count($cid),
       'title' => E::ts('Codes Redeemed'),
       'weight' => 116,
+      'icon' => 'crm-i fa-qrcode',
       'url' => CRM_Utils_System::url('civicrm/cividiscount/usage', "reset=1&cid={$cid}", FALSE, NULL, FALSE),
     );
   }
