@@ -406,7 +406,7 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
           foreach ($fee['options'] as $option_id => &$option) {
             if (!empty($applyToAllLineItems) || CRM_Utils_Array::value($option['id'], $priceFields)) {
               $originalLabel = $originalAmounts[$fee_id]['options'][$option_id]['label'];
-              $originalAmount = CRM_Utils_Rule::cleanMoney($originalAmounts[$fee_id]['options'][$option_id]['amount']);
+              $originalAmount = (float) $originalAmounts[$fee_id]['options'][$option_id]['amount'];
               list($amount, $label) =
                 _cividiscount_calc_discount($originalAmount, $originalLabel, $discount, $autodiscount, $currency);
               $discountAmount = $originalAmounts[$fee_id]['options'][$option_id]['amount'] - $amount;
