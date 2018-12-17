@@ -19,9 +19,9 @@
     <email>info@civicrm.org</email>
   </maintainer>
   <releaseDate>2018-10-21</releaseDate>
-  <version>3.6</version>
+  <version>3.7</version>
   <compatibility>
-    <ver>5.3</ver>
+    <ver>5.8</ver>
   </compatibility>
   <comments>
     For support, please ask on chat.civicrm.org
