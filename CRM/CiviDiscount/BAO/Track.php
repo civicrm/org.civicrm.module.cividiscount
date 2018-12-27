@@ -1,42 +1,9 @@
 <?php
-/*
- +--------------------------------------------------------------------+
- | CiviCRM version 4.6                                                |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2015                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
- |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
- +--------------------------------------------------------------------+
-*/
 
 /**
  * @package CiviDiscount
  */
-
 class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
-
-  /**
-   * class constructor
-   */
-  function __construct() {
-    parent::__construct();
-  }
 
   /**
    * Add the membership log record.
@@ -75,7 +42,7 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
    * @access public
    * @static
    */
-  static function retrieve(&$params, &$defaults) {
+  public static function retrieve(&$params, &$defaults) {
     $item = new CRM_CiviDiscount_DAO_Track();
     $item->copyValues($params);
     if ($item->find(TRUE)) {
@@ -85,19 +52,19 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
     return NULL;
   }
 
-  static function getUsageByContact($id) {
+  public static function getUsageByContact($id) {
     return CRM_CiviDiscount_BAO_Track::getUsage(NULL, $id, NULL);
   }
 
-  static function getUsageByOrg($id) {
+  public static function getUsageByOrg($id) {
     return CRM_CiviDiscount_BAO_Track::getUsage(NULL, NULL, $id);
   }
 
-  static function getUsageByCode($id) {
+  public static function getUsageByCode($id) {
     return CRM_CiviDiscount_BAO_Track::getUsage($id, NULL, NULL);
   }
 
-  static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
+  public static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
     $sql = "
 SELECT    t.item_id as item_id,
       t.contact_id as contact_id,
@@ -131,9 +98,9 @@ SELECT    t.item_id as item_id,
 
     $dao = new CRM_Core_DAO();
     $dao->query($sql);
-    $rows = array();
+    $rows = [];
     while ($dao->fetch()) {
-      $row = array();
+      $row = [];
       $row['contact_id'] = $dao->contact_id;
       $row['display_name'] = CRM_Contact_BAO_Contact::displayName($dao->contact_id);
       $row['used_date'] = $dao->used_date;
@@ -170,9 +137,9 @@ SELECT    t.item_id as item_id,
   /**
    * Look up event id from participant id.
    */
-  static function _get_participant_event($participant_id) {
+  public static function _get_participant_event($participant_id) {
     $sql = "SELECT event_id FROM civicrm_participant WHERE id = $participant_id";
-    $dao =& CRM_Core_DAO::executeQuery($sql, array());
+    $dao =& CRM_Core_DAO::executeQuery($sql, []);
     if ($dao->fetch()) {
       return $dao->event_id;
     }
@@ -189,7 +156,7 @@ SELECT    t.item_id as item_id,
    * @static
    * @return true on success else false
    */
-  static function del($trackID) {
+  public static function del($trackID) {
     if (!CRM_Utils_Rule::positiveInteger($trackID)) {
       return FALSE;
     }
@@ -200,4 +167,5 @@ SELECT    t.item_id as item_id,
 
     return TRUE;
   }
+
 }

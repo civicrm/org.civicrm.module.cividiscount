@@ -191,7 +191,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * @return cividiscount_item
    */
-  function __construct() {
+  public function __construct() {
     parent::__construct();
   }
 
@@ -201,11 +201,11 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * @return array
    */
-  function &links() {
+  public function &links() {
     if (!(self::$_links)) {
-      self::$_links = array(
+      self::$_links = [
         'organization_id' => 'civicrm_contact:id',
-      );
+      ];
     }
     return self::$_links;
   }
@@ -216,118 +216,118 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * @return array
    */
-  static function &fields() {
+  public static function &fields() {
     if (!(self::$_fields)) {
-      self::$_fields = array(
-        'id' => array(
+      self::$_fields = [
+        'id' => [
           'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
           'required' => TRUE,
-        ),
-        'code' => array(
+        ],
+        'code' => [
           'name' => 'code',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Code'),
           'required' => TRUE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
-        ),
-        'description' => array(
+        ],
+        'description' => [
           'name' => 'description',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Description'),
           'required' => TRUE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
-        ),
-        'filters' => array(
+        ],
+        'filters' => [
           'name' => 'filters',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Discount Filters'),
           'required' => FALSE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
-        ),
-        'amount' => array(
+        ],
+        'amount' => [
           'name' => 'amount',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Amount'),
           'required' => TRUE,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
-        ),
-        'amount_type' => array(
+        ],
+        'amount_type' => [
           'name' => 'amount_type',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Amount Type'),
           'required' => TRUE,
           'maxlength' => 4,
           'size' => CRM_Utils_Type::FOUR,
-        ),
-        'count_max' => array(
+        ],
+        'count_max' => [
           'name' => 'count_max',
           'type' => CRM_Utils_Type::T_INT,
           'title' => E::ts('Count Max'),
           'required' => TRUE,
-        ),
-        'count_use' => array(
+        ],
+        'count_use' => [
           'name' => 'count_use',
           'type' => CRM_Utils_Type::T_INT,
           'title' => E::ts('Count Use'),
           'required' => TRUE,
           'default' => 0,
-        ),
-        'events' => array(
+        ],
+        'events' => [
           'name' => 'events',
           'type' => CRM_Utils_Type::T_TEXT,
           'title' => E::ts('Events'),
-        ),
-        'pricesets' => array(
+        ],
+        'pricesets' => [
           'name' => 'pricesets',
           'type' => CRM_Utils_Type::T_TEXT,
           'title' => E::ts('Pricesets'),
-        ),
-        'memberships' => array(
+        ],
+        'memberships' => [
           'name' => 'memberships',
           'type' => CRM_Utils_Type::T_TEXT,
           'title' => E::ts('Memberships'),
-        ),
-        'autodiscount' => array(
+        ],
+        'autodiscount' => [
           'name' => 'autodiscount',
           'type' => CRM_Utils_Type::T_TEXT,
           'title' => E::ts('Autodiscount'),
-        ),
-        'organization_id' => array(
+        ],
+        'organization_id' => [
           'name' => 'organization_id',
           'type' => CRM_Utils_Type::T_INT,
           'FKClassName' => 'CRM_Contact_DAO_Contact',
-        ),
-        'active_on' => array(
+        ],
+        'active_on' => [
           'name' => 'active_on',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
           'title' => E::ts('Activation Date'),
-        ),
-        'expire_on' => array(
+        ],
+        'expire_on' => [
           'name' => 'expire_on',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
           'title' => E::ts('Expiration Date'),
-        ),
-        'is_active' => array(
+        ],
+        'is_active' => [
           'name' => 'is_active',
           'type' => CRM_Utils_Type::T_BOOLEAN,
-        ),
-        'discount_msg_enabled' => array(
+        ],
+        'discount_msg_enabled' => [
           'name' => 'discount_msg_enabled',
           'type' => CRM_Utils_Type::T_BOOLEAN,
-        ),
-        'discount_msg' => array(
+        ],
+        'discount_msg' => [
           'name' => 'discount_msg',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Discount Message'),
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
-        ),
-      );
+        ],
+      ];
     }
     return self::$_fields;
   }
@@ -338,7 +338,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * @return string
    */
-  static function getTableName() {
+  public static function getTableName() {
     return CRM_Core_DAO::getLocaleTableName(self::$_tableName);
   }
 
@@ -348,7 +348,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * @return boolean
    */
-  function getLog() {
+  public function getLog() {
     return self::$_log;
   }
 
@@ -358,9 +358,9 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  function &import($prefix = FALSE) {
+  public function &import($prefix = FALSE) {
     if (!(self::$_import)) {
-      self::$_import = array();
+      self::$_import = [];
       $fields = self::fields();
       foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('import', $field)) {
@@ -382,9 +382,9 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  function &export($prefix = FALSE) {
+  public function &export($prefix = FALSE) {
     if (!(self::$_export)) {
-      self::$_export = array();
+      self::$_export = [];
       $fields = self::fields();
       foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('export', $field)) {

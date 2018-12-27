@@ -1,48 +1,23 @@
 <?php
-/*
- +--------------------------------------------------------------------+
- | CiviCRM version 4.6                                                |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2015                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
- |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
- +--------------------------------------------------------------------+
-*/
 
 use CRM_CiviDiscount_ExtensionUtil as E;
 
 /**
- * @package CiviDiscount
- */
-
-/**
  * This class generates form components for cividiscount administration.
- *
+ * @package CiviDiscount
  */
 class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
   protected $_multiValued = NULL;
   protected $_orgID = NULL;
   protected $_cloneID = NULL;
 
-  protected $select2style = array();
+  protected $select2style = [];
 
-  function preProcess() {
+  /**
+   * @throws \CRM_Core_Exception
+   * @throws \Exception
+   */
+  public function preProcess() {
     $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, FALSE, 0);
     $this->_cloneID = CRM_Utils_Request::retrieve('cloneID', 'Positive', $this, FALSE, 0);
     $this->set('BAOName', 'CRM_CiviDiscount_BAO_Item');
@@ -68,22 +43,25 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     CRM_Utils_System::setTitle(E::ts('Discounts'));
 
-    $this->_multiValued = array(
+    $this->_multiValued = [
       'memberships' => NULL,
       'events' => NULL,
-      'pricesets' => NULL
-    );
+      'pricesets' => NULL,
+    ];
 
-    $this->select2style = array(
+    $this->select2style = [
       'placeholder' => E::ts('- none -'),
       'multiple' => TRUE,
       'class' => 'crm-select2 huge',
-    );
+    ];
   }
 
-  function setDefaultValues() {
+  /**
+   * @return array
+   */
+  public function setDefaultValues() {
     $origID = NULL;
-    $defaults = array();
+    $defaults = [];
 
     if ($this->_action & CRM_Core_Action::COPY) {
       $origID = $this->_cloneID;
@@ -95,7 +73,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
 
     if ($origID) {
-      $params = array('id' => $origID);
+      $params = ['id' => $origID];
       CRM_CiviDiscount_BAO_Item::retrieve($params, $defaults);
     }
     $defaults['is_active'] = $origID ? CRM_Utils_Array::value('is_active', $defaults) : 1;
@@ -112,7 +90,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         $v = substr($defaults[$mv], 1, -1);
         $values = explode(CRM_Core_DAO::VALUE_SEPARATOR, $v);
 
-        $defaults[$mv] = array();
+        $defaults[$mv] = [];
         if (!empty($values)) {
           foreach ($values as $val) {
             $defaults[$mv][] = $val;
@@ -133,9 +111,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Function to build the form
-   *
-   * @return None
-   * @access public
    */
   public function buildQuickForm() {
     parent::buildQuickForm();
@@ -154,7 +129,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->addRule('code',
       E::ts('Code already exists in Database.'),
       'objectExists',
-      array('CRM_CiviDiscount_DAO_Item', $this->_id, 'code'));
+      ['CRM_CiviDiscount_DAO_Item', $this->_id, 'code']);
     $this->addRule('code',
       E::ts('Code can only consist of alpha-numeric characters'),
       'variable');
@@ -167,25 +142,25 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->addMoney('amount', E::ts('Discount Amount'), TRUE, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), FALSE);
 
     $this->add('select', 'amount_type', NULL,
-      array(
+      [
         1 => E::ts('Percent'),
-        2 => E::ts('Fixed Amount')
-      ),
+        2 => E::ts('Fixed Amount'),
+      ],
       TRUE);
 
-    $this->add('text', 'count_max', E::ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + array('min' => 1));
+    $this->add('text', 'count_max', E::ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + ['min' => 1]);
     $this->addRule('count_max', E::ts('Must be an integer'), 'integer');
 
     $this->add('datepicker', 'active_on', E::ts('Activation Date'), [], FALSE, ['time' => FALSE]);
     $this->add('datepicker', 'expire_on', E::ts('Expiration Date'), [], FALSE, ['time' => FALSE]);
 
-    $this->addEntityRef('organization_id', E::ts('Organization'), array('api' => array('params' => array('contact_type' => 'Organization'))));
+    $this->addEntityRef('organization_id', E::ts('Organization'), ['api' => ['params' => ['contact_type' => 'Organization']]]);
 
     // is this discount active ?
     $this->addElement('checkbox', 'is_active', E::ts('Is this discount active?'));
 
     $this->addElement('checkbox', 'discount_msg_enabled', E::ts('Display a message to users not eligible for this discount?'));
-    $this->add('textarea', 'discount_msg', E::ts('Message to non-eligible users'), array('class' => 'big'));
+    $this->add('textarea', 'discount_msg', E::ts('Message to non-eligible users'), ['class' => 'big']);
 
     // add memberships, events, pricesets
     $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(FALSE);
@@ -200,11 +175,11 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     }
     $this->assignAutoDiscountFields();
     $this->addElement('text', 'advanced_autodiscount_filter_entity', E::ts('Specify entity for advanced autodiscount'));
-    $this->addElement('text', 'advanced_autodiscount_filter_string', E::ts('Specify api string for advanced filter'), array('class' => 'huge'));
+    $this->addElement('text', 'advanced_autodiscount_filter_string', E::ts('Specify api string for advanced filter'), ['class' => 'huge']);
 
     $events = CRM_CiviDiscount_Utils::getEvents();
     if (!empty($events)) {
-      $events = array(E::ts('--any event--')) + $events;
+      $events = [E::ts('--any event--')] + $events;
       $this->_multiValued['events'] = $events;
       $this->add('select',
         'events',
@@ -233,7 +208,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         E::ts('Price Field Options'),
         $pricesets,
         FALSE,
-        array('placeholder' => E::ts('- any -')) + $this->select2style
+        ['placeholder' => E::ts('- any -')] + $this->select2style
       );
     }
   }
@@ -242,10 +217,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * Add autodiscount fields to the form based on the definition in getSupportedAutoDiscountFilters
    */
   private function assignAutoDiscountFields() {
-    $assignedAutoFilters = array();
+    $assignedAutoFilters = [];
     foreach ($this->getSupportedAutoDiscountFilters() as $entity => $autoFilters) {
       foreach ($autoFilters as $filterName => $autoFilter) {
-        $optionFieldTypes = array('advmultiselect');
+        $optionFieldTypes = ['advmultiselect'];
         if (in_array($autoFilter['field_type'], $optionFieldTypes) && empty($autoFilter['options'])) {
           continue;
         }
@@ -253,7 +228,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
           $autoFilter['field_type'],
           $autoFilter['form_field_name'],
           $autoFilter['title'],
-          isset($autoFilter['options']) ? $autoFilter['options'] : array(),
+          isset($autoFilter['options']) ? $autoFilter['options'] : [],
           $this->select2style
         );
         $assignedAutoFilters[] = $autoFilter['form_field_name'];
@@ -267,9 +242,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Function to process the form
-   *
-   * @access public
-   * @return None
    */
   public function postProcess() {
     if ($this->_action & CRM_Core_Action::DELETE) {
@@ -297,10 +269,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     if (isset($params['events']) && in_array(0, $params['events']) && count($params['events']) > 1) {
       CRM_Core_Session::setStatus(E::ts('The events you selected will be ignored because you also chose "any event."'));
-      $params['events'] = array(0);
+      $params['events'] = [0];
     }
     if (!empty($params['autodiscount_membership_type_id']) && count($params['autodiscount_membership_status_id']) == 0) {
-      $params['autodiscount_membership_status_id'] = array('');
+      $params['autodiscount_membership_status_id'] = [''];
     }
     $params['filters'] = $this->getFiltersFromParams($params);
     $params['autodiscount'] = $this->getAutoDiscountFromParams($params);
@@ -344,7 +316,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       }
     }
     if (!isset($params['autodiscount'][$discountEntity])) {
-      $params['autodiscount'][$discountEntity] = array();
+      $params['autodiscount'][$discountEntity] = [];
     }
 
     foreach ($discounts as $key => $filter) {
@@ -355,11 +327,17 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
-   * @return array filters to be stored in DB
+   *
+   * @param array $params
+   *   parameters submitted to form
+   * @param string $fn
+   *   public function to call
+   *
+   * @return array
+   *   filters to be stored in DB
    */
-  function getJsonFieldFromParams($params, $fn) {
-    $filters = array();
+  public function getJsonFieldFromParams($params, $fn) {
+    $filters = [];
     foreach ($this->$fn() as $entity => $fields) {
       foreach ($fields as $field => $spec) {
         $fieldName = $spec['form_field_name'];
@@ -368,7 +346,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
             $filters[$entity][$field] = $params[$fieldName];
           }
           else {
-            $filters[$entity][$field] = array($spec['operator'] => $params[$fieldName]);
+            $filters[$entity][$field] = [$spec['operator'] => $params[$fieldName]];
           }
         }
       }
@@ -378,10 +356,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
-   * @return array filters to be stored in DB
+   * @param array $params
+   * @return array
    */
-  function getAutoDiscountFromParams($params) {
+  public function getAutoDiscountFromParams($params) {
     $fields = $this->getJsonFieldFromParams($params, 'getSupportedAutoDiscountFilters');
     $this->adjustAgeFields($fields);
     $this->adjustMembershipStatusField($fields);
@@ -390,18 +368,19 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
   /**
    * Convert from params to values to be stored in the filter
-   * @param array $params parameters submitted to form
-   * @return array filters to be stored in DB
+   * @param array $params
+   * @return array
    */
-  function getFiltersFromParams($params) {
+  public function getFiltersFromParams($params) {
     return $this->getJsonFieldFromParams($params, 'getSupportedFilters');
   }
 
   /**
    * Convert handling of age fields to api-acceptable 'birth_date_high' & birth_date_low
+   *
    * @param array $fields
    */
-  function adjustAgeFields(&$fields) {
+  public function adjustAgeFields(&$fields) {
     if (!empty($fields['contact'])) {
       if (!empty($fields['contact']['age_low'])) {
         $fields['contact']['birth_date_high'] = '- ' . $fields['contact']['age_low']['='] . ' years';
@@ -423,7 +402,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    *
    * @param array $fields
    */
-  function adjustMembershipStatusField(&$fields) {
+  public function adjustMembershipStatusField(&$fields) {
     if (!empty($fields['membership'])) {
       if (isset($fields['membership']['status_id'])) {
         foreach ($fields['membership']['status_id']['IN'] as $status) {
@@ -444,7 +423,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * Convert from params to values to be stored in the filter
    * @param array $defaults
    */
-  function applyFilterDefaults(&$defaults) {
+  public function applyFilterDefaults(&$defaults) {
     $this->applyJsonFieldDefaults($defaults, 'filters', 'getSupportedFilters');
   }
 
@@ -452,34 +431,35 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * Convert from params to values to be stored in the filter
    * @param array $defaults
    */
-  function applyAutoDiscountDefaults(&$defaults) {
+  public function applyAutoDiscountDefaults(&$defaults) {
     $this->applyJsonFieldDefaults($defaults, 'autodiscount', 'getSupportedAutoDiscountFilters');
   }
 
 
   /**
    * Apply defaults to fields stored in json fields
-   * @param array defaults
-   * @param string type
-   * @param string $fn function to get definition from
+   * @param array $defaults
+   * @param string $type
+   * @param string $fn
+   *   public function to get definition from
    * @return array
    */
   private function applyJsonFieldDefaults(&$defaults, $type, $fn) {
     if (empty($defaults[$type])) {
-      return array();
+      return [];
     }
-    $fieldsDisplayedElsewhereOnForm = array(
-      'contact' => array(
+    $fieldsDisplayedElsewhereOnForm = [
+      'contact' => [
         'birth_date_high',
         'birth_date_low',
-      ),
-      'membership' => array(
+      ],
+      'membership' => [
         'active_only',
-      ),
-      'address' => array(
+      ],
+      'address' => [
         'country_id',
-      )
-    );
+      ],
+    ];
 
     $filters = json_decode($defaults[$type], TRUE);
     $specs = $this->$fn();
@@ -541,12 +521,13 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @param string $fieldName
    * @param array $values
    * @param null $spec
+   * @return int
    */
-  function setAgeDefaults(&$defaults, $fieldName, $values, $spec) {
-    $fields = array(
+  public function setAgeDefaults(&$defaults, $fieldName, $values, $spec) {
+    $fields = [
       'autodiscount_age_low' => 'birth_date_high',
-      'autodiscount_age_high' => 'birth_date_low'
-    );
+      'autodiscount_age_high' => 'birth_date_low',
+    ];
     if (!empty($values['contact'][$fields[$fieldName]])) {
       return abs(filter_var($values['contact'][$fields[$fieldName]], FILTER_SANITIZE_NUMBER_INT));
     }
@@ -561,7 +542,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @param null $spec
    * @return string
    */
-  function setMembershipStatusDefaults(&$defaults, $fieldName, $values, $spec) {
+  public function setMembershipStatusDefaults(&$defaults, $fieldName, $values, $spec) {
     if (!empty($values['membership']['active_only'])) {
       return '';
     }
@@ -585,15 +566,15 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    *  - eg. multiple entities have 'status_id'
    * @return array supported filters
    */
-  function getSupportedFilters() {
-    return array(
-      'event' => array(
-        'event_type_id' => array(
+  public function getSupportedFilters() {
+    return [
+      'event' => [
+        'event_type_id' => [
           'form_field_name' => 'event_type_id',
           'operator' => 'IN',
-        )
-      )
-    );
+        ]
+      ]
+    ];
   }
 
   /**
@@ -610,60 +591,60 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    *  - eg. multiple entities have 'status_id'
    * @return array supported filters
    */
-  function getSupportedAutoDiscountFilters() {
-    return array(
-      'membership' => array(
-        'membership_type_id' => array(
+  public function getSupportedAutoDiscountFilters() {
+    return [
+      'membership' => [
+        'membership_type_id' => [
           'title' => E::ts('Automatic discount for existing members of type'),
           'form_field_name' => 'autodiscount_membership_type_id',
           'operator' => 'IN',
           'field_type' => 'select',
           'options' => $this->getOptions('membership', 'membership_type_id'),
-        ),
-        'status_id' => array(
+        ],
+        'status_id' => [
           'title' => E::ts('Automatic discount for Membership Statuses'),
           'form_field_name' => 'autodiscount_membership_status_id',
           'operator' => 'IN',
           'field_type' => 'select',
-          'options' => array('' => E::ts('--any current status--')) + $this->getOptions('membership', 'status_id'),
+          'options' => ['' => E::ts('--any current status--')] + $this->getOptions('membership', 'status_id'),
           'defaults_callback' => 'setMembershipStatusDefaults',
-        ),
-      ),
-      'contact' => array(
-        'contact_type' => array(
+        ],
+      ],
+      'contact' => [
+        'contact_type' => [
           'title' => E::ts('Contact Type'),
           'form_field_name' => 'autodiscount_contact_type',
           'operator' => 'IN',
           'options' => $this->getOptions('contact', 'contact_type'),
           'field_type' => 'select',
-        ),
-        'age_low' => array(
+        ],
+        'age_low' => [
           'title' => E::ts('Minimum Age'),
           'field_type' => 'Text',
           'form_field_name' => 'autodiscount_age_low',
           'rule_data_type' => 'integer',
           'operator' => '=',
           'defaults_callback' => 'setAgeDefaults',
-        ),
-        'age_high' => array(
+        ],
+        'age_high' => [
           'title' => E::ts('Maximum Age'),
           'field_type' => 'Text',
-          'operator' => '=',// we could make this the adjustment fn name?
+          'operator' => '=', // we could make this the adjustment fn name?
           'form_field_name' => 'autodiscount_age_high',
           'rule_data_type' => 'integer',
           'defaults_callback' => 'setAgeDefaults',
-        ),
-      ),
-      'address' => array(
-        'country_id' => array(
+        ],
+      ],
+      'address' => [
+        'country_id' => [
           'title' => E::ts('Country'),
           'form_field_name' => 'autodiscount_country_id',
           'operator' => 'IN',
           'field_type' => 'select',
           'options' => $this->getOptions('address', 'country_id'),
-        ),
-      )
-    );
+        ],
+      ]
+    ];
   }
 
   /**
@@ -673,8 +654,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @param string $field
    * @return array Options for field
    */
-  function getOptions($entity, $field) {
-    $result = civicrm_api3($entity, 'getoptions', array('field' => $field));
+  public function getOptions($entity, $field) {
+    $result = civicrm_api3($entity, 'getoptions', ['field' => $field]);
     return $result['values'];
   }
 

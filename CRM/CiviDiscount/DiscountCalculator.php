@@ -1,29 +1,4 @@
 <?php
-/*
- +--------------------------------------------------------------------+
- | CiviCRM version 4.6                                                |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2015                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
- |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
- +--------------------------------------------------------------------+
-*/
 
 /**
  * @package CiviDiscount
@@ -31,7 +6,7 @@
 class CRM_CiviDiscount_DiscountCalculator {
   protected $entity;
   protected $entity_id;
-  protected $discounts = array();
+  protected $discounts = [];
   protected $contact_id;
   protected $code;
   protected $entity_discounts;
@@ -42,7 +17,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    *
    * @var array
    */
-  public $autoDiscounts = array();
+  public $autoDiscounts = [];
 
   /**
    * Constructor.
@@ -55,7 +30,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   public function __construct($entity, $entity_id, $contact_id, $code, $is_display_field_mode) {
     if (empty($code) && empty($contact_id) && !$is_display_field_mode) {
-      $this->discounts = array();
+      $this->discounts = [];
     }
     else {
       $this->discounts = CRM_CiviDiscount_BAO_Item::getValidDiscounts();
@@ -112,7 +87,7 @@ class CRM_CiviDiscount_DiscountCalculator {
       }
       else {
         foreach (array_keys($discount['autodiscount']) as $entity) {
-          $additionalParams = array('contact_id' => $this->contact_id);
+          $additionalParams = ['contact_id' => $this->contact_id];
           $id = ($entity == 'contact') ? $this->contact_id : NULL;
           if (!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
             unset($this->autoDiscounts[$discount_id]);
@@ -158,7 +133,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    * Set available entity_discounts for the event or membership.
    */
   protected function setEntityDiscounts() {
-    $this->entity_discounts = array();
+    $this->entity_discounts = [];
     foreach ($this->discounts as $discount_id => $discount) {
       // WARNING! The previous attempted to improve performance in deciding when
       // the autoDiscount field should be displayed resulted in breakage.
@@ -187,7 +162,7 @@ class CRM_CiviDiscount_DiscountCalculator {
    *
    * @return bool
    */
-  protected function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = array()) {
+  protected function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = []) {
     try {
       if (!isset($discount[$type][$entity])) {
         return FALSE;
@@ -201,13 +176,13 @@ class CRM_CiviDiscount_DiscountCalculator {
         // event and not an event type), we have the IDs already and don't need
         // to make an API call. Store the IDs in a structure like they would
         // have as the result of an API call.
-        $ids = array('values' => array_flip($discount[$type][$entity]['id']['IN']));
+        $ids = ['values' => array_flip($discount[$type][$entity]['id']['IN'])];
       }
       else {
-        $params = $discount[$type][$entity] + array_merge(array(
-            'options' => array('limit' => 999999999),
+        $params = $discount[$type][$entity] + array_merge([
+            'options' => ['limit' => 999999999],
             'return' => 'id',
-          ), $additionalFilter);
+          ], $additionalFilter);
         $ids = civicrm_api3($entity, 'get', $params);
       }
 
@@ -241,4 +216,5 @@ class CRM_CiviDiscount_DiscountCalculator {
     }
     return $this->discounts;
   }
+
 }

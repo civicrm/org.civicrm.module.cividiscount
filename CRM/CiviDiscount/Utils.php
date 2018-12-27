@@ -1,37 +1,12 @@
 <?php
-/*
- +--------------------------------------------------------------------+
- | CiviCRM version 4.6                                                |
- +--------------------------------------------------------------------+
- | Copyright CiviCRM LLC (c) 2004-2015                                |
- +--------------------------------------------------------------------+
- | This file is a part of CiviCRM.                                    |
- |                                                                    |
- | CiviCRM is free software; you can copy, modify, and distribute it  |
- | under the terms of the GNU Affero General Public License           |
- | Version 3, 19 November 2007 and the CiviCRM Licensing Exception.   |
- |                                                                    |
- | CiviCRM is distributed in the hope that it will be useful, but     |
- | WITHOUT ANY WARRANTY; without even the implied warranty of         |
- | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.               |
- | See the GNU Affero General Public License for more details.        |
- |                                                                    |
- | You should have received a copy of the GNU Affero General Public   |
- | License and the CiviCRM Licensing Exception along                  |
- | with this program; if not, contact CiviCRM LLC                     |
- | at info[AT]civicrm[DOT]org. If you have questions about the        |
- | GNU Affero General Public License or the licensing of CiviCRM,     |
- | see the CiviCRM license FAQ at http://civicrm.org/licensing        |
- +--------------------------------------------------------------------+
-*/
 
 /**
  * @package CiviDiscount
  */
 class CRM_CiviDiscount_Utils {
 
-  static function getEvents() {
-    $events = array();
+  public static function getEvents() {
+    $events = [];
     //whether we only want this date range is arguable but it is broader than the one in the core function
     // which excluded events with no end date & events in progress
     // and did a lot of extra 'work' for no benefit
@@ -51,10 +26,10 @@ class CRM_CiviDiscount_Utils {
     return $events;
   }
 
-  static function getPriceSets() {
+  public static function getPriceSets() {
     $values = self::getPriceSetsInfo();
 
-    $priceSets = array();
+    $priceSets = [];
     if (!empty($values)) {
       foreach ($values as $set) {
         $priceSets[$set['item_id']] = "{$set['ps_label']} :: {$set['pf_label']} :: {$set['item_label']}";
@@ -63,10 +38,10 @@ class CRM_CiviDiscount_Utils {
     return $priceSets;
   }
 
-  static function getNestedPriceSets() {
+  public static function getNestedPriceSets() {
     $values = self::getPriceSetsInfo();
 
-    $priceSets = array();
+    $priceSets = [];
     if (!empty($values)) {
       $currentLabel = NULL;
       $optGroup = 0;
@@ -82,12 +57,12 @@ class CRM_CiviDiscount_Utils {
     return $priceSets;
   }
 
-  static function getPriceSetsInfo($priceSetId = NULL) {
-    $params = array();
+  public static function getPriceSetsInfo($priceSetId = NULL) {
+    $params = [];
     $psTableName = 'civicrm_price_set_entity';
     if ($priceSetId) {
       $additionalWhere = 'ps.id = %1';
-      $params = array(1 => array($priceSetId, 'Positive'));
+      $params = [1 => [$priceSetId, 'Positive']];
       if (CRM_Core_DAO::getFieldValue('CRM_Core_DAO_Discount', $priceSetId, 'id', 'price_set_id')) {
         $psTableName = 'civicrm_discount';
       }
@@ -111,15 +86,15 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 ";
 
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
-    $priceSets = array();
+    $priceSets = [];
     while ($dao->fetch()) {
-      $priceSets[$dao->item_id] = array(
+      $priceSets[$dao->item_id] = [
         'item_id' => $dao->item_id,
         'item_label' => $dao->item_label,
         'pf_label' => $dao->pf_label,
         'ps_label' => $dao->ps_label,
         'membership_type_id' => $dao->membership_type_id
-      );
+      ];
     }
 
     return $priceSets;
@@ -129,8 +104,8 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
    * Sort of acts like array_intersect(). We want to match value of one array
    * with key of another to return the id and title for things like events, membership, etc.
    */
-  static function getIdsTitles($ids = array(), $titles = array()) {
-    $a = array();
+  public static function getIdsTitles($ids = [], $titles = []) {
+    $a = [];
     foreach ($ids as $k => $v) {
       if (!empty($titles[$v])) {
         $a[$v] = $titles[$v];
@@ -148,7 +123,7 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
    *
    * @return boolean true is it is quickconfig else false
    */
-  static function checkForQuickConfigPriceSet($priceSetId) {
+  public static function checkForQuickConfigPriceSet($priceSetId) {
     if (
       version_compare(
         CRM_Utils_System::version(),
@@ -178,7 +153,7 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
    * @static
    * @return string New random discount code.
    */
-  static function randomString($chars, $len) {
+  public static function randomString($chars, $len) {
     $str = '';
     for ($i = 0; $i <= $len; $i++) {
       $max = strlen($chars) - 1;
@@ -189,4 +164,5 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
 
     return $str;
   }
+
 }

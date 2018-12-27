@@ -130,7 +130,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * @return cividiscount_track
    */
-  function __construct() {
+  public function __construct() {
     parent::__construct();
   }
 
@@ -140,13 +140,13 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * @return array
    */
-  function &links() {
+  public function &links() {
     if (!(self::$_links)) {
-      self::$_links = array(
+      self::$_links = [
         'item_id' => 'cividiscount_item:id',
         'contact_id' => 'civicrm_contact:id',
         'contribution_id' => 'civicrm_contribution:id',
-      );
+      ];
     }
     return self::$_links;
   }
@@ -157,53 +157,53 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * @return array
    */
-  static function &fields() {
+  public static function &fields() {
     if (!(self::$_fields)) {
-      self::$_fields = array(
-        'id' => array(
+      self::$_fields = [
+        'id' => [
           'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
           'required' => TRUE,
-        ),
-        'item_id' => array(
+        ],
+        'item_id' => [
           'name' => 'item_id',
           'type' => CRM_Utils_Type::T_INT,
           'FKClassName' => 'CRM_CiviDiscount_DAO_Item',
-        ),
-        'contact_id' => array(
+        ],
+        'contact_id' => [
           'name' => 'contact_id',
           'type' => CRM_Utils_Type::T_INT,
           'FKClassName' => 'CRM_Contact_DAO_Contact',
-        ),
-        'used_date' => array(
+        ],
+        'used_date' => [
           'name' => 'used_date',
           'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
           'title' => E::ts('Used Date'),
-        ),
-        'contribution_id' => array(
+        ],
+        'contribution_id' => [
           'name' => 'contribution_id',
           'type' => CRM_Utils_Type::T_INT,
           'FKClassName' => 'CRM_Contribute_DAO_Contribution',
-        ),
-        'entity_table' => array(
+        ],
+        'entity_table' => [
           'name' => 'entity_table',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Entity Table'),
           'required' => TRUE,
           'maxlength' => 64,
           'size' => CRM_Utils_Type::BIG,
-        ),
-        'entity_id' => array(
+        ],
+        'entity_id' => [
           'name' => 'entity_id',
           'type' => CRM_Utils_Type::T_INT,
           'required' => TRUE,
-        ),
-        'description' => array(
+        ],
+        'description' => [
           'name' => 'description',
           'type' => CRM_Utils_Type::T_TEXT,
           'title' => E::ts('Description'),
-        ),
-      );
+        ],
+      ];
     }
     return self::$_fields;
   }
@@ -214,7 +214,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * @return string
    */
-  static function getTableName() {
+  public static function getTableName() {
     return CRM_Core_DAO::getLocaleTableName(self::$_tableName);
   }
 
@@ -224,7 +224,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * @return boolean
    */
-  function getLog() {
+  public function getLog() {
     return self::$_log;
   }
 
@@ -234,9 +234,9 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  function &import($prefix = FALSE) {
+  public function &import($prefix = FALSE) {
     if (!(self::$_import)) {
-      self::$_import = array();
+      self::$_import = [];
       $fields = self::fields();
       foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('import', $field)) {
@@ -258,9 +258,9 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  function &export($prefix = FALSE) {
+  public function &export($prefix = FALSE) {
     if (!(self::$_export)) {
-      self::$_export = array();
+      self::$_export = [];
       $fields = self::fields();
       foreach ($fields as $name => $field) {
         if (CRM_Utils_Array::value('export', $field)) {
