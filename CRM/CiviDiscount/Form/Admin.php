@@ -121,13 +121,6 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       }
     }
 
-    if (!empty($defaults['active_on'])) {
-      list($defaults['active_on']) = CRM_Utils_Date::setDateDefaults($defaults['active_on']);
-    }
-    if (!empty($defaults['expire_on'])) {
-      list($defaults['expire_on']) = CRM_Utils_Date::setDateDefaults($defaults['expire_on']);
-    }
-
     if (!empty($defaults['organization_id'])) {
       $this->_orgID = $defaults['organization_id'];
     }
@@ -183,8 +176,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->add('text', 'count_max', E::ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + array('min' => 1));
     $this->addRule('count_max', E::ts('Must be an integer'), 'integer');
 
-    $this->addDate('active_on', E::ts('Activation Date'), FALSE);
-    $this->addDate('expire_on', E::ts('Expiration Date'), FALSE);
+    $this->add('datepicker', 'active_on', E::ts('Activation Date'), [], FALSE, ['time' => FALSE]);
+    $this->add('datepicker', 'expire_on', E::ts('Expiration Date'), [], FALSE, ['time' => FALSE]);
 
     $this->addEntityRef('organization_id', E::ts('Organization'), array('api' => array('params' => array('contact_type' => 'Organization'))));
 

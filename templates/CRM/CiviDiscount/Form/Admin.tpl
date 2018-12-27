@@ -89,11 +89,11 @@
           </tr>
           <tr class="crm-discount-item-form-block-active_on">
             <td class="label">{$form.active_on.label} {help id="active_on" title=$form.active_on.label}</td>
-            <td>{include file="CRM/common/jcalendar.tpl" elementName=active_on}</td>
+            <td>{$form.active_on.html}</td>
           </tr>
           <tr class="crm-discount-item-form-block-expire_on">
             <td class="label">{$form.expire_on.label} {help id="expire_on" title=$form.expire_on.label}</td>
-            <td>{include file="CRM/common/jcalendar.tpl" elementName=expire_on}</td>
+            <td>{$form.expire_on.html}</td>
           </tr>
           <tr class="crm-discount-item-form-block-organization_id">
             <td class="label">{$form.organization_id.label} {help id="organization" title=$form.organization_id.label}</td>
