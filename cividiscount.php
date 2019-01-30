@@ -434,9 +434,12 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
           }
         }
       }
+      /*
+      // #214
       if ($autodiscount) {
         break;
       }
+      */
     }
 
     // Display discount message if one is available
