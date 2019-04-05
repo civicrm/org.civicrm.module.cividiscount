@@ -44,14 +44,14 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_fields = NULL;
+  static $_fields = null;
   /**
    * static instance to hold the FK relationships
    *
    * @var string
    * @static
    */
-  static $_links = NULL;
+  static $_links = null;
   /**
    * static instance to hold the values that can
    * be imported
@@ -59,7 +59,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_import = NULL;
+  static $_import = null;
   /**
    * static instance to hold the values that can
    * be exported
@@ -67,7 +67,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_export = NULL;
+  static $_export = null;
   /**
    * static value to see if we should log any modifications to
    * this table in the civicrm_log table
@@ -75,7 +75,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @var boolean
    * @static
    */
-  static $_log = FALSE;
+  static $_log = false;
   /**
    * Discount Item ID
    *
@@ -222,13 +222,13 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
         'id' => [
           'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
-          'required' => TRUE,
+          'required' => true,
         ],
         'code' => [
           'name' => 'code',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Code'),
-          'required' => TRUE,
+          'required' => true,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ],
@@ -236,7 +236,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
           'name' => 'description',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Description'),
-          'required' => TRUE,
+          'required' => true,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ],
@@ -244,7 +244,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
           'name' => 'filters',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Discount Filters'),
-          'required' => FALSE,
+          'required' => false,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ],
@@ -252,7 +252,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
           'name' => 'amount',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Amount'),
-          'required' => TRUE,
+          'required' => true,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
         ],
@@ -260,7 +260,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
           'name' => 'amount_type',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Amount Type'),
-          'required' => TRUE,
+          'required' => true,
           'maxlength' => 4,
           'size' => CRM_Utils_Type::FOUR,
         ],
@@ -268,13 +268,13 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
           'name' => 'count_max',
           'type' => CRM_Utils_Type::T_INT,
           'title' => E::ts('Count Max'),
-          'required' => TRUE,
+          'required' => true,
         ],
         'count_use' => [
           'name' => 'count_use',
           'type' => CRM_Utils_Type::T_INT,
           'title' => E::ts('Count Use'),
-          'required' => TRUE,
+          'required' => true,
           'default' => 0,
         ],
         'events' => [
@@ -358,7 +358,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  public function &import($prefix = FALSE) {
+  public function &import($prefix = false) {
     if (!(self::$_import)) {
       self::$_import = [];
       $fields = self::fields();
@@ -382,7 +382,7 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  public function &export($prefix = FALSE) {
+  public function &export($prefix = false) {
     if (!(self::$_export)) {
       self::$_export = [];
       $fields = self::fields();

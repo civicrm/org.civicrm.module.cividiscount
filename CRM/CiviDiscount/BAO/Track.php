@@ -45,26 +45,26 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
   public static function retrieve(&$params, &$defaults) {
     $item = new CRM_CiviDiscount_DAO_Track();
     $item->copyValues($params);
-    if ($item->find(TRUE)) {
+    if ($item->find(true)) {
       CRM_Core_DAO::storeValues($item, $defaults);
       return $item;
     }
-    return NULL;
+    return null;
   }
 
   public static function getUsageByContact($id) {
-    return CRM_CiviDiscount_BAO_Track::getUsage(NULL, $id, NULL);
+    return CRM_CiviDiscount_BAO_Track::getUsage(null, $id, null);
   }
 
   public static function getUsageByOrg($id) {
-    return CRM_CiviDiscount_BAO_Track::getUsage(NULL, NULL, $id);
+    return CRM_CiviDiscount_BAO_Track::getUsage(null, null, $id);
   }
 
   public static function getUsageByCode($id) {
-    return CRM_CiviDiscount_BAO_Track::getUsage($id, NULL, NULL);
+    return CRM_CiviDiscount_BAO_Track::getUsage($id, null, null);
   }
 
-  public static function getUsage($id = NULL, $cid = NULL, $orgid = NULL) {
+  public static function getUsage($id = null, $cid = null, $orgid = null) {
     $sql = "
 SELECT    t.item_id as item_id,
       t.contact_id as contact_id,
@@ -144,7 +144,7 @@ SELECT    t.item_id as item_id,
       return $dao->event_id;
     }
 
-    return NULL;
+    return null;
   }
 
   /**
@@ -158,14 +158,14 @@ SELECT    t.item_id as item_id,
    */
   public static function del($trackID) {
     if (!CRM_Utils_Rule::positiveInteger($trackID)) {
-      return FALSE;
+      return false;
     }
 
     $item = new CRM_CiviDiscount_DAO_Track();
     $item->id = $trackID;
     $item->delete();
 
-    return TRUE;
+    return true;
   }
 
 }

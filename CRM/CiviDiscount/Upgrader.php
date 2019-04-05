@@ -23,7 +23,7 @@ class CRM_CiviDiscount_Upgrader extends CRM_CiviDiscount_Upgrader_Base {
       $this->ctx->log->info('Applying cividiscount update 2201.  Adding discount_msg to the cividiscount_item table.');
       CRM_Core_DAO::executeQuery('ALTER TABLE cividiscount_item ADD COLUMN discount_msg VARCHAR(255) AFTER discount_msg_enabled');
     }
-    return TRUE;
+    return true;
   }
 
   public function upgrade_2202() {
@@ -34,7 +34,7 @@ class CRM_CiviDiscount_Upgrader extends CRM_CiviDiscount_Upgrader_Base {
       $this->ctx->log->info('Applying cividiscount update 2202.  Adding filters to the cividiscount_item table.');
       CRM_Core_DAO::executeQuery('ALTER TABLE cividiscount_item ADD COLUMN filters VARCHAR(255)');
     }
-    return TRUE;
+    return true;
   }
 
   public function upgrade_2203() {
@@ -47,7 +47,7 @@ class CRM_CiviDiscount_Upgrader extends CRM_CiviDiscount_Upgrader_Base {
         2 => [$dao->id, 'Integer']
       ]);
     }
-    return TRUE;
+    return true;
   }
 
 }

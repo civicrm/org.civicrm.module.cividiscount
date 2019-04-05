@@ -65,7 +65,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
       $item->organization_id = 'null';
     }
 
-    $id = empty($params['id']) ? NULL : $params['id'];
+    $id = empty($params['id']) ? null : $params['id'];
     $op = $id ? 'edit' : 'create';
     CRM_Utils_Hook::pre($op, 'CiviDiscount', $id, $params);
     $item->save();
@@ -91,21 +91,21 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   public static function retrieve(&$params, &$defaults) {
     $item = new CRM_CiviDiscount_DAO_Item();
     $item->copyValues($params);
-    if ($item->find(TRUE)) {
+    if ($item->find(true)) {
       CRM_Core_DAO::storeValues($item, $defaults);
       return $item;
     }
-    return NULL;
+    return null;
   }
 
   public static function getValidDiscounts() {
     static $discounts = [];
-    static $hasRun = FALSE;
+    static $hasRun = false;
     if ($hasRun) {
       //not checking if empty discounts as could be legitimately empty
       return $discounts;
     }
-    $hasRun = TRUE;
+    $hasRun = true;
 
     $sql = "
   SELECT  id,
@@ -153,7 +153,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * @param array $discount
    */
   public static function buildDiscountFilters($discount) {
-    $filters = json_decode($discount['filters'], TRUE);
+    $filters = json_decode($discount['filters'], true);
     // Expand set-valued fields.
     $fields = [
       'events' => 'event',
@@ -180,7 +180,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
       $discount[$field] = !empty($items) ? array_combine($items, $items) : [];
     }
     $discount['filters'] = empty($filters) ? [] : $filters;
-    $discount['autodiscount'] = json_decode($discount['autodiscount'], TRUE);
+    $discount['autodiscount'] = json_decode($discount['autodiscount'], true);
     return $discount;
   }
 
@@ -220,15 +220,15 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     $item = new CRM_CiviDiscount_DAO_Item();
     $item->id = $itemID;
 
-    if ($item->find(TRUE)) {
+    if ($item->find(true)) {
       $params = ['id' => $itemID];
       CRM_Utils_Hook::pre('delete', 'CiviDiscount', $item->id, $params);
       $item->delete();
       CRM_Utils_Hook::post('delete', 'CiviDiscount', $itemID, $item);
-      return TRUE;
+      return true;
     }
 
-    return FALSE;
+    return false;
   }
 
   /**
@@ -244,7 +244,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     $item = new CRM_CiviDiscount_DAO_Item();
     $item->id = $itemID;
 
-    if ($item->find(TRUE)) {
+    if ($item->find(true)) {
       unset($item->id);
       $item->count_use = 0;
       $item->code = $newCode;
@@ -252,13 +252,13 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
         $item->description = 'Copy of ' . $item->description;
       }
 
-      CRM_Utils_Hook::pre('create', 'CiviDiscount', NULL, $params);
+      CRM_Utils_Hook::pre('create', 'CiviDiscount', null, $params);
       $item->save();
       CRM_Utils_Hook::post('create', 'CiviDiscount', $item->id, $item);
-      return TRUE;
+      return true;
     }
 
-    return FALSE;
+    return false;
   }
 
 }

@@ -7,7 +7,7 @@ use CRM_CiviDiscount_ExtensionUtil as E;
  * @package CiviDiscount
  */
 class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
-  public $useLivePageJS = TRUE;
+  public $useLivePageJS = true;
 
   /**
    * The action links that we need to display for the browse screen
@@ -15,7 +15,7 @@ class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
    * @var array
    * @static
    */
-  static $_links = NULL;
+  static $_links = null;
 
   /**
    * Get BAO Name
@@ -96,7 +96,7 @@ class CRM_CiviDiscount_Page_List extends CRM_Core_Page_Basic {
    *
    * @return string user context.
    */
-  public function userContext($mode = NULL) {
+  public function userContext($mode = null) {
     return 'civicrm/cividiscount/discount';
   }
 

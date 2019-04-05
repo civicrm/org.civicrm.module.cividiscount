@@ -88,7 +88,7 @@ class CRM_CiviDiscount_DiscountCalculator {
       else {
         foreach (array_keys($discount['autodiscount']) as $entity) {
           $additionalParams = ['contact_id' => $this->contact_id];
-          $id = ($entity == 'contact') ? $this->contact_id : NULL;
+          $id = ($entity == 'contact') ? $this->contact_id : null;
           if (!$this->checkDiscountsByEntity($discount, $entity, $id, 'autodiscount', $additionalParams)) {
             unset($this->autoDiscounts[$discount_id]);
             continue;
@@ -104,9 +104,9 @@ class CRM_CiviDiscount_DiscountCalculator {
   protected function getEntityHasDiscounts() {
     $this->getDiscounts();
     if (!empty($this->entity_discounts)) {
-      return TRUE;
+      return true;
     }
-    return FALSE;
+    return false;
   }
 
   /**
@@ -114,12 +114,12 @@ class CRM_CiviDiscount_DiscountCalculator {
    */
   public function isShowDiscountCodeField() {
     if (!$this->getEntityHasDiscounts()) {
-      return FALSE;
+      return false;
     }
     if (!empty($this->entity_discounts)) {
-      return TRUE;
+      return true;
     }
-    return FALSE;
+    return false;
   }
 
   /**
@@ -165,10 +165,10 @@ class CRM_CiviDiscount_DiscountCalculator {
   protected function checkDiscountsByEntity($discount, $entity, $id, $type, $additionalFilter = []) {
     try {
       if (!isset($discount[$type][$entity])) {
-        return FALSE;
+        return false;
       }
       if (empty($discount[$type][$entity])) {
-        return TRUE;
+        return true;
       }
 
       if (count($discount[$type][$entity]) == 1 && CRM_Utils_Array::value('id', $discount[$type][$entity])) {
@@ -194,7 +194,7 @@ class CRM_CiviDiscount_DiscountCalculator {
       }
     }
     catch (Exception $e) {
-      return FALSE;
+      return false;
     }
   }
 

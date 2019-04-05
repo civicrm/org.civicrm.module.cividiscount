@@ -29,8 +29,8 @@ function civicrm_api3_discount_track_create($params) {
  */
 function _civicrm_api3_discount_track_create_spec(&$params) {
   $params['used_date']['api.default'] = 'now';
-  $params['entity_table']['api.required'] = TRUE;
-  $params['entity_id']['api.required'] = TRUE;
+  $params['entity_table']['api.required'] = true;
+  $params['entity_id']['api.required'] = true;
 }
 
 /**

@@ -7,9 +7,9 @@ use CRM_CiviDiscount_ExtensionUtil as E;
  * @package CiviDiscount
  */
 class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
-  protected $_multiValued = NULL;
-  protected $_orgID = NULL;
-  protected $_cloneID = NULL;
+  protected $_multiValued = null;
+  protected $_orgID = null;
+  protected $_cloneID = null;
 
   protected $select2style = [];
 
@@ -18,8 +18,8 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @throws \Exception
    */
   public function preProcess() {
-    $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, FALSE, 0);
-    $this->_cloneID = CRM_Utils_Request::retrieve('cloneID', 'Positive', $this, FALSE, 0);
+    $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, false, 0);
+    $this->_cloneID = CRM_Utils_Request::retrieve('cloneID', 'Positive', $this, false, 0);
     $this->set('BAOName', 'CRM_CiviDiscount_BAO_Item');
 
     parent::preProcess();
@@ -44,14 +44,14 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     CRM_Utils_System::setTitle(E::ts('Discounts'));
 
     $this->_multiValued = [
-      'memberships' => NULL,
-      'events' => NULL,
-      'pricesets' => NULL,
+      'memberships' => null,
+      'events' => null,
+      'pricesets' => null,
     ];
 
     $this->select2style = [
       'placeholder' => E::ts('- none -'),
-      'multiple' => TRUE,
+      'multiple' => true,
       'class' => 'crm-select2 huge',
     ];
   }
@@ -60,7 +60,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
    * @return array
    */
   public function setDefaultValues() {
-    $origID = NULL;
+    $origID = null;
     $defaults = [];
 
     if ($this->_action & CRM_Core_Action::COPY) {
@@ -124,7 +124,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       'code',
       E::ts('Discount Code'),
       CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'code'),
-      TRUE
+      true
     );
     $this->addRule('code',
       E::ts('Code already exists in Database.'),
@@ -139,20 +139,20 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
 
     $this->add('text', 'description', E::ts('Description'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'description'));
 
-    $this->addMoney('amount', E::ts('Discount Amount'), TRUE, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), FALSE);
+    $this->addMoney('amount', E::ts('Discount Amount'), true, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), false);
 
-    $this->add('select', 'amount_type', NULL,
+    $this->add('select', 'amount_type', null,
       [
         1 => E::ts('Percent'),
         2 => E::ts('Fixed Amount'),
       ],
-      TRUE);
+      true);
 
     $this->add('text', 'count_max', E::ts('Usage Limit'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'count_max') + ['min' => 1]);
     $this->addRule('count_max', E::ts('Must be an integer'), 'integer');
 
-    $this->add('datepicker', 'active_on', E::ts('Activation Date'), [], FALSE, ['time' => FALSE]);
-    $this->add('datepicker', 'expire_on', E::ts('Expiration Date'), [], FALSE, ['time' => FALSE]);
+    $this->add('datepicker', 'active_on', E::ts('Activation Date'), [], false, ['time' => false]);
+    $this->add('datepicker', 'expire_on', E::ts('Expiration Date'), [], false, ['time' => false]);
 
     $this->addEntityRef('organization_id', E::ts('Organization'), ['api' => ['params' => ['contact_type' => 'Organization']]]);
 
@@ -163,13 +163,13 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
     $this->add('textarea', 'discount_msg', E::ts('Message to non-eligible users'), ['class' => 'big']);
 
     // add memberships, events, pricesets
-    $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(FALSE);
+    $membershipTypes = CRM_Member_BAO_MembershipType::getMembershipTypes(false);
     if (!empty($membershipTypes)) {
       $this->add('select',
         'memberships',
         E::ts('Memberships'),
         $membershipTypes,
-        FALSE,
+        false,
         $this->select2style
       );
     }
@@ -185,7 +185,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         'events',
         E::ts('Events'),
         $events,
-        FALSE,
+        false,
         $this->select2style
       );
 
@@ -195,7 +195,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         'event_type_id',
         E::ts('Event Types'),
         $eventTypes,
-        FALSE,
+        false,
         $this->select2style
       );
     }
@@ -207,7 +207,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         'pricesets',
         E::ts('Price Field Options'),
         $pricesets,
-        FALSE,
+        false,
         ['placeholder' => E::ts('- any -')] + $this->select2style
       );
     }
@@ -301,7 +301,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         throw new CRM_Core_Exception(E::ts('You cannot nest apis in the advanced filter'));
       }
       if (stristr($discountString, '{')) {
-        $discounts = json_decode($discountString, TRUE);
+        $discounts = json_decode($discountString, true);
       }
       else {
         $discounts = explode(',', $discountString);
@@ -461,7 +461,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       ],
     ];
 
-    $filters = json_decode($defaults[$type], TRUE);
+    $filters = json_decode($defaults[$type], true);
     $specs = $this->$fn();
     foreach ($filters as $entity => $entityFilters) {
       if (isset($fieldsDisplayedElsewhereOnForm[$entity])) {
@@ -486,7 +486,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       }
     }
     if (!empty($defaults['advanced_' . $type . '_filter_string'])) {
-      $defaults['advanced_' . $type . '_filter_string'] = json_encode($defaults['advanced_' . $type . '_filter_string'], TRUE);
+      $defaults['advanced_' . $type . '_filter_string'] = json_encode($defaults['advanced_' . $type . '_filter_string'], true);
     }
 
     foreach ($specs as $entity => $fields) {

@@ -43,7 +43,7 @@ class CRM_CiviDiscount_Utils {
 
     $priceSets = [];
     if (!empty($values)) {
-      $currentLabel = NULL;
+      $currentLabel = null;
       $optGroup = 0;
       foreach ($values as $set) {
         // Quickform doesn't support optgroups so this uses a hack. @see js/Common.js in core
@@ -57,7 +57,7 @@ class CRM_CiviDiscount_Utils {
     return $priceSets;
   }
 
-  public static function getPriceSetsInfo($priceSetId = NULL) {
+  public static function getPriceSetsInfo($priceSetId = null) {
     $params = [];
     $psTableName = 'civicrm_price_set_entity';
     if ($priceSetId) {
@@ -131,16 +131,16 @@ ORDER BY  pf_label, pfv.price_field_id, pfv.weight
       ) >= 0
     ) {
       if (CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceSet', $priceSetId, 'is_quick_config')) {
-        return TRUE;
+        return true;
       }
     }
     else {
       if (CRM_Core_DAO::getFieldValue('CRM_Price_DAO_Set', $priceSetId, 'is_quick_config')) {
-        return TRUE;
+        return true;
       }
     }
 
-    return FALSE;
+    return false;
   }
 
   /**

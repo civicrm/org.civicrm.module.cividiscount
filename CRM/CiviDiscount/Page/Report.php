@@ -14,7 +14,7 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
    */
   protected $_id;
 
-  protected $_multiValued = NULL;
+  protected $_multiValued = null;
 
   /**
    * The action links that we need to display for the browse screen
@@ -22,7 +22,7 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
    * @var array
    * @static
    */
-  static $_links = NULL;
+  static $_links = null;
 
   /**
    * Get BAO Name
@@ -91,12 +91,12 @@ class CRM_CiviDiscount_Page_Report extends CRM_Core_Page {
    *
    * @return string user context.
    */
-  public function userContext($mode = NULL) {
+  public function userContext($mode = null) {
     return 'civicrm/cividiscount/discount';
   }
 
   public function preProcess() {
-    $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, FALSE);
+    $this->_id = CRM_Utils_Request::retrieve('id', 'Positive', $this, false);
 
     if (!CRM_Utils_Rule::positiveInteger($this->_id)) {
       CRM_Core_Error::fatal('We need a valid discount ID for view');

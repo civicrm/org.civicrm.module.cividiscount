@@ -43,14 +43,14 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_fields = NULL;
+  static $_fields = null;
   /**
    * static instance to hold the FK relationships
    *
    * @var string
    * @static
    */
-  static $_links = NULL;
+  static $_links = null;
   /**
    * static instance to hold the values that can
    * be imported
@@ -58,7 +58,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_import = NULL;
+  static $_import = null;
   /**
    * static instance to hold the values that can
    * be exported
@@ -66,7 +66,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var array
    * @static
    */
-  static $_export = NULL;
+  static $_export = null;
   /**
    * static value to see if we should log any modifications to
    * this table in the civicrm_log table
@@ -74,7 +74,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @var boolean
    * @static
    */
-  static $_log = FALSE;
+  static $_log = false;
   /**
    * Discount Item ID
    *
@@ -163,7 +163,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
         'id' => [
           'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
-          'required' => TRUE,
+          'required' => true,
         ],
         'item_id' => [
           'name' => 'item_id',
@@ -189,14 +189,14 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
           'name' => 'entity_table',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => E::ts('Entity Table'),
-          'required' => TRUE,
+          'required' => true,
           'maxlength' => 64,
           'size' => CRM_Utils_Type::BIG,
         ],
         'entity_id' => [
           'name' => 'entity_id',
           'type' => CRM_Utils_Type::T_INT,
-          'required' => TRUE,
+          'required' => true,
         ],
         'description' => [
           'name' => 'description',
@@ -234,7 +234,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  public function &import($prefix = FALSE) {
+  public function &import($prefix = false) {
     if (!(self::$_import)) {
       self::$_import = [];
       $fields = self::fields();
@@ -258,7 +258,7 @@ class CRM_CiviDiscount_DAO_Track extends CRM_Core_DAO {
    * @access public
    * return array
    */
-  public function &export($prefix = FALSE) {
+  public function &export($prefix = false) {
     if (!(self::$_export)) {
       self::$_export = [];
       $fields = self::fields();

@@ -14,14 +14,14 @@ class CRM_CiviDiscount_Page_Usage extends CRM_Core_Page {
 
   public function preProcess() {
 
-    $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this, FALSE);
-    $oid = CRM_Utils_Request::retrieve('oid', 'Positive', $this, FALSE);
+    $cid = CRM_Utils_Request::retrieve('cid', 'Positive', $this, false);
+    $oid = CRM_Utils_Request::retrieve('oid', 'Positive', $this, false);
 
     if ($oid) {
-      $this->_id = CRM_Utils_Request::retrieve('oid', 'Positive', $this, FALSE);
+      $this->_id = CRM_Utils_Request::retrieve('oid', 'Positive', $this, false);
     }
     else {
-      $this->assign('hide_contact', TRUE);
+      $this->assign('hide_contact', true);
       $this->_id = $cid;
     }
 
