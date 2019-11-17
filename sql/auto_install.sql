@@ -27,7 +27,8 @@ CREATE TABLE `cividiscount_item` (
      `discount_msg_enabled` tinyint DEFAULT 0 COMMENT 'Is discount message is available for promotion?',
      `discount_msg` VARCHAR(255) COMMENT 'Discount message',
      `filters` varchar(255) COMMENT 'Discount Filters.',
-
+     `membership_new` tinyint(1) DEFAULT 0 COMMENT 'Discount for New members applicant.?',
+     `membership_renew` tinyint(1) DEFAULT 0 COMMENT 'Discount for Renewing members applicant.?',
     PRIMARY KEY ( `id` ),
      CONSTRAINT FK_cividiscount_item_organization_id FOREIGN KEY (`organization_id`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;

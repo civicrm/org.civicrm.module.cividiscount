@@ -378,7 +378,10 @@ function cividiscount_civicrm_buildAmount($pageType, &$form, &$amounts) {
           foreach ($priceSetInfo as $pfID => $priceFieldValues) {
             if (!empty($priceFieldValues['membership_type_id']) &&
               in_array($priceFieldValues['membership_type_id'], CRM_Utils_Array::value('memberships', $discount, []))) {
-              $priceFields[$pfID] = $pfID;
+              if (($discount['membership_new'] && !in_array($priceFieldValues['membership_type_id'], $form->_currentMemberships)) ||
+                ($discount['membership_renew'] && in_array($priceFieldValues['membership_type_id'], $form->_currentMemberships))) {
+                $priceFields[$pfID] = $pfID;
+              }
             }
           }
         }
@@ -579,8 +582,28 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
     return;
   }
   $discount = array_shift($discounts);
+  $membershipTypeValuesIds = array_keys($membershipTypeValues);
+  $contactMembershipType = [];
+  if ($contact_id && !empty($membershipTypeValuesIds)) {
+    $result = civicrm_api3('Membership', 'get', array(
+      'return' => ["membership_type_id"],
+      'contact_id' => $contact_id,
+      'is_test' => 0,
+      'active_only' => 1,
+      'membership_type_id' => array('IN' => $membershipTypeValuesIds),
+    ));
+    if (!empty($result['values'])) {
+      foreach ( $result['values'] as $membership) {
+        $contactMembershipType[] = $membership['membership_type_id'];
+      }
+    }
+  }
   foreach ($membershipTypeValues as &$values) {
     if (!empty($discount['memberships']) && CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
+      if (!($discount['membership_new'] && !in_array($values['id'], $contactMembershipType)) ||
+        !($discount['membership_renew'] && in_array($values['id'], $contactMembershipType))) {
+        continue;
+      }
       list($value, $label) = _cividiscount_calc_discount($values['minimum_fee'], $values['name'], $discount, $discountCalculator->isAutoDiscount());
       $values['minimum_fee'] = $value;
       $values['name'] = $label;

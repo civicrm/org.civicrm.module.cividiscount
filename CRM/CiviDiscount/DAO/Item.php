@@ -173,6 +173,18 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
    */
   public $is_active;
   /**
+   * Is discount code applicable for New Members applicant?
+   *
+   * @var boolean
+   */
+  public $membership_new;
+  /**
+   * Is discount code applicable for Existing Members applicant?
+   *
+   * @var boolean
+   */
+  public $membership_renew;
+  /**
    * Is there a message to users not eligible for a discount?
    *
    * @var boolean
@@ -326,6 +338,14 @@ class CRM_CiviDiscount_DAO_Item extends CRM_Core_DAO {
           'title' => E::ts('Discount Message'),
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
+        ],
+        'membership_new' => [
+          'name' => 'membership_new',
+          'type' => CRM_Utils_Type::T_BOOLEAN,
+        ],
+        'membership_renew' => [
+          'name' => 'membership_renew',
+          'type' => CRM_Utils_Type::T_BOOLEAN,
         ],
       ];
     }

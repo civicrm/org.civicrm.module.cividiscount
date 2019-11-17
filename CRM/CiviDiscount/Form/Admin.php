@@ -172,6 +172,9 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         FALSE,
         $this->select2style
       );
+
+      $this->addElement('checkbox', 'membership_new', E::ts('New members during application?'));
+      $this->addElement('checkbox', 'membership_renew', E::ts('Renewing members ?'));
     }
     $this->assignAutoDiscountFields();
     $this->addElement('text', 'advanced_autodiscount_filter_entity', E::ts('Specify entity for advanced autodiscount'));

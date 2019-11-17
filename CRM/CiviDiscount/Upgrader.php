@@ -50,4 +50,16 @@ class CRM_CiviDiscount_Upgrader extends CRM_CiviDiscount_Upgrader_Base {
     return TRUE;
   }
 
+  public function upgrade_3701() {
+    if (CRM_Core_BAO_SchemaHandler::checkIfFieldExists('cividiscount_item', 'membership_new')) {
+      $this->ctx->log->info('Skipped cividiscount update 3701.  Column membership_new already present on cividiscount_item table.');
+    }
+    else {
+      $this->ctx->log->info('Applying cividiscount update 3701.  Adding membership_new, membership_renew to the cividiscount_item table.');
+      CRM_Core_DAO::executeQuery('ALTER TABLE cividiscount_item ADD COLUMN membership_new TINYINT(1) DEFAULT 0 COMMENT "Discount for New members applicant.?" AFTER filters');
+      CRM_Core_DAO::executeQuery('ALTER TABLE cividiscount_item ADD COLUMN membership_renew TINYINT(1) DEFAULT 0 COMMENT "Discount for Renewing members applicant.?" AFTER membership_new');
+    }
+    return TRUE;
+  }
+
 }
