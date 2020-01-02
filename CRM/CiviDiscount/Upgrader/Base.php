@@ -1,12 +1,15 @@
 <?php
 
+// AUTO-GENERATED FILE -- Civix may overwrite any changes made to this file
+use CRM_CiviDiscount_ExtensionUtil as E;
+
 /**
  * Base class which provides helpers to execute upgrade logic
  */
 class CRM_CiviDiscount_Upgrader_Base {
 
   /**
-   * @var varies, subclass of htis
+   * @var varies, subclass of this
    */
   static $instance;
 
@@ -31,7 +34,13 @@ class CRM_CiviDiscount_Upgrader_Base {
   private $revisions;
 
   /**
-   * Obtain a refernece to the active upgrade handler
+   * @var boolean
+   *   Flag to clean up extension revision data in civicrm_setting
+   */
+  private $revisionStorageIsDeprecated = FALSE;
+
+  /**
+   * Obtain a reference to the active upgrade handler.
    */
   static public function instance() {
     if (!self::$instance) {
@@ -71,7 +80,7 @@ class CRM_CiviDiscount_Upgrader_Base {
   // ******** Task helpers ********
 
   /**
-   * Run a CustomData file
+   * Run a CustomData file.
    *
    * @param string $relativePath the CustomData XML file path (relative to this extension's dir)
    * @return bool
@@ -84,7 +93,8 @@ class CRM_CiviDiscount_Upgrader_Base {
   /**
    * Run a CustomData file
    *
-   * @param string $xml_file the CustomData XML file path (absolute path)
+   * @param string $xml_file  the CustomData XML file path (absolute path)
+   *
    * @return bool
    */
   protected static function executeCustomDataFileByAbsPath($xml_file) {
@@ -94,21 +104,41 @@ class CRM_CiviDiscount_Upgrader_Base {
   }
 
   /**
-   * Run a SQL file
+   * Run a SQL file.
    *
    * @param string $relativePath the SQL file path (relative to this extension's dir)
+   *
    * @return bool
    */
   public function executeSqlFile($relativePath) {
     CRM_Utils_File::sourceSQLFile(
       CIVICRM_DSN,
-      $this->extensionDir . '/' . $relativePath
+      $this->extensionDir . DIRECTORY_SEPARATOR . $relativePath
     );
     return TRUE;
   }
 
   /**
-   * Run one SQL query
+   * @param string $tplFile
+   *   The SQL file path (relative to this extension's dir).
+   *   Ex: "sql/mydata.mysql.tpl".
+   * @return bool
+   */
+  public function executeSqlTemplate($tplFile) {
+    // Assign multilingual variable to Smarty.
+    $upgrade = new CRM_Upgrade_Form();
+
+    $tplFile = CRM_Utils_File::isAbsolute($tplFile) ? $tplFile : $this->extensionDir . DIRECTORY_SEPARATOR . $tplFile;
+    $smarty = CRM_Core_Smarty::singleton();
+    $smarty->assign('domainID', CRM_Core_Config::domainID());
+    CRM_Utils_File::sourceSQLFile(
+      CIVICRM_DSN, $smarty->fetch($tplFile), NULL, TRUE
+    );
+    return TRUE;
+  }
+
+  /**
+   * Run one SQL query.
    *
    * This is just a wrapper for CRM_Core_DAO::executeSql, but it
    * provides syntatic sugar for queueing several tasks that
@@ -116,13 +146,14 @@ class CRM_CiviDiscount_Upgrader_Base {
    */
   public function executeSql($query, $params = array()) {
     // FIXME verify that we raise an exception on error
-    CRM_Core_DAO::executeSql($query, $params);
+    CRM_Core_DAO::executeQuery($query, $params);
     return TRUE;
   }
 
   /**
-   * Syntatic sugar for enqueuing a task which calls a function
-   * in this class. The task is weighted so that it is processed
+   * Syntatic sugar for enqueuing a task which calls a function in this class.
+   *
+   * The task is weighted so that it is processed
    * as part of the currently-pending revision.
    *
    * After passing the $funcName, you can also pass parameters that will go to
@@ -142,7 +173,7 @@ class CRM_CiviDiscount_Upgrader_Base {
   // ******** Revision-tracking helpers ********
 
   /**
-   * Determine if there are any pending revisions
+   * Determine if there are any pending revisions.
    *
    * @return bool
    */
@@ -161,7 +192,7 @@ class CRM_CiviDiscount_Upgrader_Base {
   }
 
   /**
-   * Add any pending revisions to the queue
+   * Add any pending revisions to the queue.
    */
   public function enqueuePendingRevisions(CRM_Queue_Queue $queue) {
     $this->queue = $queue;
@@ -194,7 +225,7 @@ class CRM_CiviDiscount_Upgrader_Base {
   }
 
   /**
-   * Get a list of revisions
+   * Get a list of revisions.
    *
    * @return array(revisionNumbers) sorted numerically
    */
@@ -216,29 +247,53 @@ class CRM_CiviDiscount_Upgrader_Base {
   }
 
   public function getCurrentRevision() {
-    // return CRM_Core_BAO_Extension::getSchemaVersion($this->extensionName);
+    $revision = CRM_Core_BAO_Extension::getSchemaVersion($this->extensionName);
+    if (!$revision) {
+      $revision = $this->getCurrentRevisionDeprecated();
+    }
+    return $revision;
+  }
+
+  private function getCurrentRevisionDeprecated() {
     $key = $this->extensionName . ':version';
-    return CRM_Core_BAO_Setting::getItem('Extension', $key);
+    if ($revision = CRM_Core_BAO_Setting::getItem('Extension', $key)) {
+      $this->revisionStorageIsDeprecated = TRUE;
+    }
+    return $revision;
   }
 
   public function setCurrentRevision($revision) {
-    // We call this during hook_civicrm_install, but the underlying SQL
-    // UPDATE fails because the extension record hasn't been INSERTed yet.
-    // Instead, track revisions in our own namespace.
-    // CRM_Core_BAO_Extension::setSchemaVersion($this->extensionName, $revision);
-
-    $key = $this->extensionName . ':version';
-    CRM_Core_BAO_Setting::setItem($revision, 'Extension', $key);
+    CRM_Core_BAO_Extension::setSchemaVersion($this->extensionName, $revision);
+    // clean up legacy schema version store (CRM-19252)
+    $this->deleteDeprecatedRevision();
     return TRUE;
+  }
+
+  private function deleteDeprecatedRevision() {
+    if ($this->revisionStorageIsDeprecated) {
+      $setting = new CRM_Core_BAO_Setting();
+      $setting->name = $this->extensionName . ':version';
+      $setting->delete();
+      CRM_Core_Error::debug_log_message("Migrated extension schema revision ID for {$this->extensionName} from civicrm_setting (deprecated) to civicrm_extension.\n");
+    }
   }
 
   // ******** Hook delegates ********
 
+  /**
+   * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_install
+   */
   public function onInstall() {
     $files = glob($this->extensionDir . '/sql/*_install.sql');
     if (is_array($files)) {
       foreach ($files as $file) {
         CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $file);
+      }
+    }
+    $files = glob($this->extensionDir . '/sql/*_install.mysql.tpl');
+    if (is_array($files)) {
+      foreach ($files as $file) {
+        $this->executeSqlTemplate($file);
       }
     }
     $files = glob($this->extensionDir . '/xml/*_install.xml');
@@ -250,13 +305,31 @@ class CRM_CiviDiscount_Upgrader_Base {
     if (is_callable(array($this, 'install'))) {
       $this->install();
     }
+  }
+
+  /**
+   * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_postInstall
+   */
+  public function onPostInstall() {
     $revisions = $this->getRevisions();
     if (!empty($revisions)) {
       $this->setCurrentRevision(max($revisions));
     }
+    if (is_callable(array($this, 'postInstall'))) {
+      $this->postInstall();
+    }
   }
 
+  /**
+   * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_uninstall
+   */
   public function onUninstall() {
+    $files = glob($this->extensionDir . '/sql/*_uninstall.mysql.tpl');
+    if (is_array($files)) {
+      foreach ($files as $file) {
+        $this->executeSqlTemplate($file);
+      }
+    }
     if (is_callable(array($this, 'uninstall'))) {
       $this->uninstall();
     }
@@ -266,9 +339,11 @@ class CRM_CiviDiscount_Upgrader_Base {
         CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, $file);
       }
     }
-    $this->setCurrentRevision(NULL);
   }
 
+  /**
+   * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_enable
+   */
   public function onEnable() {
     // stub for possible future use
     if (is_callable(array($this, 'enable'))) {
@@ -276,6 +351,9 @@ class CRM_CiviDiscount_Upgrader_Base {
     }
   }
 
+  /**
+   * @see https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_disable
+   */
   public function onDisable() {
     // stub for possible future use
     if (is_callable(array($this, 'disable'))) {
@@ -287,9 +365,12 @@ class CRM_CiviDiscount_Upgrader_Base {
     switch ($op) {
       case 'check':
         return array($this->hasPendingRevisions());
+
       case 'enqueue':
         return $this->enqueuePendingRevisions($queue);
+
       default:
     }
   }
+
 }

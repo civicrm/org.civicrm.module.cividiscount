@@ -49,7 +49,7 @@
     </tr>
     <tr>
       <td class="label">{ts}Description{/ts}</td>
-      <td>{$description}</td>
+      <td>{$description|purify}</td>
     </tr>
     <tr>
       <td class="label">{ts}Discount{/ts}</td>

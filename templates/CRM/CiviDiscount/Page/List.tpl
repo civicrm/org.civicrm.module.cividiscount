@@ -47,7 +47,7 @@
         </thead>
         {foreach from=$rows item=row}
           <tr id="discount_code-{$row.id}" class="crm-entity {$row.class}{if NOT $row.is_active} disabled{/if}">
-            <td class="crm-discount-code">{$row.code} <br/> {$row.description}</td>
+            <td class="crm-discount-code">{$row.code} <br/> {$row.description|purify}</td>
             <td class="right">{if $row.amount_type eq '1'}{$row.amount} %{else}{$row.amount|crmMoney}{/if}</td>
             <td class="right"><a href='{crmURL p='civicrm/cividiscount/report' q="id=`$row.id`&reset=1"}'>{$row.count_use}</a>
               / {if $row.count_max eq 0}{ts}Unlimited{/ts}{else}{$row.count_max}{/if}</td>
