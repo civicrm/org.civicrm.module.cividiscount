@@ -312,6 +312,7 @@ class CRM_CiviDiscount_Upgrader_Base {
    */
   public function onPostInstall() {
     $revisions = $this->getRevisions();
+    print_r($revisions);
     if (!empty($revisions)) {
       $this->setCurrentRevision(max($revisions));
     }
