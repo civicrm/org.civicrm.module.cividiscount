@@ -11,6 +11,15 @@ function cividiscount_civicrm_install() {
 }
 
 /**
+ * Implements hook_civicrm_postInstall().
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
+ */
+function cividiscount_civicrm_postInstall() {
+  _cividiscount_civix_civicrm_postInstall();
+}
+
+/**
  * Implements hook_civicrm_uninstall().
  */
 function cividiscount_civicrm_uninstall() {
