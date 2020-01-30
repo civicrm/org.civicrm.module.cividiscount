@@ -598,7 +598,12 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
       // this will overwrite the submitted total amount
       if (!empty($form->_submitValues['membership_type_id'])) {
         if ($values['member_of_contact_id'] == $form->_submitValues['membership_type_id'][0] && $values['id'] == $form->_submitValues['membership_type_id'][1]) {
-          $form->_submitValues['total_amount'] = $value;
+          $taxRates = CRM_Core_PseudoConstant::getTaxRates();
+          $membershipType = $membershipType = civicrm_api3('MembershipType', 'getsingle', [
+            'id' => $values['id'],
+          ]);
+          $taxRate = CRM_Utils_Array::value($membershipType['financial_type_id'], $taxRates, 0);
+          $form->_submitValues['total_amount'] = (1 + $taxRate/100) * $value;
         }
       }
     }
