@@ -2,7 +2,7 @@ site_name: CiviDiscount
 repo_url: https://github.com/dlobo/org.civicrm.module.cividiscount
 theme: material
 
-pages:
+nav:
 - Home: index.md
 - Installation: install.md
 - Setup Codes: codesetup.md
