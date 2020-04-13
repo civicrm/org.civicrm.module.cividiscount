@@ -1,6 +1,7 @@
 site_name: CiviDiscount
 repo_url: https://github.com/dlobo/org.civicrm.module.cividiscount
-theme: material
+theme: 
+  name: material
 
 nav:
 - Home: index.md
@@ -13,7 +14,8 @@ markdown_extensions:
   - admonition
   - def_list
   - codehilite
-  - toc(permalink=true)
+  - toc:
+      permalink: true
   - pymdownx.superfences
   - pymdownx.inlinehilite
   - pymdownx.tilde
