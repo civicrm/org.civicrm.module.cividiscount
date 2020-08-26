@@ -14,17 +14,10 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
    * @return CRM_CiviDiscount_DAO_Track
    */
   public static function create($params) {
-    $hook = empty($params['id']) ? 'create' : 'edit';
-    CRM_Utils_Hook::pre($hook, 'DiscountTrack', CRM_Utils_Array::value('id', $params), $params);
-
-    $dao = new CRM_CiviDiscount_DAO_Track();
-    $dao->copyValues($params);
-    $dao->save();
-
-    if ($hook == 'create') {
+    $dao = self::writeRecord($params);
+    if (empty($params['id'])) {
       CRM_CiviDiscount_BAO_Item::incrementUsage($dao->item_id);
     }
-    CRM_Utils_Hook::post($hook, 'DiscountTrack', $dao->id, $dao);
     return $dao;
   }
 
