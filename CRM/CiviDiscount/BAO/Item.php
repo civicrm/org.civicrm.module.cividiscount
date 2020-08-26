@@ -10,7 +10,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    *
    * @param array $params
    *
-   * @return object CRM_CiviDiscount_BAO_Item object
+   * @return CRM_CiviDiscount_BAO_Item
    */
   public static function add($params) {
     if (!empty($params['active_on'])) {
@@ -32,9 +32,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
    * @param array $params (reference) an assoc array of name/value pairs
    * @param array $defaults (reference) an assoc array to hold the flattened values
    *
-   * @return object CRM_CiviDiscount_BAO_Item object on success, null otherwise
-   * @access public
-   * @static
+   * @return CRM_CiviDiscount_BAO_Item
    */
   public static function retrieve(&$params, &$defaults) {
     $item = new CRM_CiviDiscount_DAO_Item();
@@ -106,7 +104,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     $fields = [
       'events' => 'event',
       'pricesets' => 'price_set',
-      'memberships' => 'membership_type'
+      'memberships' => 'membership_type',
     ];
     foreach ($fields as $field => $entity) {
       if (!isset($discount[$field]) || is_null($discount[$field])) {
@@ -144,12 +142,17 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     return CRM_Core_DAO::setFieldValue('CRM_CiviDiscount_DAO_Item', $id, 'is_active', $is_active);
   }
 
-
+  /**
+   * @param int $id
+   */
   public static function incrementUsage($id) {
     $sql = "UPDATE cividiscount_item SET count_use = count_use+1 WHERE id = {$id}";
     return CRM_Core_DAO::executeQuery($sql);
   }
 
+  /**
+   * @param int $id
+   */
   public static function decrementUsage($id) {
     $sql = "UPDATE cividiscount_item SET count_use = count_use-1 WHERE id = {$id}";
     return CRM_Core_DAO::executeQuery($sql);
@@ -158,10 +161,8 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * Function to delete discount codes
    *
-   * @param  int $itemID ID of the discount code to be deleted.
-   *
-   * @access public
-   * @static
+   * @param int $itemID
+   *   ID of the discount code to be deleted.
    * @return true on success else false
    */
   public static function del($itemID) {
@@ -182,11 +183,12 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * Function to copy discount codes
    *
-   * @param  int $itemID ID of the discount code to be copied.
+   * @param int $itemID
+   *   ID of the discount code to be copied.
+   * @param array $params
+   * @param string $newCode
    *
-   * @access public
-   * @static
-   * @return true on success else false
+   * @return bool
    */
   public static function copy($itemID, $params, $newCode) {
     $item = new CRM_CiviDiscount_DAO_Item();

@@ -31,9 +31,7 @@ class CRM_CiviDiscount_BAO_Track extends CRM_CiviDiscount_DAO_Track {
    * @param array $params (reference) an assoc array of name/value pairs
    * @param array $defaults (reference) an assoc array to hold the flattened values
    *
-   * @return object CRM_CiviDiscount_BAO_Item object on success, null otherwise
-   * @access public
-   * @static
+   * @return CRM_CiviDiscount_BAO_Item
    */
   public static function retrieve(&$params, &$defaults) {
     $item = new CRM_CiviDiscount_DAO_Track();
@@ -145,9 +143,7 @@ SELECT    t.item_id as item_id,
    *
    * @param  int $trackID ID of the discount code track to be deleted.
    *
-   * @access public
-   * @static
-   * @return true on success else false
+   * @return bool
    */
   public static function del($trackID) {
     if (!CRM_Utils_Rule::positiveInteger($trackID)) {
