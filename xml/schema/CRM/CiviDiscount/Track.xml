@@ -5,13 +5,14 @@
   <class>Track</class>
   <name>cividiscount_track</name>
   <comment>Record an instance of a discount use</comment>
-  <add>4.1</add>
+  <add>1.0</add>
+  <title>Discount Tracking</title>
   <field>
       <name>id</name>
       <type>int unsigned</type>
       <required>true</required>
       <comment>Discount Item ID</comment>
-      <add>4.1</add>
+      <add>1.0</add>
   </field>
   <primaryKey>
        <name>id</name>
@@ -21,64 +22,64 @@
        <name>item_id</name>
        <type>int unsigned</type>
        <comment>FK to Item ID of the discount code</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <foreignKey>
        <name>item_id</name>
        <table>cividiscount_item</table>
        <key>id</key>
-       <add>4.1</add>
+       <add>1.0</add>
        <onDelete>SET NULL</onDelete>
   </foreignKey>
   <field>
        <name>contact_id</name>
        <type>int unsigned</type>
        <comment>FK to Contact ID for the contact that used this discount</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <foreignKey>
        <name>contact_id</name>
        <table>civicrm_contact</table>
        <key>id</key>
-       <add>4.1</add>
+       <add>1.0</add>
        <onDelete>SET NULL</onDelete>
   </foreignKey>
   <field>
        <name>used_date</name>
        <type>datetime</type>
        <comment>Date of use</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>track</name>
        <type>text</type>
        <comment>Tracking code information</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
       <name>contribution_id</name>
       <type>int unsigned</type>
       <comment>FK to contribution table</comment>
-      <add>4.1</add>
+      <add>1.0</add>
   </field>
   <foreignKey>
     <name>contribution_id</name>
     <table>civicrm_contribution</table>
     <key>id</key>
-    <add>4.1</add>
+    <add>1.0</add>
     <onDelete>CASCADE</onDelete>
   </foreignKey>
   <field>
       <name>event_id</name>
       <type>int unsigned</type>
       <comment>FK to event table</comment>
-      <add>4.1</add>
+      <add>1.0</add>
   </field>
   <foreignKey>
     <name>event_id</name>
     <table>civicrm_event</table>
     <key>id</key>
-    <add>4.1</add>
+    <add>1.0</add>
     <onDelete>CASCADE</onDelete>
   </foreignKey>
   <field>
@@ -87,13 +88,13 @@
        <length>64</length>
        <required>true</required>
        <comment>Table where referenced item is stored</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>entity_id</name>
        <type>int unsigned</type>
        <required>true</required>
        <comment>Foreign key to the referenced item</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
 </table>

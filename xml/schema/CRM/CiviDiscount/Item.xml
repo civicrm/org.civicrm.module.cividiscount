@@ -5,13 +5,14 @@
   <class>Item</class>
   <name>cividiscount_item</name>
   <comment>A discount item</comment>
-  <add>4.1</add>
+  <add>1.0</add>
+  <title>Discount Items</title>
   <field>
       <name>id</name>
       <type>int unsigned</type>
       <required>true</required>
       <comment>Discount Item ID</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <primaryKey>
        <name>id</name>
@@ -23,7 +24,7 @@
        <length>255</length>
        <required>true</required>
        <comment>Discount Code</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>description</name>
@@ -31,7 +32,7 @@
        <length>255</length>
        <required>true</required>
        <comment>Discount Description</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>amount</name>
@@ -39,7 +40,7 @@
        <length>255</length>
        <required>true</required>
        <comment>Amount of discount, actual or percentage</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>amount_type</name>
@@ -47,14 +48,14 @@
        <length>4</length>
        <required>true</required>
        <comment>Type of discount, actual or percentage</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>count_max</name>
        <type>int</type>
        <required>true</required>
        <comment>Max number of times this code can be used</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>count_use</name>
@@ -62,68 +63,70 @@
        <required>true</required>
           <default>0</default>
        <comment>Number of times this code has been used</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>events</name>
        <type>text</type>
        <comment>Serialized list of events for which this code can be used</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>pricesets</name>
        <type>text</type>
        <comment>Serialized list of pricesets for which this code can be used</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>memberships</name>
        <type>text</type>
        <comment>Serialized list of memberships for which this code can be used</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>autodiscount</name>
        <type>text</type>
        <comment>Serialized list of entity-based attributes. A user with one of them has the discount automatically applied</comment>
-       <add>4.1</add>
+       <serialize>JSON</serialize>
+       <add>1.0</add>
   </field>
   <field>
        <name>organization_id</name>
        <type>int unsigned</type>
        <comment>FK to Contact ID for the organization that originated this discount</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <foreignKey>
        <name>organization_id</name>
        <table>civicrm_contact</table>
        <key>id</key>
-       <add>4.1</add>
+       <add>1.0</add>
        <onDelete>SET NULL</onDelete>
   </foreignKey>
   <field>
        <name>active_on</name>
        <type>datetime</type>
        <comment>Date this discount activated</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>expire_on</name>
        <type>datetime</type>
        <comment>Date this discount expires</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
   <field>
        <name>is_active</name>
        <type>boolean</type>
        <comment>Is this discount active?</comment>
-       <add>4.1</add>
+       <add>1.0</add>
   </field>
-    <field>
+  <field>
        <name>filters</name>
        <type>string</type>
        <title>Discount Filters</title>
        <comment>What filters apply to this discount (json array)</comment>
+       <serialize>JSON</serialize>
        <add>2.6</add>
   </field>
 </table>
