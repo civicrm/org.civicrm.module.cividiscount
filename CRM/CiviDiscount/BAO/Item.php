@@ -8,70 +8,18 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
   /**
    * Takes an associative array and creates a discount item
    *
-   * This function extracts all the params it needs to initialize the created
-   * discount item. The params array could contain additional unused name/value
-   * pairs
-   *
-   * @param array $params (reference ) an assoc array of name/value pairs
+   * @param array $params
    *
    * @return object CRM_CiviDiscount_BAO_Item object
-   * @access public
-   * @static
    */
-  public static function add(&$params) {
-    $item = new CRM_CiviDiscount_DAO_Item();
-    $item->code = $params['code'];
-    $item->description = $params['description'];
-    $item->amount = $params['amount'];
-    $item->amount_type = $params['amount_type'];
-    $item->count_max = $params['count_max'];
-    $item->discount_msg = $params['discount_msg'];
-    $item->filters = json_encode($params['filters']);
-    $item->autodiscount = json_encode($params['autodiscount']);
-    foreach ($params['multi_valued'] as $mv => $dontCare) {
-      if (!empty($params[$mv])) {
-        $item->$mv = CRM_Core_DAO::serializeField($params[$mv], CRM_Core_DAO::SERIALIZE_SEPARATOR_BOOKEND);
-      }
-      else {
-        $item->$mv = 'null';
-      }
-    }
-
-    if (!empty($params['id'])) {
-      $item->id = $params['id'];
-    }
-
-    $item->is_active = CRM_Utils_Array::value('is_active', $params) ? 1 : 0;
-    $item->discount_msg_enabled = CRM_Utils_Array::value('discount_msg_enabled', $params) ? 1 : 0;
-
+  public static function add($params) {
     if (!empty($params['active_on'])) {
-      $item->active_on = CRM_Utils_Date::processDate($params['active_on']);
+      $params['active_on'] = CRM_Utils_Date::processDate($params['active_on']);
     }
-    else {
-      $item->active_on = 'null';
-    }
-
     if (!empty($params['expire_on'])) {
-      $item->expire_on = CRM_Utils_Date::processDate($params['expire_on']);
+      $params['expire_on'] = CRM_Utils_Date::processDate($params['expire_on']);
     }
-    else {
-      $item->expire_on = 'null';
-    }
-
-    if (!empty($params['organization_id'])) {
-      $item->organization_id = $params['organization_id'];
-    }
-    else {
-      $item->organization_id = 'null';
-    }
-
-    $id = empty($params['id']) ? NULL : $params['id'];
-    $op = $id ? 'edit' : 'create';
-    CRM_Utils_Hook::pre($op, 'CiviDiscount', $id, $params);
-    $item->save();
-    CRM_Utils_Hook::post($op, 'CiviDiscount', $item->id, $item);
-
-    return $item;
+    return self::writeRecord($params);
   }
 
   /**

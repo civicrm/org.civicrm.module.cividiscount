@@ -69,18 +69,21 @@
        <name>events</name>
        <type>text</type>
        <comment>Serialized list of events for which this code can be used</comment>
+       <serialize>SEPARATOR_BOOKEND</serialize>
        <add>1.0</add>
   </field>
   <field>
        <name>pricesets</name>
        <type>text</type>
        <comment>Serialized list of pricesets for which this code can be used</comment>
+       <serialize>SEPARATOR_BOOKEND</serialize>
        <add>1.0</add>
   </field>
   <field>
        <name>memberships</name>
        <type>text</type>
        <comment>Serialized list of memberships for which this code can be used</comment>
+       <serialize>SEPARATOR_BOOKEND</serialize>
        <add>1.0</add>
   </field>
   <field>
