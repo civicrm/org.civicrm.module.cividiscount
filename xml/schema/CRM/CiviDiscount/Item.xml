@@ -126,7 +126,7 @@
   </field>
   <field>
        <name>filters</name>
-       <type>string</type>
+       <type>text</type>
        <title>Discount Filters</title>
        <comment>What filters apply to this discount (json array)</comment>
        <serialize>JSON</serialize>
