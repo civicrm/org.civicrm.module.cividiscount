@@ -125,6 +125,16 @@
        <add>1.0</add>
   </field>
   <field>
+       <name>discount_msg_enabled</name>
+       <type>boolean</type>
+       <add>2.2</add>
+  </field>
+  <field>
+       <name>discount_msg</name>
+       <type>varchar</type>
+       <length>255</length>
+  </field>
+  <field>
        <name>filters</name>
        <type>text</type>
        <title>Discount Filters</title>
