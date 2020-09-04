@@ -65,6 +65,8 @@ CREATE TABLE `cividiscount_item` (
      `active_on` datetime    COMMENT 'Date this discount activated',
      `expire_on` datetime    COMMENT 'Date this discount expires',
      `is_active` tinyint    COMMENT 'Is this discount active?',
+     `discount_msg_enabled` tinyint    ,
+     `discount_msg` varchar(255)    ,
      `filters` text    COMMENT 'What filters apply to this discount (json array)' 
 ,
         PRIMARY KEY (`id`)
