@@ -111,7 +111,7 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
         $items = [];
       }
       else {
-        $items = explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR));
+        $items = array_filter(explode(CRM_Core_DAO::VALUE_SEPARATOR, trim($discount[$field], CRM_Core_DAO::VALUE_SEPARATOR)));
         if (!empty($items)) {
           if (!isset($filters[$entity])) {
             $filters[$entity] = [];
