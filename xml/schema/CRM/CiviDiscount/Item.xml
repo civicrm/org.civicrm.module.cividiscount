@@ -6,7 +6,7 @@
   <name>cividiscount_item</name>
   <comment>A discount item</comment>
   <add>1.0</add>
-  <title>Discount Items</title>
+  <title>Discount Code</title>
   <field>
       <name>id</name>
       <type>int unsigned</type>
