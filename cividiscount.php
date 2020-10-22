@@ -1055,7 +1055,16 @@ function _cividiscount_add_discount_textfield(&$form) {
   }
   $form->set('discountCodeErrorMsg', NULL);
   $buttonName = $form->getButtonName('reload');
-  $form->addElement('submit', $buttonName, E::ts('Apply'), ['formnovalidate' => 1]);
+  $form->addElement(
+    'xbutton',
+    $buttonName,
+    E::ts('Apply'),
+    [
+      'formnovalidate' => 1,
+      'type' => 'submit',
+      'class' => 'crm-form-submit',
+    ]
+  );
   $template = CRM_Core_Smarty::singleton();
   $bhfe = $template->get_template_vars('beginHookFormElements');
   if (!$bhfe) {
@@ -1115,7 +1124,16 @@ function _cividiscount_add_button_before_priceSet(&$form) {
   }
   $form->set('discountCodeErrorMsg', NULL);
   $buttonName = $form->getButtonName('reload');
-  $form->addElement('submit', $buttonName, E::ts('Apply'), ['formnovalidate' => 1]);
+  $form->addElement(
+    'xbutton',
+    $buttonName,
+    E::ts('Apply'),
+    [
+      'formnovalidate' => 1,
+      'type' => 'submit',
+      'class' => 'crm-form-submit',
+    ]
+  );
   $form->assign('discountElements', [
     'discountcode',
     $buttonName
