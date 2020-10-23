@@ -18,10 +18,10 @@
     <author>CiviCRM LLC</author>
     <email>info@civicrm.org</email>
   </maintainer>
-  <releaseDate>2020-01-11</releaseDate>
-  <version>3.8.1</version>
+  <releaseDate>2020-10-21</releaseDate>
+  <version>3.8.2</version>
   <compatibility>
-    <ver>5.25</ver>
+    <ver>5.31</ver>
   </compatibility>
   <comments>
     For support, please ask on chat.civicrm.org
