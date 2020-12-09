@@ -1,26 +1,30 @@
+# Testing
+
 This file outlines what should be witnessed in manual testing (WIP)
 
-1) Membership discounts - no auto-discount
+## Membership discounts - no auto-discount
 
-<img src='/docs/images/MembershipDiscountCode.jpg'>
+![Screenshot of membership discount setup](images/MembershipDiscountCode.jpg)
 
-<b>Back office forms</b>
+### Back office forms
+
 - When renewing a discount box is visible if the renewal type is eligible for a discount.
 - The discount box is visible for all new membership backoffice forms.
 
-<img src='/docs/images/RenewBox.jpg'>
+![Screenshot of membership renewal discount box](images/RenewBox.jpg)
 
 - Provided the code is entered and apply clicked before selecting a membership type the discount is applied
 - Clicking 'Save' creates a membership with a suitably discounted contribution.
 - there is only one financial trxn row.
 
-<b>With price set</b>
+### With price set
+
 - The applies and alters the price as long as it is applied AFTER the price set is selected. Before has no effect
 - Clicking 'Save' creates a membership with a suitably discounted contribution.
 - there is only one financial trxn row.
 
+### Front end forms
 
-<b>Front end forms</b>
 - the discount code box is offered when the discount is available - both when configured via price set and when not
 (visibly) configured by price set.
 - on continuing the confirm page shows the discounted amount
@@ -33,8 +37,8 @@ This file outlines what should be witnessed in manual testing (WIP)
 change visibility or otherwise of the discount box.
 @todo single financial trxn row is possibly incorrect - a JIRA exists on this.
 
-2) Membership discounts - auto-discount
+## Membership discounts - auto-discount
 
-<img src='/docs/images/MembershipAutoDiscount.jpg'>
+![Screenshot of membership automatic discount box](images/MembershipAutoDiscount.jpg)
 
 Much the same tests as above - discounting did not appear to work on back office renewals (before or after changes) but was otherwise successful
