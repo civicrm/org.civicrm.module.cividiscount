@@ -7,9 +7,9 @@
  * extension.
  */
 class CRM_CiviDiscount_ExtensionUtil {
-  const SHORT_NAME = "cividiscount";
-  const LONG_NAME = "org.civicrm.module.cividiscount";
-  const CLASS_PREFIX = "CRM_CiviDiscount";
+  const SHORT_NAME = 'cividiscount';
+  const LONG_NAME = 'org.civicrm.module.cividiscount';
+  const CLASS_PREFIX = 'CRM_CiviDiscount';
 
   /**
    * Translate a string using the extension's domain.
