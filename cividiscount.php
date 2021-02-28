@@ -548,6 +548,11 @@ function _cividiscount_get_form_contact_id($form) {
  * Implements hook_civicrm_membershipTypeValues().
  *
  * Allow discounts to be applied to renewing memberships.
+ *
+ * @param CRM_Core_Form $form
+ * @param $membershipTypeValues
+ *
+ * @throws \CRM_Core_Exception
  */
 function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValues) {
   // Ignore the thank you page.
@@ -587,10 +592,15 @@ function cividiscount_civicrm_membershipTypeValues(&$form, &$membershipTypeValue
   if (empty($discounts)) {
     return;
   }
+  if (is_a($form, 'CRM_Member_Form')) {
+    // Force a refresh via js once loaded to update 'total_amount'
+    CRM_Core_Resources::singleton()
+      ->addScriptFile('org.civicrm.module.cividiscount', 'js/membership.js');
+  }
   $discount = array_shift($discounts);
   foreach ($membershipTypeValues as &$values) {
     if (!empty($discount['memberships']) && CRM_Utils_Array::value($values['id'], $discount['memberships'])) {
-      list($value, $label) = _cividiscount_calc_discount($values['minimum_fee'], $values['name'], $discount, $discountCalculator->isAutoDiscount());
+      [$value, $label] = _cividiscount_calc_discount($values['minimum_fee'], $values['name'], $discount, $discountCalculator->isAutoDiscount());
       $values['minimum_fee'] = $value;
       $values['name'] = $label;
     }
