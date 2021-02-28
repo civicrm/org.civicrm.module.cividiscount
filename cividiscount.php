@@ -1044,7 +1044,58 @@ function _cividiscount_get_participant_payment($pid = 0) {
  * @param CRM_Core_Form $form
  */
 function _cividiscount_add_discount_textfield(&$form) {
-  _cividiscount_add_button_before_priceSet($form);
+  if (_cividiscount_form_is_eligible_for_pretty_placement($form)) {
+    _cividiscount_add_button_before_priceSet($form);
+    return;
+  }
+  $form->addElement('text', 'discountcode', E::ts('If you have a discount code, enter it here'));
+  $errorMessage = $form->get('discountCodeErrorMsg');
+  if ($errorMessage) {
+    $form->setElementError('discountcode', $errorMessage);
+  }
+  $form->set('discountCodeErrorMsg', NULL);
+  $buttonName = $form->getButtonName('reload');
+  $form->addElement(
+    'xbutton',
+    $buttonName,
+    E::ts('Apply'),
+    [
+      'formnovalidate' => 1,
+      'type' => 'submit',
+      'class' => 'crm-form-submit',
+    ]
+  );
+  $template = CRM_Core_Smarty::singleton();
+  $bhfe = $template->get_template_vars('beginHookFormElements');
+  if (!$bhfe) {
+    $bhfe = [];
+  }
+  $bhfe[] = 'discountcode';
+  $bhfe[] = $buttonName;
+  $form->assign('beginHookFormElements', $bhfe);
+}
+
+/**
+ * Can we put the discount block somewhere better than the top of the page.
+ *
+ * If we are in 4.6.3+ and we are working with a price set then the best place
+ * to put it is in the new price-set-1 region - just before it.
+ *
+ * This is only tested / implemented on contribution forms at this stage.
+ *
+ * @param CRM_Core_Form $form
+ *
+ * @return bool
+ *   Should we put the discount block somewhere better than just at the top.
+ */
+function _cividiscount_form_is_eligible_for_pretty_placement($form) {
+  $formClass = get_class($form);
+  if (($formClass != 'CRM_Contribute_Form_Contribution_Main'
+      && $formClass != 'CRM_Event_Form_Registration_Register')
+  ) {
+    return FALSE;
+  }
+  return TRUE;
 }
 
 /**
@@ -1086,19 +1137,6 @@ function _cividiscount_add_button_before_priceSet(&$form) {
     'discountcode',
     $buttonName
   ]);
-}
-/**
- * Check version is at least as high as the one passed.
- *
- * @param string $version
- *
- * @return bool
- */
-function _cividiscount_version_at_least($version) {
-  if (version_compare(CRM_Utils_System::version(), $version) >= 0) {
-    return TRUE;
-  }
-  return FALSE;
 }
 
 /**
