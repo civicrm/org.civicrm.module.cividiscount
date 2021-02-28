@@ -1092,7 +1092,6 @@ function _cividiscount_form_is_eligible_for_pretty_placement($form) {
   $formClass = get_class($form);
   if (($formClass != 'CRM_Contribute_Form_Contribution_Main'
       && $formClass != 'CRM_Event_Form_Registration_Register')
-      || !_cividiscount_version_at_least('4.6.4')
   ) {
     return FALSE;
   }
@@ -1138,19 +1137,6 @@ function _cividiscount_add_button_before_priceSet(&$form) {
     'discountcode',
     $buttonName
   ]);
-}
-/**
- * Check version is at least as high as the one passed.
- *
- * @param string $version
- *
- * @return bool
- */
-function _cividiscount_version_at_least($version) {
-  if (version_compare(CRM_Utils_System::version(), $version) >= 0) {
-    return TRUE;
-  }
-  return FALSE;
 }
 
 /**
