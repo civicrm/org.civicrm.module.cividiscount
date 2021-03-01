@@ -627,11 +627,13 @@ function cividiscount_civicrm_postProcess($class, &$form) {
   ])) {
     return;
   }
+  static $done = FALSE;
 
   $discountInfo = $form->get('_discountInfo');
-  if (!$discountInfo) {
+  if (!$discountInfo || $done) {
     return;
   }
+  $done = TRUE;
 
   $discount = $discountInfo['discount'];
   $params = $form->getVar('_params');
