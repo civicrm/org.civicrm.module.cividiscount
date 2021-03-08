@@ -2,7 +2,7 @@
 
 Under **Administer > CiviDiscount** click **New Discount Code.**
 
-![Screenshot of discount code setup](images/codesetup.png)
+![Screenshot of discount code setup](./images/codesetup.png)
 
 **Discount Code:** Create a custom code or click the random code button. Codes can only consist of alphanumeric characters. Do not use spaces. Once created discount codes cannot be changed.
 
