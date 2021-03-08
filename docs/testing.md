@@ -4,14 +4,14 @@ This file outlines what should be witnessed in manual testing (WIP)
 
 ## Membership discounts - no auto-discount
 
-![Screenshot of membership discount setup](images/MembershipDiscountCode.jpg)
+![Screenshot of membership discount setup](./images/MembershipDiscountCode.jpg)
 
 ### Back office forms
 
 - When renewing a discount box is visible if the renewal type is eligible for a discount.
 - The discount box is visible for all new membership backoffice forms.
 
-![Screenshot of membership renewal discount box](images/RenewBox.jpg)
+![Screenshot of membership renewal discount box](./images/RenewBox.jpg)
 
 - Provided the code is entered and apply clicked before selecting a membership type the discount is applied
 - Clicking 'Save' creates a membership with a suitably discounted contribution.
@@ -39,6 +39,6 @@ change visibility or otherwise of the discount box.
 
 ## Membership discounts - auto-discount
 
-![Screenshot of membership automatic discount box](images/MembershipAutoDiscount.jpg)
+![Screenshot of membership automatic discount box](./images/MembershipAutoDiscount.jpg)
 
 Much the same tests as above - discounting did not appear to work on back office renewals (before or after changes) but was otherwise successful
