@@ -2,7 +2,7 @@
 
 Anyone with the selected memberships or contact attributes will automatically have the discount code applied provided they are logged in to the website. Autodiscount is generally used with a randomly-generated code which is not given out to users. Cividiscount will apply the discount with no code required.
 
-![Screenshot of automatic discount setup](images/autodiscount.png)
+![Screenshot of automatic discount setup](./images/autodiscount.png)
 
 * Automatic discounts can be applied based on membership status and/or type.
 * Automatic discounts can be applied to contacts based on type, age (minimum or maximum) and/or country
@@ -14,4 +14,4 @@ You need to specify an API Entity that you want to query and a query string. If 
 
 In this image you can see that contacts with a value of 1 in custom id field 65 (which happens to be 'are you retired' in this case) will get an automatic discount if they meet other criteria above - ie a minimum age of 65)
 
-![Screenshot of advanced filter example](images/advancedFilters.jpg)
+![Screenshot of advanced filter example](./images/advancedFilters.jpg)
