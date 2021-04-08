@@ -34,7 +34,7 @@
     <div class="messages status no-popup">
       <dl>
         <dt>
-        <div class="icon inform-icon"></div>
+        {icon icon="fa-info-circle"}{/icon}
         </dt>
         <dd>
           {ts}Are you sure you want to copy this discount code?{/ts}
@@ -45,7 +45,7 @@
     <div class="messages status no-popup">
       <dl>
         <dt>
-        <div class="icon inform-icon"></div>
+        {icon icon="fa-info-circle"}{/icon}
         </dt>
         <dd>
           {ts 1=$discountValue.code}WARNING: Deleting this discount code (%1) will prevent users who have this code to avail of this discount.{/ts} {ts}Do you want to continue?{/ts}
