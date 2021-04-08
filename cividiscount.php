@@ -884,22 +884,6 @@ function _cividiscount_get_discounted_membership_ids() {
 }
 
 /**
- * Get discounts that apply to at least one of the specified memberships.
- */
-function _cividiscount_filter_membership_discounts($discounts, $membershipTypeValues) {
-  $mids = array_map(function($elt) { return $elt['id']; }, $membershipTypeValues);
-
-  $tempDiscounts = [];
-  foreach ($discounts as $code => $discount) {
-    if (count(array_intersect($discount['memberships'], $mids)) > 0) {
-      $tempDiscounts[$code] = $discount;
-    }
-  }
-
-  return $tempDiscounts;
-}
-
-/**
  * Calculate either a monetary or percentage discount.
  */
 function _cividiscount_calc_discount($amount, $label, $discount, $autodiscount, $currency = 'USD') {
