@@ -7,7 +7,7 @@ use CRM_CiviDiscount_ExtensionUtil as E;
  * Implements hook_civicrm_install().
  */
 function cividiscount_civicrm_install() {
-  return _cividiscount_civix_civicrm_install();
+  _cividiscount_civix_civicrm_install();
 }
 
 /**
@@ -23,7 +23,7 @@ function cividiscount_civicrm_postInstall() {
  * Implements hook_civicrm_uninstall().
  */
 function cividiscount_civicrm_uninstall() {
-  return _cividiscount_civix_civicrm_uninstall();
+  _cividiscount_civix_civicrm_uninstall();
 }
 
 /**
@@ -44,14 +44,14 @@ function cividiscount_civicrm_xmlMenu(&$files) {
  * Implements hook_civicrm_enable().
  */
 function cividiscount_civicrm_enable() {
-  return _cividiscount_civix_civicrm_enable();
+  _cividiscount_civix_civicrm_enable();
 }
 
 /**
  * Implements hook_civicrm_disable().
  */
 function cividiscount_civicrm_disable() {
-  return _cividiscount_civix_civicrm_disable();
+  _cividiscount_civix_civicrm_disable();
 }
 
 /**
@@ -76,7 +76,7 @@ function cividiscount_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  * @param array $entities
  */
 function cividiscount_civicrm_managed(&$entities) {
-  return _cividiscount_civix_civicrm_managed($entities);
+  _cividiscount_civix_civicrm_managed($entities);
 }
 
 /**
