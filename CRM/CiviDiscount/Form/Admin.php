@@ -137,7 +137,7 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
       $element->freeze();
     }
 
-    $this->add('text', 'description', E::ts('Description'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'description'));
+    $this->add('text', 'description', E::ts('Description'), CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'description'), TRUE);
 
     $this->addMoney('amount', E::ts('Discount Amount'), TRUE, CRM_Core_DAO::getAttribute('CRM_CiviDiscount_DAO_Item', 'amount'), FALSE);
 
