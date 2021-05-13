@@ -1027,16 +1027,36 @@ function _cividiscount_get_participant_payment($pid = 0) {
 }
 
 /**
+ * Add the discountcode field
+ * @param CRM_Core_Form $form
+ */
+function _cividiscountAddDiscountCodeField(&$form) {
+  $discountInfo = $form->get('_discountInfo');
+  $attributes['class'] = 'description';
+  if (!empty($discountInfo)) {
+    $attributes['discount-applied'] = 1;
+  }
+  $form->add(
+    'text',
+    'discountcode',
+    E::ts('If you have a discount code, enter it here'),
+    $attributes
+  );
+}
+
+/**
  * Add the discount textfield to a form.
  *
  * @param CRM_Core_Form $form
+ * @param string $discountCode
  */
 function _cividiscount_add_discount_textfield(&$form) {
   if (_cividiscount_form_is_eligible_for_pretty_placement($form)) {
     _cividiscount_add_button_before_priceSet($form);
     return;
   }
-  $form->addElement('text', 'discountcode', E::ts('If you have a discount code, enter it here'));
+
+  _cividiscountAddDiscountCodeField($form);
   $errorMessage = $form->get('discountCodeErrorMsg');
   if ($errorMessage) {
     $form->setElementError('discountcode', $errorMessage);
@@ -1089,7 +1109,8 @@ function _cividiscount_form_is_eligible_for_pretty_placement($form) {
 /**
  * Add the discount button immediately before the price set.
  *
- * @param CRM_Contribute_Form_Contribution_Main $form
+ * @param CRM_Core_Form $form
+ * @param string $discountCode
  */
 function _cividiscount_add_button_before_priceSet(&$form) {
   CRM_Core_Region::instance('price-set-1')->add([
@@ -1099,12 +1120,7 @@ function _cividiscount_add_button_before_priceSet(&$form) {
     'name' => 'discount_code',
   ]);
 
-  $form->add(
-    'text',
-    'discountcode',
-    E::ts('If you have a discount code, enter it here'),
-    ['class' => 'description']
-  );
+  _cividiscountAddDiscountCodeField($form);
   $errorMessage = $form->get('discountCodeErrorMsg');
   if ($errorMessage) {
     $form->setElementError('discountcode', $errorMessage);
