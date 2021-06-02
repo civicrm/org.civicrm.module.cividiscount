@@ -147,6 +147,14 @@
               <td class="label">{$form.memberships.label} {help id="memberships" title=$form.memberships.label}</td>
               <td>{$form.memberships.html}<br/></td>
             </tr>
+            <tr class="crm-discount-item-form-block-membership-new">
+              <td class="label">{$form.membership_new.label}  {help id="membership_new" title=$form.membership_new.label}</td>
+              <td>{$form.membership_new.html}<br/></td>
+            </tr>
+            <tr class="crm-discount-item-form-block-membership-renew">
+              <td class="label">{$form.membership_renew.label}  {help id="membership_renew" title=$form.membership_renew.label}</td>
+              <td>{$form.membership_renew.html}<br/></td>
+            </tr>
           </table>
         </div>
       </div>

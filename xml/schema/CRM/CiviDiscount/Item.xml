@@ -142,4 +142,16 @@
        <serialize>JSON</serialize>
        <add>2.6</add>
   </field>
+  <field>
+      <name>membership_new</name>
+      <type>boolean</type>
+      <title>Discount to New Member Only</title>
+      <add>3.8</add>
+  </field>
+  <field>
+      <name>membership_renew</name>
+      <type>boolean</type>
+      <title>Discount to Renew Member Only</title>
+      <add>3.8</add>
+  </field>
 </table>

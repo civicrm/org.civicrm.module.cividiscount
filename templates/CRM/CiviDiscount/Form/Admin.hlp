@@ -86,3 +86,15 @@
     {ts}Enter the message you'd like users to see if they are not receiving a discount. Can be used to promote membership.<br />The message will appear above the form.{/ts}
   </p>
 {/htxt}
+
+{htxt id="membership_new"}
+  <p>
+      {ts}You can control whether discount coupon applies to new memberships.{/ts}
+  </p>
+{/htxt}
+
+{htxt id="membership_renew"}
+  <p>
+      {ts}You can control whether discount coupon applies to membership renewals.{/ts}
+  </p>
+{/htxt}

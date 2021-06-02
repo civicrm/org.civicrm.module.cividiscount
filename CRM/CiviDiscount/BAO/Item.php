@@ -16,6 +16,10 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     if (!empty($params['active_on'])) {
       $params['active_on'] = CRM_Utils_Date::processDate($params['active_on']);
     }
+
+    $params['membership_new'] = $params['membership_new'] ?? 0;
+    $params['membership_renew'] = $params['membership_renew'] ?? 0;
+
     if (!empty($params['expire_on'])) {
       $params['expire_on'] = CRM_Utils_Date::processDate($params['expire_on']);
     }
@@ -70,7 +74,9 @@ class CRM_CiviDiscount_BAO_Item extends CRM_CiviDiscount_DAO_Item {
     discount_msg,
     count_use,
     count_max,
-    filters
+    filters,
+    membership_new,
+    membership_renew
   FROM cividiscount_item AS i
   WHERE is_active = 1
   AND (active_on IS NULL OR active_on <= NOW())

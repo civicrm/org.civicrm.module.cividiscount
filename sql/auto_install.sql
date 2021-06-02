@@ -66,7 +66,9 @@ CREATE TABLE `cividiscount_item` (
      `is_active` tinyint    COMMENT 'Is this discount active?',
      `discount_msg_enabled` tinyint    ,
      `discount_msg` varchar(255)    ,
-     `filters` text    COMMENT 'What filters apply to this discount (json array)' 
+     `filters` text    COMMENT 'What filters apply to this discount (json array)',
+     `membership_new` tinyint    ,
+     `membership_renew` tinyint
 ,
         PRIMARY KEY (`id`)
  

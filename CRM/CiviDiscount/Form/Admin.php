@@ -173,6 +173,10 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         $this->select2style
       );
     }
+
+    $this->addElement('checkbox', 'membership_new', E::ts('New members?'));
+    $this->addElement('checkbox', 'membership_renew', E::ts('Renewing members?'));
+
     $this->assignAutoDiscountFields();
     $this->addElement('text', 'advanced_autodiscount_filter_entity', E::ts('Specify entity for advanced autodiscount'));
     $this->addElement('text', 'advanced_autodiscount_filter_string', E::ts('Specify api string for advanced filter'), ['class' => 'huge']);
@@ -211,6 +215,24 @@ class CRM_CiviDiscount_Form_Admin extends CRM_Admin_Form {
         ['placeholder' => E::ts('- any -')] + $this->select2style
       );
     }
+    $this->addFormRule(['CRM_CiviDiscount_Form_Admin', 'formRule'], $this);
+  }
+
+  /**
+   * @param $values
+   * @param $files
+   * @param $self
+   * @return array|bool
+   */
+  public static function formRule($values, $files, $self) {
+    $errors = [];
+    if (!empty($values['memberships'])) {
+      if (empty($values['membership_new']) && empty($values['membership_renew'])) {
+        $errors['membership_new'] = ts('For membership discount, select one of the checkbox "New members" or "Renewing members"');
+      }
+    }
+
+    return empty($errors) ? TRUE : $errors;
   }
 
   /**
