@@ -41,6 +41,10 @@ class CRM_CiviDiscount_Utils {
   public static function getNestedPriceSets() {
     $values = self::getPriceSetsInfo();
 
+    // Sort by ps_label or you'll lose any out-of-order price fields.
+    usort($values, function($a, $b) {
+      return $a['ps_label'] <=> $b['ps_label'];
+    });
     $priceSets = [];
     if (!empty($values)) {
       $currentLabel = NULL;
