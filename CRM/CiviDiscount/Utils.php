@@ -82,7 +82,7 @@ LEFT JOIN civicrm_price_field as pf on (pf.id = pfv.price_field_id)
 LEFT JOIN civicrm_price_set as ps on (ps.id = pf.price_set_id AND ps.is_active = 1)
 INNER JOIN {$psTableName} as pse on (ps.id = pse.price_set_id)
 WHERE  {$additionalWhere}
-ORDER BY  pf_label, pfv.price_field_id, pfv.weight
+ORDER BY  ps.id DESC, pf_label, pfv.price_field_id, pfv.weight
 ";
 
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
